@@ -71,53 +71,23 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
                     </li>
                     <!-- Profile -->
                     <li class="nav-item">
-                        <a href="profile_mahasiswa.php" class="nav-link">
+                        <a href="profile_perusahaan.php" class="nav-link">
                             <i class="nav-icon fas fa-user"></i>
                             <p>Profile</p>
                         </a>
                     </li>
-                    <!-- Data Portofolio -->
-                    <li class="nav-item has-treeview">
-                        <a href="#" class="nav-link">
-                            <i class="nav-icon fas fa-file-alt"></i>
-                            <p>Data Portofolio <i class="right fas fa-angle-left"></i></p>
-                        </a>
-                        <ul class="nav nav-treeview">
-                            <!-- Kompetensi -->
-                            <li class="nav-item">
-                                <a href="data_kompetensi.php" class="nav-link">
-                                    <i class="fas fa-tasks nav-icon"></i>
-                                    <p>Kompetensi</p>
-                                </a>
-                            </li>
-                            <!-- Lomba -->
-                            <li class="nav-item">
-                                <a href="data_lomba.php" class="nav-link">
-                                    <i class="fas fa-trophy nav-icon"></i>
-                                    <p>Lomba</p>
-                                </a>
-                            </li>
-                            <!-- Pelatihan -->
-                            <li class="nav-item">
-                                <a href="data_pelatihan.php" class="nav-link">
-                                    <i class="fas fa-chalkboard-teacher nav-icon"></i>
-                                    <p>Pelatihan</p>
-                                </a>
-                            </li>
-                            <!-- Proyek -->
-                            <li class="nav-item">
-                                <a href="data_proyek.php" class="nav-link">
-                                <i class="far fa-project-diagram nav-icon"></i>
-                                    <p>Proyek</p>
-                                </a>
-                            </li>
-                        </ul>
-                    </li>
-                    <!-- Cari Kerja -->
+                    <!-- Lowongan Kerja -->
                     <li class="nav-item">
-                        <a href="cari_kerja.php" class="nav-link">
+                        <a href="lowongan_kerja.php" class="nav-link">
                             <i class="nav-icon fas fa-briefcase"></i>
-                            <p>Cari Kerja</p>
+                            <p>Lowongan Kerja</p>
+                        </a>
+                    </li>
+                    <!-- Pelamar -->
+                    <li class="nav-item">
+                        <a href="pelamar.php" class="nav-link">
+                            <i class="nav-icon fas fa-users"></i>
+                            <p>Pelamar</p>
                         </a>
                     </li>
                     <!-- Logout -->
@@ -229,7 +199,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
                                 <div class="card-tools">
                                     <ul class="nav nav-pills ml-auto">
                                         <li class="nav-item">
-                                            <a class="nav-link active" href="#revenue-chart" data-toggle="tab">Area</a>                                            </a>
+                                            <a class="nav-link active" href="#revenue-chart" data-toggle="tab">Area</a>
                                         </li>
                                         <li class="nav-item">
                                             <a class="nav-link" href="#sales-chart" data-toggle="tab">Donut</a>
@@ -257,8 +227,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
                     <!-- /.Left col -->
                 </div>
                 <!-- /.row (main row) -->
+            </div><!-- /.container
             </div><!-- /.container-fluid -->
-        </section>
+            </section>
         <!-- /.content -->
 
     </div>
@@ -295,4 +266,3 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
 
 </body>
 </html>
-
