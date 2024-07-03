@@ -2,32 +2,24 @@
 session_start();
 include '../../includes/db.php';
 
-// Redirect to login if not logged in as a student
-// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
-//     header('Location: ../../auth/login.php');
-//     exit;
-// }
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
+    header('Location: ../../auth/login.php');
+    exit;
+}
 
-// Fetch jurusans from database
-$sql_jurusans = "SELECT id, nama_jurusan FROM jurusans";
-$stmt_jurusans = $pdo->query($sql_jurusans);
-$jurusans = $stmt_jurusans->fetchAll();
-
-// Check for success message notification
 $success_message = '';
 if (isset($_SESSION['success_message'])) {
     $success_message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Clear notification after displaying
+    unset($_SESSION['success_message']); 
 }
 
 // Fetch competency data from database
-$sql = "SELECT k.id, k.nama_kompetensi, k.nomor_sk, k.tahun_sertifikasi, k.masa_berlaku, k.bukti, k.jurusan_id, k.prodi_id, j.nama_jurusan, p.nama_prodi
-        FROM kompetensi k
-        LEFT JOIN prodis p ON k.prodi_id = p.id
-        LEFT JOIN jurusans j ON k.jurusan_id = j.id";
+$sql = "SELECT s.id, s.nama_sertifikasi, s.nomor_sk, s.lembaga_id, p.nama_lembaga, s.tanggal_diperoleh, s.tanggal_kadaluarsa, s.bukti
+        FROM sertifikasi s
+        LEFT JOIN penyelenggara_sertifikasi p ON s.lembaga_id = p.id";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
-$kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -35,7 +27,7 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tampil Data Kompetensi</title>
+    <title>Tampil Data Sertifikasi</title>
     <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../app/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../app/dist/css/adminlte.min.css">
@@ -89,12 +81,12 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <?php endif; ?>
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h1 class="m-0">Tampil Data Kompetensi</h1>
+                        <h1 class="m-0">Tampil Data Sertifikasi</h1>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item"><a href="../index.php">Home</a></li>
-                            <li class="breadcrumb-item active">Tampil Data Kompetensi</li>
+                            <li class="breadcrumb-item active">Tampil Data Sertifikasi</li>
                         </ol>
                     </div>
                 </div>
@@ -110,12 +102,12 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">
-                                    <i class="fas fa-users"></i>
-                                    Data Kompetensi
+                                    <i class="fas fa-award nav-icon"></i>
+                                    Data Sertifikasi
                                 </h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCompetencyModal">
-                                        <i class="fas fa-user-plus"></i> Tambah 
+                                        <i class="fas fa-plus-circle"></i> Tambah 
                                     </button>
                                 </div>
                             </div>
@@ -125,37 +117,39 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Nama Kompetensi</th>
+                                                <th>Nama Sertifikasi</th>
                                                 <th>Nomor SK</th>
-                                                <th>Tahun Sertifikasi</th>
-                                                <th>Masa Berlaku</th>
-                                                <th>Prodi</th>
-                                                <th>Jurusan</th>
+                                                <th>Lembaga Penerbit</th>
+                                                <th>Tanggal Diperoleh</th>
+                                                <th>Tanggal Kadaluarsa</th>
                                                 <th>Bukti</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($kompetensi as $index => $item): ?>
+                                            <?php foreach ($sertifikasi as $index => $item): ?>
                                                 <tr>
                                                     <td><?= $index + 1; ?></td>
-                                                    <td><?= htmlspecialchars($item['nama_kompetensi']); ?></td>
+                                                    <td><?= htmlspecialchars($item['nama_sertifikasi']); ?></td>
                                                     <td><?= htmlspecialchars($item['nomor_sk']); ?></td>
-                                                    <td><?= htmlspecialchars($item['tahun_sertifikasi']); ?></td>
-                                                    <td><?= htmlspecialchars($item['masa_berlaku']); ?></td>
-                                                    <td><?= htmlspecialchars($item['nama_prodi']); ?></td>
-                                                    <td><?= htmlspecialchars($item['nama_jurusan']); ?></td>
+                                                    <td><?= htmlspecialchars($item['nama_lembaga']); ?></td>
+                                                    <td><?= htmlspecialchars($item['tanggal_diperoleh']); ?></td>
+                                                    <td><?= htmlspecialchars($item['tanggal_kadaluarsa']); ?></td>
                                                     <td>
                                                         <?php
                                                         $buktiArray = json_decode($item['bukti'], true);
                                                         foreach ($buktiArray as $buktiPath) {
-                                                            echo '<a href="' . $buktiPath . '" target="_blank">Lihat Bukti</a><br>';
+                                                            echo '<a href="' . htmlspecialchars($buktiPath) . '" target="_blank">Lihat Bukti</a><br>';
                                                         }
                                                         ?>
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-warning editBtn" data-toggle="modal" data-target="#editCompetencyModal" data-id="<?php echo $item['id']; ?>">Edit</button>
-                                                        <button class="btn btn-sm btn-danger deleteBtn" data-toggle="modal" data-target="#deleteCompetencyModal" data-id="<?php echo $item['id']; ?>">Hapus</button>
+                                                        <button class="btn btn-sm btn-warning editBtn" data-toggle="modal" data-target="#editCompetencyModal" data-id="<?php echo $item['id']; ?>">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger deleteBtn" data-toggle="modal" data-target="#deleteCompetencyModal" data-id="<?php echo $item['id']; ?>">
+                                                            <i class="fas fa-trash-alt"></i> Hapus
+                                                        </button>
                                                     </td>
                                                 </tr>
                                             <?php endforeach; ?>
@@ -174,48 +168,50 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal fade" id="addCompetencyModal" tabindex="-1" aria-labelledby="addCompetencyModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="addCompetencyForm" method="POST" action="process_add_kompetensi.php" enctype="multipart/form-data">
+                <form id="addCompetencyForm" method="POST" action="process_add_sertifikasi.php" enctype="multipart/form-data">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="addCompetencyModalLabel">Tambah Kompetensi</h5>
+                        <h5 class="modal-title" id="addCompetencyModalLabel">Tambah Sertifikasi</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
                         <div class="form-group">
-                            <label for="namaKompetensi">Nama Kompetensi</label>
-                            <input type="text" class="form-control" id="namaKompetensi" name="nama_kompetensi" required>
+                            <label for="namaSertifikasi">Nama Sertifikasi</label>
+                            <input type="text" class="form-control" id="namaSertifikasi" name="nama_sertifikasi" required>
                         </div>
                         <div class="form-group">
-                            <label for="jurusan">Jurusan</label>
-                            <select class="form-control" id="jurusan" name="jurusan" required>
-                                <option value="">-- Pilih Jurusan --</option>
-                                <?php foreach ($jurusans as $jurusan): ?>
-                                    <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama_jurusan'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="prodi">Prodi</label>
-                            <select class="form-control" id="prodi" name="prodi" required>
-                                <option value="">-- Pilih Prodi --</option>
+                            <label for="lembagaId">Lembaga Penerbit</label>
+                            <select class="form-control" id="lembagaId" name="lembaga_id" required>
+                                <option value="">-- Pilih Lembaga --</option>
+                                <?php
+                                // Fetch penyelenggara_sertifikasi from database
+                                $sql_lembaga = "SELECT id, nama_lembaga FROM penyelenggara_sertifikasi";
+                                $stmt_lembaga = $pdo->query($sql_lembaga);
+                                $lembaga = $stmt_lembaga->fetchAll();
+                                foreach ($lembaga as $lembaga_item) {
+                                    echo "<option value='{$lembaga_item['id']}'>{$lembaga_item['nama_lembaga']}</option>";
+                                }
+                                ?>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="nomorSk">Nomor SK</label>
-                            <input type="text" class="form-control" id="nomorSk" name="nomor_sk" required>
+                            <input type="number" class="form-control" id="nomorSk" name="nomor_sk" required>
                         </div>
                         <div class="form-group">
-                            <label for="tahunSertifikasi">Tahun Sertifikasi</label>
-                            <input type="number" class="form-control" id="tahunSertifikasi" name="tahun_sertifikasi" required>
+                            <label for="tanggalDiperoleh">Tanggal Diperoleh</label>
+                            <input type="date" class="form-control" id="tanggalDiperoleh" name="tanggal_diperoleh" required>
                         </div>
                         <div class="form-group">
-                            <label for="masaBerlaku">Masa Berlaku</label>
-                            <input type="number" class="form-control" id="masaBerlaku" name="masa_berlaku" required>
+                            <label for="tanggalKadaluarsa">Tanggal Kadaluarsa</label>
+                            <input type="date" class="form-control" id="tanggalKadaluarsa" name="tanggal_kadaluarsa" required>
                         </div>
                         <div class="form-group">
-                            <label for="bukti">Bukti</label>
-                            <input type="file" class="form-control-file" id="bukti" name="bukti[]" multiple required>
+                            <label for="bukti">Bukti (upload berupa .pdf atau img, max 5mb)</label>
+                            <input type="file" class="form-control-file" id="bukti" name="bukti_file">
+                            <label for="bukti_link">Atau Masukkan Link Google Drive (jika file melebihi 5mb):</label>
+                            <input type="url" class="form-control" id="bukti_link" name="bukti_link" placeholder="salin link g-drive yang sudah Anda buat">
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -231,9 +227,9 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal fade" id="editCompetencyModal" tabindex="-1" aria-labelledby="editCompetencyModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="editCompetencyForm" method="POST" action="update_kompetensi.php" enctype="multipart/form-data">
+                <form id="editCompetencyForm" method="POST" action="update_sertifikasi.php" enctype="multipart/form-data">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="editCompetencyModalLabel">Edit Kompetensi</h5>
+                        <h5 class="modal-title" id="editCompetencyModalLabel">Edit Sertifikasi</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -241,52 +237,41 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <div class="modal-body">
                         <input type="hidden" id="editKompetensiId" name="id">
                         <div class="form-group">
-                            <label for="editNamaKompetensi">Nama Kompetensi</label>
-                            <input type="text" class="form-control" id="editNamaKompetensi" name="nama_kompetensi" required>
+                            <label for="editNamaKompetensi">Nama Sertifikasi</label>
+                            <input type="text" class="form-control" id="editNamaKompetensi" name="nama_sertifikasi" required>
                         </div>
                         <div class="form-group">
-                            <label for="editJurusan">Jurusan</label>
-                            <select class="form-control" id="editJurusan" name="jurusan_id" required>
-                                <option value="">-- Pilih Jurusan --</option>
-                                <?php foreach ($jurusans as $jurusan): ?>
-                                    <option value="<?= $jurusan['id'] ?>"><?= $jurusan['nama_jurusan'] ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="editProdi">Prodi</label>
-                            <select class="form-control" id="editProdi" name="prodi_id" required>
-                                <option value="">-- Pilih Prodi --</option>
+                            <label for="editLembagaId">Lembaga Penerbit</label>
+                            <select class="form-control" id="editLembagaId" name="lembaga_id" required>
+                                <option value="">-- Pilih Lembaga --</option>
+                                <?php
+                                foreach ($lembaga as $lembaga_item) {
+                                    echo "<option value='{$lembaga_item['id']}'>{$lembaga_item['nama_lembaga']}</option>";
+                                }
+                                ?>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="editNomorSk">Nomor SK</label>
-                            <input type="text" class="form-control" id="editNomorSk" name="nomor_sk" required>
+                            <input type="number" class="form-control" id="editNomorSk" name="nomor_sk" required>
                         </div>
                         <div class="form-group">
-                            <label for="editTahunSertifikasi">Tahun Sertifikasi</label>
-                            <input type="number" class="form-control" id="editTahunSertifikasi" name="tahun_sertifikasi" required>
+                            <label for="editTanggalDiperoleh">Tanggal Diperoleh</label>
+                            <input type="date" class="form-control" id="editTanggalDiperoleh" name="tanggal_diperoleh" required>
                         </div>
                         <div class="form-group">
-                            <label for="editMasaBerlaku">Masa Berlaku</label>
-                            <input type="number" class="form-control" id="editMasaBerlaku" name="masa_berlaku" required>
+                            <label for="editTanggalKadaluarsa">Tanggal Kadaluarsa</label>
+                            <input type="date" class="form-control" id="editTanggalKadaluarsa" name="tanggal_kadaluarsa">
                         </div>
                         <div class="form-group">
                             <label for="editBukti">Bukti</label>
                             <br>
-                            <?php if (!empty($item['bukti'])) : ?>
-                                <?php
-                                $buktiPaths = json_decode($item['bukti'], true);
-                                foreach ($buktiPaths as $path) {
-                                    $fileName = basename($path);
-                                    echo "<a href='../../$path' target='_blank'>$fileName</a><br>";
-                                }
-                                ?>
-                            <?php else: ?>
-                                <span>Tidak ada bukti yang tersedia.</span>
-                            <?php endif; ?>
-                            <br>
-                            <input type="file" class="form-control-file" id="editBukti" name="bukti[]" multiple>
+                            <div id="currentBukti">
+                                <!-- Display current bukti here -->
+                            </div>
+                            <input type="file" class="form-control-file" id="editBukti" name="bukti_file">
+                            <label for="editBuktiLink">Atau Masukkan Link Google Drive:</label>
+                            <input type="url" class="form-control" id="editBuktiLink" name="bukti_link">
                             <small id="buktiHelp" class="form-text text-muted">Upload file bukti baru jika ingin mengganti.</small>
                         </div>
                     </div>
@@ -303,15 +288,15 @@ $kompetensi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal fade" id="deleteCompetencyModal" tabindex="-1" aria-labelledby="deleteCompetencyModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="deleteCompetencyForm" method="POST" action="delete_kompetensi.php">
+                <form id="deleteCompetencyForm" method="POST" action="delete_sertifikasi.php">
                     <div class="modal-header">
-                        <h5 class="modal-title" id="deleteCompetencyModalLabel">Hapus Kompetensi</h5>
+                        <h5 class="modal-title" id="deleteCompetencyModalLabel">Hapus Sertifikasi</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
-                        <p>Apakah Anda yakin ingin menghapus kompetensi ini?</p>
+                        <p>Apakah Anda yakin ingin menghapus sertifikasi ini?</p>
                         <input type="hidden" id="deleteKompetensiId" name="id">
                     </div>
                     <div class="modal-footer">
@@ -348,62 +333,23 @@ $(document).ready(function () {
         "autoWidth": false,
     });
 
-    // Load prodi options based on selected jurusan
-    $('#jurusan').change(function() {
-        var jurusanId = $(this).val();
-        $.ajax({
-            url: 'get_prodi.php',
-            type: 'POST',
-            data: { jurusan_id: jurusanId },
-            dataType: 'json',
-            success: function(response) {
-                var prodiSelect = $('#prodi');
-                prodiSelect.empty();
-                prodiSelect.append('<option value="">-- Pilih Prodi --</option>');
-                $.each(response, function(key, value) {
-                    prodiSelect.append('<option value="' + value.id + '">' + value.nama_prodi + '</option>');
-                });
-            }
-        });
-    });
-
-    // Load prodi options for edit form based on selected jurusan
-    $('#editJurusan').change(function() {
-        var jurusanId = $(this).val();
-        $.ajax({
-            url: 'get_prodi.php',
-            type: 'POST',
-            data: { jurusan_id: jurusanId },
-            dataType: 'json',
-            success: function(response) {
-                var prodiSelect = $('#editProdi');
-                prodiSelect.empty();
-                prodiSelect.append('<option value="">-- Pilih Prodi --</option>');
-                $.each(response, function(key, value) {
-                    prodiSelect.append('<option value="' + value.id + '">' + value.nama_prodi + '</option>');
-                });
-            }
-        });
-    });
-
     // Fill edit form with existing data
     $('.editBtn').on('click', function () {
         var id = $(this).data('id');
         $.ajax({
-            url: 'get_kompetensi.php',
+            url: 'get_sertifikasi.php',
             type: 'POST',
             data: { id: id },
             dataType: 'json',
             success: function (response) {
                 $('#editKompetensiId').val(response.id);
-                $('#editNamaKompetensi').val(response.nama_kompetensi);
-                $('#editJurusan').val(response.jurusan_id).trigger('change');
-                setTimeout(function () {
-                    $('#editProdi').val(response.prodi_id);
-                }, 500);
+                $('#editNamaKompetensi').val(response.nama_sertifikasi);
+                $('#editLembagaId').val(response.lembaga_id);
                 $('#editNomorSk').val(response.nomor_sk);
-                $('#editTahunSertifikasi').val(response.tahun_sertifikasi);
-                $('#editMasaBerlaku').val(response.masa_berlaku);
+                $('#editTanggalDiperoleh').val(response.tanggal_diperoleh);
+                $('#editTanggalKadaluarsa').val(response.tanggal_kadaluarsa);
+                $('#editBukti').val('');
+                $('#editBuktiLink').val('');
             }
         });
     });
@@ -413,10 +359,7 @@ $(document).ready(function () {
         var id = $(this).data('id');
         $('#deleteKompetensiId').val(id);
     });
-
-    // Trigger change event on page load for edit form to load prodi options
-    if ($('#editJurusan').val() !== '') {
-        $('#editJurusan').trigger('change');
-    }
 });
 </script>
+</body>
+</html>

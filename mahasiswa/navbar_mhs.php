@@ -54,9 +54,9 @@
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="crud_kompetensi/tampil_kompetensi.php" class="nav-link">
+                            <a href="crud_sertifikasi/tampil_sertifikasi.php" class="nav-link">
                             <i class="fas fa-award nav-icon"></i>
-                                <p>Kompetensi</p>
+                                <p>Sertifikasi</p>
                             </a>
                         </li>
                         <li class="nav-item">
