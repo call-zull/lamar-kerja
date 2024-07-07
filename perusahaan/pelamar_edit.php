@@ -13,9 +13,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $status = $_POST['edit_status'];
 
     try {
-        $sql = "UPDATE lamaran_mahasiswas SET nama_pelamar = :nama_pelamar, status = :status WHERE id = :id";
+        $sql = "UPDATE lamaran_mahasiswas SET status = :status WHERE id = :id";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute(['nama_pelamar' => $nama_pelamar, 'status' => $status, 'id' => $id]);
+        $stmt->execute(['status' => $status, 'id' => $id]);
 
         $_SESSION['message'] = 'Data pelamar berhasil diperbarui.';
         header('Location: pelamar.php');

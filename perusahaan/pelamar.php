@@ -10,7 +10,10 @@ include '../includes/db.php';
 // Function to fetch applicants from lamaran_mahasiswas table
 function fetchApplicants($pdo) {
     try {
-        $sql = "SELECT * FROM lamaran_mahasiswas";
+        $sql = "SELECT lm.*, u.username as nama_mahasiswa, lk.nama_pekerjaan as nama_pekerjaan, lk.posisi
+        FROM lamaran_mahasiswas lm
+        JOIN users u ON lm.user_id = u.id
+        JOIN lowongan_kerja lk ON lm.lowongan_id = lk.id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -170,7 +173,9 @@ $applicants = fetchApplicants($pdo);
                             <tr>
                                 <th>No</th>
                                 <th>Nama Pelamar</th>
-                                <th>Portofolio</th>
+                                <th>Nama Pekerjaan</th>
+                                <th>Posisi</th>
+                                <th>Pesan Pelamar</th>
                                 <th>Status</th>
                                 <th>Aksi</th>
                             </tr>
@@ -180,21 +185,22 @@ $applicants = fetchApplicants($pdo);
                             if ($applicants) {
                                 $no = 1;
                                 foreach ($applicants as $row) {
-                                    echo "<tr>";
-                                    echo "<td>" . $no . "</td>";
-                                    echo "<td>" . htmlspecialchars($row['nama_pelamar'] ?? '') . "</td>";
-                                    echo "<td><a href='" . htmlspecialchars($row['portofolio'] ?? '#') . "' target='_blank'>Lihat</a></td>";
-                                    echo "<td>" . htmlspecialchars($row['status'] ?? '') . "</td>";
-                                    echo "<td>
-                                            <button class='btn btn-warning btn-sm' data-toggle='modal' data-target='#modalEdit' 
-                                                data-id='" . $row['id'] . "' 
-                                                data-nama='" . htmlspecialchars($row['nama_pelamar'] ?? '') . "' 
-                                                data-status='" . htmlspecialchars($row['status'] ?? '') . "'>Edit</button>
-                                            <button class='btn btn-danger btn-sm' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
-                                          </td>";
-                                    echo "</tr>";
-                                    $no++;
-                                }
+                                                echo "<tr>";
+                                                echo "<td>" . $no . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['nama_mahasiswa'] ?? '') . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['nama_pekerjaan'] ?? '') . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['posisi'] ?? '') . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['pesan'] ?? '') . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['status'] ?? '') . "</td>";
+                                                echo "<td>
+                                                        <button class='btn btn-warning btn-sm' data-toggle='modal' data-target='#modalEdit' 
+                                                            data-id='" . $row['id'] . "' 
+                                                            data-status='" . htmlspecialchars($row['status'] ?? '') . "'>Ubah status lamaran </button>
+                                                        <button class='btn btn-danger btn-sm' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
+                                                      </td>";
+                                                echo "</tr>";
+                                                $no++;
+                                            }
                             } else {
                                 echo "<tr><td colspan='5'>Tidak ada data</td></tr>";
                             }
@@ -221,11 +227,6 @@ $applicants = fetchApplicants($pdo);
                     </div>
                     <div class="modal-body">
                         <input type="hidden" id="edit_id" name="edit_id">
-                        <div class="form-group">
-                            <label for="edit_nama_pelamar">Nama Pelamar</label>
-                            <input type="text" class="form-control"
-                            id="edit_nama_pelamar" name="edit_nama_pelamar" required>
-                        </div>
                         <div class="form-group">
                             <label for="edit_status">Status</label>
                             <input type="text" class="form-control" id="edit_status" name="edit_status" required>
