@@ -2,20 +2,13 @@
 session_start();
 include '../../includes/db.php'; 
 
-
-try {
-    $pdo = new PDO("mysql:host=$host;dbname=$db", $user, $pass);
-    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-} catch(PDOException $e) {
-    die("Koneksi database gagal: " . $e->getMessage());
-}
-
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $namaSertifikasi = $_POST['nama_sertifikasi'];
     $lembagaId = $_POST['lembaga_id'];
     $nomorSk = $_POST['nomor_sk'];
     $tanggalDiperoleh = $_POST['tanggal_diperoleh'];
     $tanggalKadaluarsa = $_POST['tanggal_kadaluarsa'];
+    $mahasiswaId = $_SESSION['mahasiswa_id'];
 
     $bukti = [];
     $targetDir = "../../assets/mahasiswa/sertifikasi/";
@@ -41,14 +34,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Simpan data ke database menggunakan prepared statement PDO
     $jsonBukti = json_encode($bukti); // Simpan array path bukti sebagai JSON
-    $stmt = $pdo->prepare("INSERT INTO sertifikasi (nama_sertifikasi, lembaga_id, nomor_sk, tanggal_diperoleh, tanggal_kadaluarsa, bukti) 
-                            VALUES (:namaSertifikasi, :lembagaId, :nomorSk, :tanggalDiperoleh, :tanggalKadaluarsa, :bukti)");
+    $stmt = $pdo->prepare("INSERT INTO sertifikasi (nama_sertifikasi, lembaga_id, nomor_sk, tanggal_diperoleh, tanggal_kadaluarsa, bukti, mahasiswa_id) 
+                            VALUES (:namaSertifikasi, :lembagaId, :nomorSk, :tanggalDiperoleh, :tanggalKadaluarsa, :bukti, :mahasiswaId)");
     $stmt->bindParam(':namaSertifikasi', $namaSertifikasi);
     $stmt->bindParam(':lembagaId', $lembagaId);
     $stmt->bindParam(':nomorSk', $nomorSk);
     $stmt->bindParam(':tanggalDiperoleh', $tanggalDiperoleh);
     $stmt->bindParam(':tanggalKadaluarsa', $tanggalKadaluarsa);
     $stmt->bindParam(':bukti', $jsonBukti);
+    $stmt->bindParam(':mahasiswaId', $mahasiswaId);
 
     // Eksekusi statement
     try {

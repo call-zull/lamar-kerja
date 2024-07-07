@@ -14,11 +14,13 @@ if (isset($_SESSION['success_message'])) {
 }
 
 // Fetch competency data from database
+$mahasiswa_id = $_SESSION['mahasiswa_id'];
 $sql = "SELECT s.id, s.nama_sertifikasi, s.nomor_sk, s.lembaga_id, p.nama_lembaga, s.tanggal_diperoleh, s.tanggal_kadaluarsa, s.bukti
         FROM sertifikasi s
-        LEFT JOIN penyelenggara_sertifikasi p ON s.lembaga_id = p.id";
+        LEFT JOIN penyelenggara_sertifikasi p ON s.lembaga_id = p.id
+        WHERE s.mahasiswa_id = ?";
 $stmt = $pdo->prepare($sql);
-$stmt->execute();
+$stmt->execute([$mahasiswa_id]);
 $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
@@ -30,7 +32,11 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <title>Tampil Data Sertifikasi</title>
     <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../app/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../../app/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="../../app/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../app/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../app/dist/css/adminlte.dark.min.css" media="screen">
+    <link rel="stylesheet" href="../app/dist/css/adminlte.light.min.css" media="screen">
     <link rel="stylesheet" href="../../app/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../../app/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -38,26 +44,26 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .nav-sidebar .nav-link.active {
             background-color: #343a40 !important;
         }
-
-        .context-menu {
-            display: none;
-            position: absolute;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            z-index: 1000;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        .table-responsive {
+            overflow-y: auto;
+            max-height: 400px; /* Adjust height as needed */
         }
 
-        .context-menu a {
-            color: #333;
-            display: block;
-            padding: 8px 10px;
-            text-decoration: none;
+        .table-responsive thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #343a40; /* Ensure the header has a background */
         }
 
-        .context-menu a:hover {
-            background-color: #f2f2f2;
+        .table-responsive thead th {
+        color: #ffffff;
+        border-color: #454d55; 
         }
+
+        .table-responsive tbody tr:hover {
+        background-color: #f2f2f2; 
+        }       
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -79,17 +85,6 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </button>
                     </div>
                 <?php endif; ?>
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">Tampil Data Sertifikasi</h1>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="../index.php">Home</a></li>
-                            <li class="breadcrumb-item active">Tampil Data Sertifikasi</li>
-                        </ol>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -109,6 +104,13 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addCompetencyModal">
                                         <i class="fas fa-plus-circle"></i> Tambah 
                                     </button>
+                                    <!-- Buttons for PDF and Excel -->
+                                    <!-- <button class="btn btn-danger ml-2" id="pdfButton">
+                                        <i class="far fa-file-pdf"></i> PDF
+                                    </button>
+                                    <button class="btn btn-success ml-2" id="excelButton">
+                                        <i class="far fa-file-excel"></i> Excel
+                                    </button> -->
                                 </div>
                             </div>
                             <div class="card-body">
@@ -284,32 +286,33 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <!-- Delete Competency Modal -->
-    <div class="modal fade" id="deleteCompetencyModal" tabindex="-1" aria-labelledby="deleteCompetencyModalLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <form id="deleteCompetencyForm" method="POST" action="delete_sertifikasi.php">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="deleteCompetencyModalLabel">Hapus Sertifikasi</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <p>Apakah Anda yakin ingin menghapus sertifikasi ini?</p>
-                        <input type="hidden" id="deleteKompetensiId" name="id">
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-danger">Hapus</button>
-                    </div>
-                </form>
-            </div>
+  <!-- Delete Competency Modal -->
+<div class="modal fade" id="deleteCompetencyModal" tabindex="-1" aria-labelledby="deleteCompetencyModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="deleteCompetencyForm" method="POST" action="delete_sertifikasi.php">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteCompetencyModalLabel">Hapus Sertifikasi</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>Apakah Anda yakin ingin menghapus sertifikasi ini?</p>
+                    <input type="hidden" id="deleteKompetensiId" name="id">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="submit" class="btn btn-danger">Hapus</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
 
-<!-- Scripts -->
+
+<script src="script_mhs.js"></script>
+<script src="../app/dist/js/adminlte.min.js"></script>
 <script src="../../app/plugins/jquery/jquery.min.js"></script>
 <script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../../app/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -328,9 +331,25 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <script>
 $(document).ready(function () {
     // Initialize DataTable
-    $("#kompetensiTable").DataTable({
+    var table = $("#kompetensiTable").DataTable({
         "responsive": true,
         "autoWidth": false,
+        // "buttons": [
+        //     'copyHtml5',
+        //     {
+        //         extend: 'excelHtml5',
+        //         className: 'btn btn-success ml-2',
+        //         titleAttr: 'Export to Excel'
+        //     },
+        //     {
+        //         extend: 'pdfHtml5',
+        //         className: 'btn btn-danger ml-2',
+        //         titleAttr: 'Export to PDF',
+        //         exportOptions: {
+        //             columns: [0, 1, 2, 3, 4, 5, 6]
+        //         }
+        //     }
+        // ]
     });
 
     // Fill edit form with existing data
@@ -359,7 +378,17 @@ $(document).ready(function () {
         var id = $(this).data('id');
         $('#deleteKompetensiId').val(id);
     });
+
+    // PDF and Excel export buttons
+    // $('#pdfButton').click(function () {
+    //     table.button('.buttons-pdf').trigger();
+    // });
+
+    // $('#excelButton').click(function () {
+    //     table.button('.buttons-excel').trigger();
+    // });
 });
+
 </script>
 </body>
 </html>

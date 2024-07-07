@@ -1,37 +1,70 @@
 <?php
 session_start();
-// Pastikan pengguna sudah login sebagai mahasiswa
+include '../../includes/db.php';
+
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
-    header('Location: ../auth/login.php');
+    header('Location: ../../auth/login.php');
     exit;
 }
 
-// Contoh data pelatihan mahasiswa
-$pelatihan = [
-    ['no' => 1, 'nama_pelatihan' => 'Pelatihan A', 'durasi' => '3 Hari', 'tanggal_pelaksanaan' => '2023-05-20', 'tempat' => 'Jakarta', 'materi' => 'Materi A', 'penyelenggara' => 'Penyelenggara A'],
-    ['no' => 2, 'nama_pelatihan' => 'Pelatihan B', 'durasi' => '5 Hari', 'tanggal_pelaksanaan' => '2022-08-15', 'tempat' => 'Bandung', 'materi' => 'Materi B', 'penyelenggara' => 'Penyelenggara B']
-];
+$success_message = '';
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']); 
+}
+
+// Fetch pelatihan data from database
+$mahasiswa_id = $_SESSION['mahasiswa_id'];
+$sql = "SELECT p.id_pelatihan, p.nama_pelatihan, p.materi, p.deskripsi, p.tanggal_mulai, p.tanggal_selesai, t.nama AS tingkatan, p.tempat_pelaksanaan, ps.nama_lembaga AS nama_penyelenggara, p.bukti
+        FROM pelatihan p
+        LEFT JOIN tingkatan t ON p.id_tingkatan = t.id
+        LEFT JOIN penyelenggara_sertifikasi ps ON p.id_penyelenggara = ps.id
+        WHERE p.mahasiswa_id = ?";
+$stmt = $pdo->prepare($sql);
+$stmt->execute([$mahasiswa_id]);
+$pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Data Pelatihan Mahasiswa</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <title>Tampil Data Pelatihan</title>
+    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="../../app/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../../app/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="../../app/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="../../app/dist/css/adminlte.dark.min.css" media="screen">
-    <link rel="stylesheet" href="../../app/dist/css/adminlte.light.min.css" media="screen">
+    <link rel="stylesheet" href="../app/dist/css/adminlte.min.css">
+    <link rel="stylesheet" href="../app/dist/css/adminlte.dark.min.css" media="screen">
+    <link rel="stylesheet" href="../app/dist/css/adminlte.light.min.css" media="screen">
+    <link rel="stylesheet" href="../../app/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
+    <link rel="stylesheet" href="../../app/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <style>
         .nav-sidebar .nav-link.active {
             background-color: #343a40 !important;
         }
-        .btn-right {
-            float: right;
+        .table-responsive {
+            overflow-y: auto;
+            max-height: 400px; /* Adjust height as needed */
         }
+
+        .table-responsive thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #343a40; /* Ensure the header has a background */
+        }
+
+        .table-responsive thead th {
+        color: #ffffff;
+        border-color: #454d55; 
+        }
+
+        .table-responsive tbody tr:hover {
+        background-color: #f2f2f2; 
+        }       
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -53,17 +86,6 @@ $pelatihan = [
                         </button>
                     </div>
                 <?php endif; ?>
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">Data Pelatihan Mahasiswa</h1>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="../index.php">Home</a></li>
-                            <li class="breadcrumb-item active">Data Pelatihan Mahasiswa</li>
-                        </ol>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -76,12 +98,12 @@ $pelatihan = [
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">
-                                    <i class="fas fa-users"></i>
+                                    <i class="fas fa-award nav-icon"></i>
                                     Data Pelatihan
                                 </h3>
                                 <div class="card-tools">
                                     <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#addPelatihanModal">
-                                        <i class="fas fa-user-plus"></i> Tambah
+                                        <i class="fas fa-plus-circle"></i> Tambah 
                                     </button>
                                 </div>
                             </div>
@@ -92,30 +114,47 @@ $pelatihan = [
                                             <tr>
                                                 <th>No</th>
                                                 <th>Nama Pelatihan</th>
-                                                <th>Durasi</th>
-                                                <th>Tanggal Pelaksanaan</th>
-                                                <th>Tempat</th>
                                                 <th>Materi</th>
+                                                <th>Deskripsi</th>
+                                                <th>Tanggal Mulai</th>
+                                                <th>Tanggal Selesai</th>
+                                                <th>Tingkatan</th>
+                                                <th>Tempat Pelaksanaan</th>
                                                 <th>Penyelenggara</th>
+                                                <th>Bukti</th>
                                                 <th>Aksi</th>
                                             </tr>
                                         </thead>
                                         <tbody>
-                                            <?php foreach ($pelatihan as $index => $item) { ?>
+                                            <?php foreach ($pelatihan as $index => $item): ?>
                                                 <tr>
-                                                    <td><?php echo $index + 1; ?></td>
-                                                    <td><?php echo $item['nama_pelatihan']; ?></td>
-                                                    <td><?php echo $item['durasi']; ?></td>
-                                                    <td><?php echo $item['tanggal_pelaksanaan']; ?></td>
-                                                    <td><?php echo $item['tempat']; ?></td>
-                                                    <td><?php echo $item['materi']; ?></td>
-                                                    <td><?php echo $item['penyelenggara']; ?></td>
+                                                    <td><?= $index + 1; ?></td>
+                                                    <td><?= htmlspecialchars($item['nama_pelatihan']); ?></td>
+                                                    <td><?= htmlspecialchars($item['materi']); ?></td>
+                                                    <td><?= htmlspecialchars($item['deskripsi']); ?></td>
+                                                    <td><?= htmlspecialchars($item['tanggal_mulai']); ?></td>
+                                                    <td><?= htmlspecialchars($item['tanggal_selesai']); ?></td>
+                                                    <td><?= htmlspecialchars($item['tingkatan']); ?></td>
+                                                    <td><?= htmlspecialchars($item['tempat_pelaksanaan']); ?></td>
+                                                    <td><?= htmlspecialchars($item['nama_penyelenggara']); ?></td>
                                                     <td>
-                                                        <button class="btn btn-warning btn-sm edit-btn" data-index="<?php echo $index; ?>" data-toggle="modal" data-target="#editPelatihanModal"><i class="fas fa-edit"></i> Edit</button>
-                                                        <button class="btn btn-danger btn-sm delete-btn" data-index="<?php echo $index; ?>"><i class="fas fa-trash"></i> Hapus</button>
+                                                        <?php
+                                                        $buktiArray = json_decode($item['bukti'], true);
+                                                        foreach ($buktiArray as $buktiPath) {
+                                                            echo '<a href="' . htmlspecialchars($buktiPath) . '" target="_blank">Lihat Bukti</a><br>';
+                                                        }
+                                                        ?>
+                                                    </td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-warning editBtn" data-toggle="modal" data-target="#editPelatihanModal" data-id="<?php echo $item['id_pelatihan']; ?>">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger deleteBtn" data-toggle="modal" data-target="#deletePelatihanModal" data-id="<?php echo $item['id_pelatihan']; ?>">
+                                                            <i class="fas fa-trash-alt"></i> Hapus
+                                                        </button>
                                                     </td>
                                                 </tr>
-                                            <?php } ?>
+                                            <?php endforeach; ?>
                                         </tbody>
                                     </table>
                                 </div>
@@ -127,136 +166,248 @@ $pelatihan = [
         </section><!-- /.content -->
     </div><!-- /.content-wrapper -->
 
-<!-- Modal Tambah Pelatihan -->
-<div class="modal fade" id="addPelatihanModal" tabindex="-1" role="dialog" aria-labelledby="addPelatihanModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="addPelatihanModalLabel">Tambah Pelatihan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="addPelatihanForm">
-                    <div class="form-group">
-                        <label for="nama_pelatihan">Nama Pelatihan</label>
-                        <input type="text" class="form-control" id="nama_pelatihan" name="nama_pelatihan">
+    <!-- Add Pelatihan Modal -->
+    <div class="modal fade" id="addPelatihanModal" tabindex="-1" aria-labelledby="addPelatihanModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="addPelatihanForm" method="POST" action="process_add_pelatihan.php" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addPelatihanModalLabel">Tambah Pelatihan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
                     </div>
-                    <div class="form-group">
-                        <label for="durasi">Durasi</label>
-                        <input type="text" class="form-control" id="durasi" name="durasi">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="namaPelatihan">Nama Pelatihan</label>
+                            <input type="text" class="form-control" id="namaPelatihan" name="nama_pelatihan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="materi">Materi</label>
+                            <textarea class="form-control" id="materi" name="materi" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="deskripsi">Deskripsi</label>
+                            <textarea class="form-control" id="deskripsi" name="deskripsi" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="tanggalMulai">Tanggal Mulai</label>
+                            <input type="date" class="form-control" id="tanggalMulai" name="tanggal_mulai" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="tanggalSelesai">Tanggal Selesai</label>
+                            <input type="date" class="form-control" id="tanggalSelesai" name="tanggal_selesai" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="idTingkatan">Tingkatan</label>
+                            <select class="form-control" id="idTingkatan" name="id_tingkatan" required>
+                                <option value="">-- Pilih Tingkatan --</option>
+                                <?php
+                                // Fetch tingkatan from database
+                                $sql_tingkatan = "SELECT id, nama FROM tingkatan";
+                                $stmt_tingkatan = $pdo->query($sql_tingkatan);
+                                $tingkatan = $stmt_tingkatan->fetchAll();
+                                foreach ($tingkatan as $tingkatan_item) {
+                                    echo "<option value='{$tingkatan_item['id']}'>{$tingkatan_item['nama']}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="tempatPelaksanaan">Tempat Pelaksanaan</label>
+                            <input type="text" class="form-control" id="tempatPelaksanaan" name="tempat_pelaksanaan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="idPenyelenggara">Penyelenggara</label>
+                            <select class="form-control" id="idPenyelenggara" name="id_penyelenggara" required>
+                                <option value="">-- Pilih Penyelenggara --</option>
+                                <?php
+                                // Fetch penyelenggara_sertifikasi from database
+                                $sql_penyelenggara = "SELECT id, nama_lembaga FROM penyelenggara_sertifikasi";
+                                $stmt_penyelenggara = $pdo->query($sql_penyelenggara);
+                                $penyelenggara = $stmt_penyelenggara->fetchAll();
+                                foreach ($penyelenggara as $penyelenggara_item) {
+                                    echo "<option value='{$penyelenggara_item['id']}'>{$penyelenggara_item['nama_lembaga']}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bukti">Bukti (upload berupa .pdf atau img, max 5mb)</label>
+                            <input type="file" class="form-control-file" id="bukti" name="bukti_file">
+                            <label for="bukti_link">Atau Masukkan Link Google Drive (jika file melebihi 5mb):</label>
+                            <input type="url" class="form-control" id="bukti_link" name="bukti_link" placeholder="salin link g-drive yang sudah Anda buat">
+                        </div>
                     </div>
-                    <div class="form-group">
-                        <label for="tanggal_pelaksanaan">Tanggal Pelaksanaan</label>
-                        <input type="date" class="form-control" id="tanggal_pelaksanaan" name="tanggal_pelaksanaan">
-                    </div>
-                    <div class="form-group">
-                        <label for="tempat">Tempat</label>
-                        <input type="text" class="form-control" id="tempat" name="tempat">
-                    </div>
-                    <div class="form-group">
-                        <label for="materi">Materi</label>
-                        <input type="text" class="form-control" id="materi" name="materi">
-                    </div>
-                    <div class="form-group">
-                        <label for="penyelenggara">Penyelenggara</label>
-                        <input type="text" class="form-control" id="penyelenggara" name="penyelenggara">
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="addPelatihan()">Tambah</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Modal Edit Pelatihan -->
-<div class="modal fade" id="editPelatihanModal" tabindex="-1" role="dialog" aria-labelledby="editPelatihanModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="editPelatihanModalLabel">Edit Pelatihan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="editPelatihanForm">
-                    <input type="hidden" id="editRowIndex">
-                    <div class="form-group">
-                        <label for="edit_nama_pelatihan">Nama Pelatihan</label>
-                        <input type="text" class="form-control" id="edit_nama_pelatihan" name="edit_nama_pelatihan">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_durasi">Durasi</label>
-                        <input type="text" class="form-control" id="edit_durasi" name="edit_durasi">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_tanggal_pelaksanaan">Tanggal Pelaksanaan</label>
-                        <input type="date" class="form-control" id="edit_tanggal_pelaksanaan" name="edit_tanggal_pelaksanaan">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_tempat">Tempat</label>
-                        <input type="text" class="form-control" id="edit_tempat" name="edit_tempat">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_materi">Materi</label>
-                        <input type="text" class="form-control" id="edit_materi" name="edit_materi">
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_penyelenggara">Penyelenggara</label>
-                        <input type="text" class="form-control" id="edit_penyelenggara" name="edit_penyelenggara">
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
                     </div>
                 </form>
             </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
-                <button type="button" class="btn btn-primary" onclick="updatePelatihan()">Simpan</button>
+        </div>
+    </div>
+
+    <!-- Edit Pelatihan Modal -->
+    <div class="modal fade" id="editPelatihanModal" tabindex="-1" aria-labelledby="editPelatihanModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="editPelatihanForm" method="POST" action="update_pelatihan.php" enctype="multipart/form-data">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editPelatihanModalLabel">Edit Pelatihan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editPelatihanId" name="id">
+                        <div class="form-group">
+                            <label for="editNamaPelatihan">Nama Pelatihan</label>
+                            <input type="text" class="form-control" id="editNamaPelatihan" name="nama_pelatihan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editMateri">Materi</label>
+                            <textarea class="form-control" id="editMateri" name="materi" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editDeskripsi">Deskripsi</label>
+                            <textarea class="form-control" id="editDeskripsi" name="deskripsi" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTanggalMulai">Tanggal Mulai</label>
+                            <input type="date" class="form-control" id="editTanggalMulai" name="tanggal_mulai" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTanggalSelesai">Tanggal Selesai</label>
+                            <input type="date" class="form-control" id="editTanggalSelesai" name="tanggal_selesai" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editIdTingkatan">Tingkatan</label>
+                            <select class="form-control" id="editIdTingkatan" name="id_tingkatan" required>
+                                <option value="">-- Pilih Tingkatan --</option>
+                                <?php
+                                foreach ($tingkatan as $tingkatan_item) {
+                                    echo "<option value='{$tingkatan_item['id']}'>{$tingkatan_item['nama']}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editTempatPelaksanaan">Tempat Pelaksanaan</label>
+                            <input type="text" class="form-control" id="editTempatPelaksanaan" name="tempat_pelaksanaan" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editIdPenyelenggara">Penyelenggara</label>
+                            <select class="form-control" id="editIdPenyelenggara" name="id_penyelenggara" required>
+                                <option value="">-- Pilih Penyelenggara --</option>
+                                <?php
+                                foreach ($penyelenggara as $penyelenggara_item) {
+                                    echo "<option value='{$penyelenggara_item['id']}'>{$penyelenggara_item['nama_lembaga']}</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editBukti">Bukti</label>
+                            <br>
+                            <div id="currentBukti">
+                                <!-- Display current bukti here -->
+                            </div>
+                            <input type="file" class="form-control-file" id="editBukti" name="bukti_file">
+                            <label for="editBuktiLink">Atau Masukkan Link Google Drive:</label>
+                            <input type="url" class="form-control" id="editBuktiLink" name="bukti_link">
+                            <small id="buktiHelp" class="form-text text-muted">Upload file bukti baru jika ingin mengganti.</small>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal Hapus Pelatihan -->
-<div class="modal fade" id="deletePelatihanModal" tabindex="-1" role="dialog" aria-labelledby="deletePelatihanModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="deletePelatihanModalLabel">Hapus Pelatihan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>Apakah Anda yakin ingin menghapus pelatihan ini?</p>
-                <input type="hidden" id="deletePelatihanIndex">
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                <button type="button" class="btn btn-danger" onclick="deletePelatihan()">Hapus</button>
+    <!-- Delete Pelatihan Modal -->
+    <div class="modal fade" id="deletePelatihanModal" tabindex="-1" aria-labelledby="deletePelatihanModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <form id="deletePelatihanForm" method="POST" action="delete_pelatihan.php">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="deletePelatihanModalLabel">Hapus Pelatihan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Apakah Anda yakin ingin menghapus pelatihan ini?</p>
+                        <input type="hidden" id="deletePelatihanId" name="id">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-danger">Hapus</button>
+                    </div>
+                </form>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Scripts -->
-<script src="../../app/plugins/jquery/jquery.min.js"></script>
-<script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script>
-    function addPelatihan() {
-        // Implementasi logika tambah pelatihan
-    }
+    <script src="script_mhs.js"></script>
+    <script src="../app/dist/js/adminlte.min.js"></script>
+    <script src="../../app/plugins/jquery/jquery.min.js"></script>
+    <script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../../app/plugins/datatables/jquery.dataTables.min.js"></script>
+    <script src="../../app/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+    <script src="../../app/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+    <script src="../../app/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+    <script src="../../app/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+    <script src="../../app/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+    <script src="../../app/plugins/jszip/jszip.min.js"></script>
+    <script src="../../app/plugins/pdfmake/pdfmake.min.js"></script>
+    <script src="../../app/plugins/pdfmake/vfs_fonts.js"></script>
+    <script src="../../app/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+    <script src="../../app/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+    <script src="../../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 
-    function updatePelatihan() {
-        // Implementasi logika update pelatihan
-    }
+    <script>
+    $(document).ready(function () {
+        // Initialize DataTable
+        var table = $("#pelatihanTable").DataTable({
+            "responsive": true,
+            "autoWidth": false,
+        });
 
-    function deletePelatihan() {
-        // Implementasi logika hapus pelatihan
-    }
-</script>
+        // Fill edit form with existing data
+        $('.editBtn').on('click', function () {
+            var id = $(this).data('id');
+            $.ajax({
+                url: 'get_pelatihan.php',
+                type: 'POST',
+                data: { id: id },
+                dataType: 'json',
+                success: function (response) {
+                    $('#editPelatihanId').val(response.id_pelatihan);
+                    $('#editNamaPelatihan').val(response.nama_pelatihan);
+                    $('#editMateri').val(response.materi);
+                    $('#editDeskripsi').val(response.deskripsi);
+                    $('#editTanggalMulai').val(response.tanggal_mulai);
+                    $('#editTanggalSelesai').val(response.tanggal_selesai);
+                    $('#editIdTingkatan').val(response.id_tingkatan);
+                    $('#editTempatPelaksanaan').val(response.tempat_pelaksanaan);
+                    $('#editIdPenyelenggara').val(response.id_penyelenggara);
+                    $('#editBukti').val('');
+                    $('#editBuktiLink').val('');
+                }
+            });
+        });
+
+        // Set pelatihan ID for deletion
+        $('.deleteBtn').on('click', function () {
+            var id = $(this).data('id');
+            $('#deletePelatihanId').val(id);
+        });
+    });
+    </script>
 </body>
 </html>
+

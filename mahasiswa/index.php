@@ -125,7 +125,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
 
 </div>
 
-<script> src="script_mhs.js"</script>
+<script src="script_mhs.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>

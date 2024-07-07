@@ -17,7 +17,7 @@
             color: #ffffff !important;
         }
         .navbar-nav .nav-link {
-        color: white;
+            color: white;
         }
         .navbar-nav .nav-link.login {
             color: white;
@@ -28,6 +28,14 @@
         }
         .navbar-nav .nav-link.web-poliban:hover {
             color: #0056b3; /* warna biru lebih tua saat hover */
+        }
+        .dropdown-menu .dropdown-item {
+            transition: background-color 0.3s ease;
+            white-space: normal; /* Membuat teks terbungkus jika terlalu panjang */
+        }
+        .dropdown-menu .dropdown-item:hover {
+            background-color: #343a40;
+            color: #ffffff;
         }
         .card {
             overflow: hidden;
@@ -81,8 +89,8 @@
                 text-align: left;
             }
         }
-         /* Latar Belakang */
-         .login-page {
+        /* Latar Belakang */
+        .login-page {
             background-image: url('../assets/images/poliban_background.jpg');
             background-size: cover;
             background-position: center;
@@ -96,37 +104,93 @@
 </head>
 <body>
 
-        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">
-                    <img src="assets/images/logo_poliban.png" alt="Poliban Logo" width="30" height="30" class="d-inline-block align-top">
-                    SI Portofolio
-                </a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
-                        <li class="nav-item">
-                            <a class="nav-link web-poliban" href="https://www.poliban.ac.id/">Web Poliban</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link login" href="auth/login.php">Login</a>
-                        </li>
-                    </ul>
-                </div>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">
+                <img src="assets/images/logo_poliban.png" alt="Poliban Logo" width="30" height="30" class="d-inline-block align-top">
+                SI Portofolio
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="teknikSipilDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Teknik Sipil dan Kebumian
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="teknikSipilDropdown">
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Teknik Bangunan Rawa</a></li>
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Teknologi Rekayasa Geomatika</a></li>
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Teknologi Rekayasa Konstruksi Jalan</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Teknik Sipil</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Teknik Pertambangan</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="teknikMesinDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Teknik Mesin
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="teknikMesinDropdown">
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Teknologi Rekayasa Otomotif</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Alat Berat</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Teknik Mesin</a></li>
+                            <li><a class="dropdown-item" href="#">D2 Fast Track Tata Operasi dan Pemeliharaan Prediktif</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="administrasiBisnisDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Administrasi Bisnis
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="administrasiBisnisDropdown">
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Bisnis Digital</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Administrasi Bisnis</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Manajemen Informatika</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="teknikElektroDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Teknik Elektro
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="teknikElektroDropdown">
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Teknologi Rekayasa Pembangkit Energi</a></li>
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Sistem Informasi Kota Cerdas</a></li>
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Teknologi Rekayasa Otomasi</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Teknik Listrik</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Teknik Informatika</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Elektronika</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="akuntansiDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Akuntansi
+                        </a>
+                        <ul class="dropdown-menu" aria-labelledby="akuntansiDropdown">
+                            <li><a class="dropdown-item" href="#">D4 Sarjana Terapan Akuntansi Lembaga Keuangan Syariah</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Akuntansi</a></li>
+                            <li><a class="dropdown-item" href="#">D3 Komputerisasi Akuntansi</a></li>
+                        </ul>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link web-poliban" href="https://www.poliban.ac.id/">Web Poliban</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link login" href="auth/login.php">Login</a>
+                    </li>
+                </ul>
             </div>
-        </nav>
-
-<div class="container mt-5">
-    <div class="row mb-4">
-        <div class="col text-center">
-            <h2>Portofolio Mahasiswa Poliban</h2>
-            <p class="lead">Kumpulan karya terbaik dari mahasiswa dan alumni Poliban</p>
         </div>
-    </div>
+    </nav>
 
-  <!-- Carousel -->
+    <div class="container mt-5">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h2>Portofolio Mahasiswa Poliban</h2>
+                <p class="lead">Kumpulan karya terbaik dari mahasiswa dan alumni Poliban</p>
+            </div>
+        </div>
+
+        <!-- Carousel -->
         <div id="carouselExampleIndicators" class="carousel slide mb-4" data-bs-ride="carousel">
             <div class="carousel-inner">
                 <div class="carousel-item active">
@@ -149,171 +213,168 @@
             </button>
         </div>
 
-
-
-    <!-- Search Form -->
-    <div class="row mb-4">
-        <div class="col-md-8 offset-md-2">
-            <form class="d-flex" method="GET" action="">
-                <input class="form-control me-2" type="search" name="query" placeholder="Cari berdasarkan prodi atau keahlian" aria-label="Search">
-                <button class="btn btn-outline-success" type="submit">Cari</button>
-            </form>
+        <!-- Search Form -->
+        <div class="row mb-4">
+            <div class="col-md-8 offset-md-2">
+                <form class="d-flex" method="GET" action="">
+                    <input class="form-control me-2" type="search" name="query" placeholder="Cari berdasarkan prodi atau keahlian" aria-label="Search">
+                    <button class="btn btn-outline-success" type="submit">Cari</button>
+                </form>
+            </div>
         </div>
-    </div>
 
-    <div class="row">
-        <!-- Contoh Portofolio (5 kolom x 4 baris) -->
-        <?php
-        $mahasiswa = [
-            [
-                'nama' => 'Nama Mahasiswa 1',
-                'nim' => '1234567890',
-                'jurusan' => 'Teknik Informatika',
-                'prodi' => 'Manajemen Informatika',
-                'keahlian' => 'Pemrograman Web',
-                'gambar' => 'app/dist/img/user1-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/1'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 2',
-                'nim' => '2345678901',
-                'jurusan' => 'Teknik Sipil',
-                'prodi' => 'Teknik Konstruksi',
-                'keahlian' => 'Desain Struktur',
-                'gambar' => 'app/dist/img/user2-160x160.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/2'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 3',
-                'nim' => '3456789012',
-                'jurusan' => 'Teknik Elektro',
-                'prodi' => 'Sistem Tenaga',
-                'keahlian' => 'Elektronika Industri',
-                'gambar' => 'app/dist/img/user3-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/3'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 4',
-                'nim' => '4567890123',
-                'jurusan' => 'Teknik Mesin',
-                'prodi' => 'Manufaktur',
-                'keahlian' => 'Desain Mesin',
-                'gambar' => 'app/dist/img/user4-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/4'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 5',
-                'nim' => '5678901234',
-                'jurusan' => 'Teknik Kimia',
-                'prodi' => 'Teknologi Proses',
-                'keahlian' => 'Rekayasa Kimia',
-                'gambar' => 'app/dist/img/user5-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/5'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 6',
-                'nim' => '6789012345',
-                'jurusan' => 'Teknik Informatika',
-                'prodi' => 'Manajemen Informatika',
-                'keahlian' => 'Data Science',
-                'gambar' => 'app/dist/img/user6-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/6'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 7',
-                'nim' => '7890123456',
-                'jurusan' => 'Teknik Sipil',
-                'prodi' => 'Teknik Konstruksi',
-                'keahlian' => 'Manajemen Proyek',
-                'gambar' => 'app/dist/img/user7-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/7'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 8',
-                'nim' => '8901234567',
-                'jurusan' => 'Teknik Elektro',
-                'prodi' => 'Sistem Tenaga',
-                'keahlian' => 'Robotika',
-                'gambar' => 'app/dist/img/user8-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/8'
-            ],
-            [
-                'nama' => 'Nama Mahasiswa 9',
-                'nim' => '9012345678',
-                'jurusan' => 'Teknik Mesin',
-                'prodi' => 'Manufaktur',
-                'keahlian' => 'Otomasi',
-                'gambar' => 'app/dist/img/user1-128x128.jpg',
-                'portofolio' => 'https://drive.google.com/drive/folders/9'
-            ]
-        ];
+        <div class="row">
+            <!-- Contoh Portofolio (5 kolom x 4 baris) -->
+            <?php
+            $mahasiswa = [
+                [
+                    'nama' => 'Nama Mahasiswa 1',
+                    'nim' => '1234567890',
+                    'jurusan' => 'Teknik Informatika',
+                    'prodi' => 'Manajemen Informatika',
+                    'keahlian' => 'Pemrograman Web',
+                    'gambar' => 'app/dist/img/user1-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/1'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 2',
+                    'nim' => '2345678901',
+                    'jurusan' => 'Teknik Sipil',
+                    'prodi' => 'Teknik Konstruksi',
+                    'keahlian' => 'Desain Struktur',
+                    'gambar' => 'app/dist/img/user2-160x160.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/2'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 3',
+                    'nim' => '3456789012',
+                    'jurusan' => 'Teknik Elektro',
+                    'prodi' => 'Sistem Tenaga',
+                    'keahlian' => 'Elektronika Industri',
+                    'gambar' => 'app/dist/img/user3-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/3'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 4',
+                    'nim' => '4567890123',
+                    'jurusan' => 'Teknik Mesin',
+                    'prodi' => 'Manufaktur',
+                    'keahlian' => 'Desain Mesin',
+                    'gambar' => 'app/dist/img/user4-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/4'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 5',
+                    'nim' => '5678901234',
+                    'jurusan' => 'Teknik Kimia',
+                    'prodi' => 'Teknologi Proses',
+                    'keahlian' => 'Rekayasa Kimia',
+                    'gambar' => 'app/dist/img/user5-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/5'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 6',
+                    'nim' => '6789012345',
+                    'jurusan' => 'Teknik Informatika',
+                    'prodi' => 'Manajemen Informatika',
+                    'keahlian' => 'Data Science',
+                    'gambar' => 'app/dist/img/user6-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/6'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 7',
+                    'nim' => '7890123456',
+                    'jurusan' => 'Teknik Sipil',
+                    'prodi' => 'Teknik Konstruksi',
+                    'keahlian' => 'Manajemen Proyek',
+                    'gambar' => 'app/dist/img/user7-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/7'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 8',
+                    'nim' => '8901234567',
+                    'jurusan' => 'Teknik Elektro',
+                    'prodi' => 'Sistem Tenaga',
+                    'keahlian' => 'Robotika',
+                    'gambar' => 'app/dist/img/user8-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/8'
+                ],
+                [
+                    'nama' => 'Nama Mahasiswa 9',
+                    'nim' => '9012345678',
+                    'jurusan' => 'Teknik Mesin',
+                    'prodi' => 'Manufaktur',
+                    'keahlian' => 'Otomasi',
+                    'gambar' => 'app/dist/img/user1-128x128.jpg',
+                    'portofolio' => 'https://drive.google.com/drive/folders/9'
+                ]
+            ];
 
-        for ($i = 0; $i < 4; $i++) {
-            for ($j = 0; $j < 5; $j++) {
-                $index = $i * 5 + $j;
-                if (isset($mahasiswa[$index])) {
-                    $mhs = $mahasiswa[$index];
-                    echo '
-                    <div class="col-md-4">
-                        <div class="card mb-4 shadow-sm">
-                            <div class="card-body d-flex">
-                                <img src="'.$mhs['gambar'].'" class="card-img-left" alt="Portofolio '.$mhs['nama'].'">
-                                <div class="details">
-                                    <h5 class="card-title">'.$mhs['nama'].'</h5>
-                                    <p class="card-text">
-                                        NIM: '.$mhs['nim'].'<br>
-                                        Jurusan: '.$mhs['jurusan'].'<br>
-                                        Prodi: '.$mhs['prodi'].'<br>
-                                        Keahlian: '.$mhs['keahlian'].'<br>
-                                        <a href="'.$mhs['portofolio'].'" target="_blank">Link Portofolio</a>
-                                    </p>
+            for ($i = 0; $i < 4; $i++) {
+                for ($j = 0; $j < 5; $j++) {
+                    $index = $i * 5 + $j;
+                    if (isset($mahasiswa[$index])) {
+                        $mhs = $mahasiswa[$index];
+                        echo '
+                        <div class="col-md-4">
+                            <div class="card mb-4 shadow-sm">
+                                <div class="card-body d-flex">
+                                    <img src="'.$mhs['gambar'].'" class="card-img-left" alt="Portofolio '.$mhs['nama'].'">
+                                    <div class="details">
+                                        <h5 class="card-title">'.$mhs['nama'].'</h5>
+                                        <p class="card-text">
+                                            NIM: '.$mhs['nim'].'<br>
+                                            Jurusan: '.$mhs['jurusan'].'<br>
+                                            Prodi: '.$mhs['prodi'].'<br>
+                                            Keahlian: '.$mhs['keahlian'].'<br>
+                                            <a href="'.$mhs['portofolio'].'" target="_blank">Link Portofolio</a>
+                                        </p>
+                                    </div>
+                                    <button type="button" class="btn btn-link more" data-bs-toggle="modal" data-bs-target="#modal'.$index.'">Selengkapnya</button>
                                 </div>
-                                <button type="button" class="btn btn-link more" data-bs-toggle="modal" data-bs-target="#modal'.$index.'">Selengkapnya</button>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Modal -->
-                    <div class="modal fade" id="modal'.$index.'" tabindex="-1" aria-labelledby="modalLabel'.$index.'" aria-hidden="true">
-                        <div class="modal-dialog modal-lg">
-                            <div class="modal-content">
-                                <div class="modal-header">
-                                    <h5 class="modal-title" id="modalLabel'.$index.'">Detail Mahasiswa</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                </div>
-                                <div class="modal-body">
-                                    <div class="row">
-                                        <div class="col-md-4">
-                                            <img src="'.$mhs['gambar'].'" class="img-fluid rounded-circle" alt="Portofolio '.$mhs['nama'].'">
-                                        </div>
-                                        <div class="col-md-8">
-                                            <div class="details">
-                                                <h5 class="card-title">'.$mhs['nama'].'</h5>
-                                                <p class="card-text">
-                                                    NIM: '.$mhs['nim'].'<br>
-                                                    Jurusan: '.$mhs['jurusan'].'<br>
-                                                    Prodi: '.$mhs['prodi'].'<br>
-                                                    Keahlian: '.$mhs['keahlian'].'<br>
-                                                    <a href="'.$mhs['portofolio'].'" target="_blank">Link Portofolio</a>
-                                                </p>
+                        <!-- Modal -->
+                        <div class="modal fade" id="modal'.$index.'" tabindex="-1" aria-labelledby="modalLabel'.$index.'" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="modalLabel'.$index.'">Detail Mahasiswa</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row">
+                                            <div class="col-md-4">
+                                                <img src="'.$mhs['gambar'].'" class="img-fluid rounded-circle" alt="Portofolio '.$mhs['nama'].'">
+                                            </div>
+                                            <div class="col-md-8">
+                                                <div class="details">
+                                                    <h5 class="card-title">'.$mhs['nama'].'</h5>
+                                                    <p class="card-text">
+                                                        NIM: '.$mhs['nim'].'<br>
+                                                        Jurusan: '.$mhs['jurusan'].'<br>
+                                                        Prodi: '.$mhs['prodi'].'<br>
+                                                        Keahlian: '.$mhs['keahlian'].'<br>
+                                                        <a href="'.$mhs['portofolio'].'" target="_blank">Link Portofolio</a>
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>';
+                        </div>';
+                    }
                 }
             }
-        }
-        ?>
+            ?>
+        </div>
     </div>
-</div>
 
-<script src="bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="bootstrap/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-

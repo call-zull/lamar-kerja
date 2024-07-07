@@ -2,6 +2,11 @@
 session_start();
 include '../../includes/db.php'; // Pastikan file db.php sudah termasuk koneksi PDO
 
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
+    header('Location: ../../auth/login.php');
+    exit;
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $idSertifikasi = $_POST['id'];
     $namaSertifikasi = $_POST['nama_sertifikasi'];
@@ -9,6 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nomorSk = $_POST['nomor_sk'];
     $tanggalDiperoleh = $_POST['tanggal_diperoleh'];
     $tanggalKadaluarsa = $_POST['tanggal_kadaluarsa'];
+    $mahasiswa_id = $_SESSION['mahasiswa_id']; // Ambil mahasiswa_id dari sesi
 
     // Proses upload bukti
     $bukti = [];
@@ -39,8 +45,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
         // Fetch existing sertifikasi data if available
-        $stmt = $pdo->prepare("SELECT bukti FROM sertifikasi WHERE id = :id");
-        $stmt->bindParam(':id', $idSertifikasi);
+        $stmt = $pdo->prepare("SELECT bukti FROM sertifikasi WHERE id = :id AND mahasiswa_id = :mahasiswa_id");
+        $stmt->bindParam(':id', $idSertifikasi, PDO::PARAM_INT);
+        $stmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         
@@ -60,14 +67,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Update data sertifikasi di database menggunakan PDO
         $stmt = $pdo->prepare("UPDATE sertifikasi SET nama_sertifikasi = :namaSertifikasi, lembaga_id = :lembagaId, 
                                 nomor_sk = :nomorSk, tanggal_diperoleh = :tanggalDiperoleh, tanggal_kadaluarsa = :tanggalKadaluarsa, 
-                                bukti = :bukti WHERE id = :idSertifikasi");
+                                bukti = :bukti WHERE id = :idSertifikasi AND mahasiswa_id = :mahasiswa_id");
         $stmt->bindParam(':namaSertifikasi', $namaSertifikasi);
         $stmt->bindParam(':lembagaId', $lembagaId);
         $stmt->bindParam(':nomorSk', $nomorSk);
         $stmt->bindParam(':tanggalDiperoleh', $tanggalDiperoleh);
         $stmt->bindParam(':tanggalKadaluarsa', $tanggalKadaluarsa);
         $stmt->bindParam(':bukti', json_encode($existingBukti)); // Simpan array bukti dalam format JSON
-        $stmt->bindParam(':idSertifikasi', $idSertifikasi);
+        $stmt->bindParam(':idSertifikasi', $idSertifikasi, PDO::PARAM_INT);
+        $stmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);
         
         // Eksekusi statement
         if ($stmt->execute()) {

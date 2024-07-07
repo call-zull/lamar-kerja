@@ -2,52 +2,53 @@
 session_start();
 include '../../includes/db.php';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Ambil data dari form
-    $username = $_POST['username'];
-    $password = $_POST['password'];
-    $nama_perusahaan = $_POST['nama_perusahaan'];
-    $alamat_perusahaan = $_POST['alamat_perusahaan'];
-    $email_perusahaan = $_POST['email_perusahaan'];
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+    header('Location: ../../auth/login.php');
+    exit;
+}
 
-    // Hash password
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    $username = $_POST['username'];
+    $password = password_hash($_POST['password'], PASSWORD_BCRYPT);
+    $nama_perusahaan = $_POST['nama_perusahaan'];
+    $email_perusahaan = $_POST['email_perusahaan'];
+    $alamat_perusahaan = $_POST['alamat_perusahaan'];
 
     try {
-        // Mulai transaksi
         $pdo->beginTransaction();
 
-        // Masukkan data ke dalam tabel users
-        $sql_users = "INSERT INTO users (username, password, role) 
-                      VALUES (?, ?, 'perusahaan')";
-        $stmt_users = $pdo->prepare($sql_users);
-        $stmt_users->execute([$username, $hashed_password]);
+        // Insert into users table
+        $sql_user = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'perusahaan')";
+        $stmt_user = $pdo->prepare($sql_user);
+        $stmt_user->execute([
+            ':username' => $username,
+            ':password' => $password,
+        ]);
 
-        // Ambil ID user yang baru saja dimasukkan
+        // Get last inserted user ID
         $user_id = $pdo->lastInsertId();
 
-        // Masukkan data admin ke dalam tabel admins
-        $sql_perusahaans = "INSERT INTO perusahaans (user_id, nama_perusahaan, alamat_perusahaan, email_perusahaan) VALUES (?, ?, ?, ?)";
-        $stmt_perusahaans = $pdo->prepare($sql_perusahaans);
-        $stmt_perusahaans->execute([$user_id, $nama_perusahaan, $alamat_perusahaan, $email_perusahaan]);
+        // Insert into perusahaan table
+        $sql_perusahaan = "INSERT INTO perusahaans (user_id, nama_perusahaan, email_perusahaan, alamat_perusahaan) VALUES (:user_id, :nama_perusahaan, :email_perusahaan, :alamat_perusahaan)";
+        $stmt_perusahaan = $pdo->prepare($sql_perusahaan);
+        $stmt_perusahaan->execute([
+            ':user_id' => $user_id,
+            ':nama_perusahaan' => $nama_perusahaan,
+            ':email_perusahaan' => $email_perusahaan,
+            ':alamat_perusahaan' => $alamat_perusahaan,
+        ]);
 
-        // Commit transaksi jika berhasil
         $pdo->commit();
 
-        // Set pesan sukses ke dalam session
-        $_SESSION['success_message'] = 'Akun Perusahaan berhasil ditambahkan.';
-
-        // Redirect kembali ke halaman admin setelah berhasil
-        header("Location: tampil_user_perusahaan.php");
-        exit();
+        $_SESSION['success_message'] = "Akun perusahaan berhasil ditambahkan.";
+        header('Location: tampil_user_perusahaan.php');
+        exit;
     } catch (PDOException $e) {
-        // Rollback transaksi jika terjadi error
         $pdo->rollBack();
-        die("Gagal menambahkan Perusahaan: " . $e->getMessage());
+        echo "Error: " . $e->getMessage();
     }
 } else {
-    // Redirect jika tidak diakses dari form
-    header("Location: tampil_user_perusahaan.php");
-    exit();
+    header('Location: tampil_user_perusahaan.php');
+    exit;
 }
 ?>

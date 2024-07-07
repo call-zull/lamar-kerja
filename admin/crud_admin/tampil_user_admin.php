@@ -156,7 +156,7 @@ $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                         <td><?php echo htmlspecialchars($admin['email']); ?></td>
                                                         <td>
                                                             <?php if (!empty($admin['profile_image'])) : ?>
-                                                                <img src="../assets/admin/<?php echo $admin['profile_image']; ?>" class="img-thumbnail" style="max-width: 50px;">
+                                                                <img src="../assets/admin/profile<?php echo $admin['id']; ?>/<?php echo $admin['profile_image']; ?>" class="img-thumbnail" style="max-width: 50px;">
                                                             <?php else : ?>
                                                                 No Image
                                                             <?php endif; ?>

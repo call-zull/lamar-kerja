@@ -41,7 +41,7 @@ $statuses = getEnumValues($pdo, 'mahasiswas', 'status');
 $jks = getEnumValues($pdo, 'mahasiswas', 'jk');
 
 // Fetch mahasiswa data from database
-$sql_mahasiswas = "SELECT b.id, b.user_id, b.nim, b.nama_mahasiswa, b.prodi_id, b.jurusan_id, p.nama_prodi, j.nama_jurusan, b.tahun_masuk, b.status, b.jk, b.alamat, b.email, b.no_telp
+$sql_mahasiswas = "SELECT b.id, b.user_id, b.nim, b.nama_mahasiswa, b.profile_image, b.prodi_id, b.jurusan_id, p.nama_prodi, j.nama_jurusan, b.tahun_masuk, b.status, b.jk, b.alamat, b.email, b.no_telp
                    FROM mahasiswas b 
                    LEFT JOIN prodis p ON b.prodi_id = p.id
                    LEFT JOIN jurusans j ON b.jurusan_id = j.id";
@@ -124,7 +124,7 @@ $mahasiswas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <div class="col-sm-6">
                             <ol class="breadcrumb float-sm-right">
                                 <li class="breadcrumb-item"><a href="../index.php">Home</a></li>
-                                <li class="breadcrumb-item active">Tampil User Mahasiwa</li>
+                                <li class="breadcrumb-item active">Tampil User Mahasiswa</li>
                             </ol>
                         </div>
                     </div>
@@ -174,14 +174,14 @@ $mahasiswas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <tr>
                                                         <td><?= $index + 1 ?></td>
                                                         <td><?= htmlspecialchars($mahasiswa['nim']) ?></td>
-                                                        <td><?= htmlspecialchars($mahasiswa['nama_mahasiswa']) ?></td>
                                                         <td>
                                                             <?php if (!empty($mahasiswa['profile_image'])) : ?>
-                                                                <img src="../assets/mahasiswa/<?php echo $mahasiswa['profile_image']; ?>" class="img-thumbnail" style="max-width: 50px;">
+                                                                <img src="../assets/mahasiswa/<?= htmlspecialchars($mahasiswa['profile_image']) ?>" class="img-thumbnail" style="max-width: 50px;">
                                                             <?php else : ?>
                                                                 No Image
                                                             <?php endif; ?>
                                                         </td>
+                                                        <td><?= htmlspecialchars($mahasiswa['nama_mahasiswa']) ?></td>
                                                         <td><?= htmlspecialchars($mahasiswa['nama_jurusan']) ?></td>
                                                         <td><?= htmlspecialchars($mahasiswa['nama_prodi']) ?></td>
                                                         <td><?= htmlspecialchars($mahasiswa['tahun_masuk']) ?></td>
@@ -191,7 +191,7 @@ $mahasiswas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                         <td><?= htmlspecialchars($mahasiswa['email']) ?></td>
                                                         <td><?= htmlspecialchars($mahasiswa['no_telp']) ?></td>
                                                         <td>
-                                                            <button class="btn btn-sm btn-primary btn-edit" data-id="<?= $mahasiswa['id'] ?>" data-nim="<?= htmlspecialchars($mahasiswa['nim']) ?>" data-nama="<?= htmlspecialchars($mahasiswa['nama_mahasiswa']) ?>"  data-jurusan="<?= $mahasiswa['jurusan_id'] ?>" data-prodi="<?= $mahasiswa['prodi_id'] ?>" data-tahun-masuk="<?= htmlspecialchars($mahasiswa['tahun_masuk']) ?>" data-status="<?= htmlspecialchars($mahasiswa['status']) ?>" data-jk="<?= htmlspecialchars($mahasiswa['jk']) ?>" data-alamat="<?= htmlspecialchars($mahasiswa['alamat']) ?>" data-email="<?= htmlspecialchars($mahasiswa['email']) ?>" data-no-telp="<?= htmlspecialchars($mahasiswa['no_telp']) ?>">
+                                                            <button class="btn btn-sm btn-primary btn-edit" data-id="<?= $mahasiswa['id'] ?>" data-nim="<?= htmlspecialchars($mahasiswa['nim']) ?>" data-nama="<?= htmlspecialchars($mahasiswa['nama_mahasiswa']) ?>" data-jurusan="<?= $mahasiswa['jurusan_id'] ?>" data-prodi="<?= $mahasiswa['prodi_id'] ?>" data-tahun-masuk="<?= htmlspecialchars($mahasiswa['tahun_masuk']) ?>" data-status="<?= htmlspecialchars($mahasiswa['status']) ?>" data-jk="<?= htmlspecialchars($mahasiswa['jk']) ?>" data-alamat="<?= htmlspecialchars($mahasiswa['alamat']) ?>" data-email="<?= htmlspecialchars($mahasiswa['email']) ?>" data-no-telp="<?= htmlspecialchars($mahasiswa['no_telp']) ?>">
                                                                 <i class="fas fa-edit"></i> Edit
                                                             </button>
                                                             <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $mahasiswa['id'] ?>" data-user="<?php echo $mahasiswa['user_id']; ?>">
@@ -466,88 +466,88 @@ $mahasiswas = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
             // Handle delete button click
             $('.btn-delete').on('click', function() {
-                    const mahasiswaId = $(this).data('id');
-                    const userId = $(this).data('user');
+                const mahasiswaId = $(this).data('id');
+                const userId = $(this).data('user');
 
-                    $('#delete_mahasiswa_id').val(mahasiswaId);
-                    $('#delete_user_id').val(userId);
+                $('#delete_mahasiswa_id').val(mahasiswaId);
+                $('#delete_user_id').val(userId);
 
-                    $('#deleteUserModal').modal('show');
+                $('#deleteUserModal').modal('show');
+            });
+
+            // Handle custom context menu
+            $(document).contextmenu(function(event) {
+                event.preventDefault();
+                var contextMenu = $('#context-menu');
+                contextMenu.css({
+                    display: 'block',
+                    left: event.pageX + 'px',
+                    top: event.pageY + 'px'
                 });
+            });
 
-                // Handle custom context menu
-                $(document).contextmenu(function(event) {
-                    event.preventDefault();
-                    var contextMenu = $('#context-menu');
-                    contextMenu.css({
-                        display: 'block',
-                        left: event.pageX + 'px',
-                        top: event.pageY + 'px'
-                    });
-                });
+            // Close context menu on click outside
+            $(document).click(function() {
+                $('#context-menu').hide();
+            });
 
-                // Close context menu on click outside
-                $(document).click(function() {
-                    $('#context-menu').hide();
-                });
-
-                //prodi
-                $(document).ready(function() {
-                    $('#jurusan').change(function() {
-                        var jurusan_id = $(this).val();
-                        if (jurusan_id) {
-                            $.ajax({
-                                url: 'get_prodi.php',
-                                type: 'POST',
-                                data: { jurusan_id: jurusan_id },
-                                dataType: 'json',
-                                success: function(data) {
-                                    console.log(data); // Tambahkan ini untuk debug
-                                    $('#prodi').empty();
-                                    $('#prodi').append('<option value="">-- Pilih Program Studi --</option>');
-                                    if (data.error) {
-                                        alert(data.error);
-                                    } else {
-                                        $.each(data, function(index, value) {
-                                            $('#prodi').append('<option value="' + value.id + '">' + value.nama_prodi + '</option>');
-                                        });
-                                    }
-                                }
-                            });
-                        } else {
-                            $('#prodi').empty();
-                            $('#prodi').append('<option value="">-- Pilih Program Studi --</option>');
-                        }
-                    });
-                //edit prodi
-                    $('#edit_jurusan').change(function() {
-                        var jurusan_id = $(this).val();
-                        if (jurusan_id) {
-                            $.ajax({
-                                url: 'get_prodi.php',
-                                type: 'POST',
-                                data: { jurusan_id: jurusan_id },
-                                dataType: 'json',
-                                success: function(data) {
-                                    $('#edit_prodi').empty();
-                                    $('#edit_prodi').append('<option value="">-- Pilih Prodi --</option>');
+            //prodi
+            $(document).ready(function() {
+                $('#jurusan').change(function() {
+                    var jurusan_id = $(this).val();
+                    if (jurusan_id) {
+                        $.ajax({
+                            url: 'get_prodi.php',
+                            type: 'POST',
+                            data: { jurusan_id: jurusan_id },
+                            dataType: 'json',
+                            success: function(data) {
+                                console.log(data); // Tambahkan ini untuk debug
+                                $('#prodi').empty();
+                                $('#prodi').append('<option value="">-- Pilih Program Studi --</option>');
+                                if (data.error) {
+                                    alert(data.error);
+                                } else {
                                     $.each(data, function(index, value) {
-                                        $('#edit_prodi').append('<option value="' + value.id + '">' + value.nama_prodi + '</option>');
+                                        $('#prodi').append('<option value="' + value.id + '">' + value.nama_prodi + '</option>');
                                     });
                                 }
-                            });
-                        } else {
-                            $('#edit_prodi').empty();
-                            $('#edit_prodi').append('<option value="">-- Pilih Prodi --</option>');
-                        }
-                    });
-
-                    // Trigger change pada jurusan saat halaman dimuat
-                    $('#edit_jurusan').trigger('change');
+                            }
+                        });
+                    } else {
+                        $('#prodi').empty();
+                        $('#prodi').append('<option value="">-- Pilih Program Studi --</option>');
+                    }
+                });
+                //edit prodi
+                $('#edit_jurusan').change(function() {
+                    var jurusan_id = $(this).val();
+                    if (jurusan_id) {
+                        $.ajax({
+                            url: 'get_prodi.php',
+                            type: 'POST',
+                            data: { jurusan_id: jurusan_id },
+                            dataType: 'json',
+                            success: function(data) {
+                                $('#edit_prodi').empty();
+                                $('#edit_prodi').append('<option value="">-- Pilih Prodi --</option>');
+                                $.each(data, function(index, value) {
+                                    $('#edit_prodi').append('<option value="' + value.id + '">' + value.nama_prodi + '</option>');
+                                });
+                            }
+                        });
+                    } else {
+                        $('#edit_prodi').empty();
+                        $('#edit_prodi').append('<option value="">-- Pilih Prodi --</option>');
+                    }
                 });
 
-                //email
-                document.getElementById('email').addEventListener('input', function (e) {
+                // Trigger change pada jurusan saat halaman dimuat
+                $('#edit_jurusan').trigger('change');
+            });
+
+            //email
+            document.getElementById('email').addEventListener('input', function(e) {
                 const emailField = e.target;
                 const email = emailField.value;
                 if (!email.includes('@')) {
@@ -555,13 +555,10 @@ $mahasiswas = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 } else {
                     emailField.setCustomValidity('');
                 }
-                });
-
-
             });
+        });
     </script>
 
 </body>
 
 </html>
-

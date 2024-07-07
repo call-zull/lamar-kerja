@@ -2,13 +2,20 @@
 session_start();
 include '../../includes/db.php';
 
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
+    http_response_code(403);
+    echo json_encode(array("message" => "Akses ditolak."));
+    exit;
+}
+
 // Pastikan request adalah POST dan terdapat ID yang dikirim
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $id = $_POST['id']; // Ambil ID dari POST data
+    $mahasiswa_id = $_SESSION['mahasiswa_id']; // Ambil mahasiswa_id dari sesi
 
-    // Query untuk mengambil data sertifikasi berdasarkan ID
-    $stmt = $pdo->prepare("SELECT * FROM sertifikasi WHERE id = ?");
-    $stmt->execute([$id]);
+    // Query untuk mengambil data sertifikasi berdasarkan ID dan mahasiswa_id
+    $stmt = $pdo->prepare("SELECT * FROM sertifikasi WHERE id = ? AND mahasiswa_id = ?");
+    $stmt->execute([$id, $mahasiswa_id]);
     $sertifikasi = $stmt->fetch(PDO::FETCH_ASSOC);
 
     // Jika data ditemukan, kirimkan sebagai JSON

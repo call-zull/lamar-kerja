@@ -47,15 +47,15 @@
                         <p>Profile</p>
                     </a>
                 </li>
-                <li class="nav-item has-treeview">
-                    <a href="../index.php" class="nav-link">
+                <li class="nav-item has-treeview menu-open">
+                    <a href="#" class="nav-link">
                         <i class="nav-icon fas fa-file-alt"></i>
-                        <p>Data Portofolio <i class="right fas fa-angle-left"></i></p>
+                        <p>Data Portofolio <i class="fas fa-angle-left right"></i></p>
                     </a>
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
                             <a href="../crud_sertifikasi/tampil_sertifikasi.php" class="nav-link">
-                            <i class="fas fa-award nav-icon"></i>
+                                <i class="fas fa-award nav-icon"></i>
                                 <p>Sertifikasi</p>
                             </a>
                         </li>
