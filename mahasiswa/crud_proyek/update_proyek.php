@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tujuanProyek = $_POST['tujuan_proyek'];
     $mahasiswa_id = $_SESSION['mahasiswa_id']; // Ambil mahasiswa_id dari sesi
 
-    // Proses upload bukti
+    // Proses link Google Drive
     $bukti = [];
 
     // Jika ada file bukti yang diunggah, lakukan proses upload
@@ -45,13 +45,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     try {
-        // Fetch existing proyek data if available
-        $stmt = $pdo->prepare("SELECT bukti FROM proyek WHERE id = :id AND mahasiswa_id = :mahasiswa_id");
-        $stmt->bindParam(':id', $idProyek, PDO::PARAM_INT);
+        // Fetch existing proyek data
+        $stmt = $pdo->prepare("SELECT bukti FROM proyek WHERE id = :idProyek AND mahasiswa_id = :mahasiswa_id");
+        $stmt->bindParam(':idProyek', $idProyek, PDO::PARAM_INT);
         $stmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
-        
+
         if (!$result) {
             $_SESSION['error_message'] = "Data proyek tidak ditemukan.";
             header("Location: tampil_proyek.php");
@@ -60,15 +60,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $existingBukti = json_decode($result['bukti'], true);
 
-        // If new bukti is uploaded or provided, replace the existing one
-        if (!empty($bukti)) {
-            $existingBukti = $bukti;
+        // Hapus bukti jika ada perintah untuk menghapus
+        if (isset($_POST['delete_bukti'])) {
+            $index = $_POST['delete_bukti'];
+            if (isset($existingBukti[$index])) {
+                unlink($existingBukti[$index]); // Hapus file fisik dari server
+                unset($existingBukti[$index]); // Hapus referensi dari array bukti
+                $existingBukti = array_values($existingBukti); // Reset kembali index array
+            }
         }
 
-        // Update data proyek di database menggunakan PDO
-        $stmt = $pdo->prepare("UPDATE proyek SET nama_proyek = :namaProyek, partner = :partner, peran = :peran, 
-                                waktu_awal = :waktuAwal, waktu_selesai = :waktuSelesai, tujuan_proyek = :tujuanProyek, 
-                                bukti = :bukti WHERE id = :idProyek AND mahasiswa_id = :mahasiswa_id");
+        // Jika ada bukti baru yang diunggah, gabungkan dengan bukti yang ada
+        if (!empty($bukti)) {
+            $existingBukti = array_merge($existingBukti, $bukti);
+        }
+
+        // Update data proyek di database menggunakan prepared statement PDO
+        $stmt = $pdo->prepare("UPDATE proyek SET nama_proyek = :namaProyek, partner = :partner, 
+                                peran = :peran, waktu_awal = :waktuAwal, waktu_selesai = :waktuSelesai, 
+                                tujuan_proyek = :tujuanProyek, bukti = :bukti 
+                                WHERE id = :idProyek AND mahasiswa_id = :mahasiswa_id");
         $stmt->bindParam(':namaProyek', $namaProyek);
         $stmt->bindParam(':partner', $partner);
         $stmt->bindParam(':peran', $peran);
@@ -78,7 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt->bindParam(':bukti', json_encode($existingBukti)); // Simpan array bukti dalam format JSON
         $stmt->bindParam(':idProyek', $idProyek, PDO::PARAM_INT);
         $stmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);
-        
+
         // Eksekusi statement
         if ($stmt->execute()) {
             // Jika berhasil disimpan, redirect ke halaman tampil_proyek.php
@@ -91,10 +102,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             header("Location: tampil_proyek.php");
             exit();
         }
-        
-        // Tutup statement
-        $stmt = null; // Tutup statement dengan mengosongkan objek
-        
+
     } catch (PDOException $e) {
         // Tangani kesalahan PDO
         $_SESSION['error_message'] = "Terjadi kesalahan saat memperbarui data proyek: " . $e->getMessage();

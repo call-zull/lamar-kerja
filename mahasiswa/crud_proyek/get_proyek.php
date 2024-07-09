@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../../includes/db.php'; // Pastikan file db.php sudah termasuk koneksi PDO
+include '../../includes/db.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
     http_response_code(403);
@@ -14,7 +14,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
     $mahasiswa_id = $_SESSION['mahasiswa_id']; // Ambil mahasiswa_id dari sesi
 
     // Query untuk mengambil data proyek berdasarkan ID dan mahasiswa_id
-    $stmt = $pdo->prepare("SELECT * FROM proyek WHERE id = ? AND mahasiswa_id = ?");
+    $stmt = $pdo->prepare("SELECT * FROM proyek WHERE id_proyek = ? AND mahasiswa_id = ?");
     $stmt->execute([$id, $mahasiswa_id]);
     $proyek = $stmt->fetch(PDO::FETCH_ASSOC);
 

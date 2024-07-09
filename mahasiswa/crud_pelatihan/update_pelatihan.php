@@ -16,7 +16,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggalSelesai = $_POST['tanggal_selesai'];
     $idTingkatan = $_POST['id_tingkatan'];
     $tempatPelaksanaan = $_POST['tempat_pelaksanaan'];
-    $idPenyelenggara = $_POST['id_penyelenggara'];
+    $penyelenggara = $_POST['penyelenggara'];
     $mahasiswa_id = $_SESSION['mahasiswa_id']; // Ambil mahasiswa_id dari sesi
 
     // Proses upload bukti
@@ -62,24 +62,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $existingBukti = json_decode($result['bukti'], true);
 
-        // If new bukti is uploaded or provided, add to the existing bukti array
+        // If new bukti is uploaded or provided, replace the existing one
         if (!empty($bukti)) {
-            $existingBukti = array_merge($existingBukti, $bukti);
+            $existingBukti = $bukti;
         }
 
         // Update data pelatihan di database menggunakan PDO
-        $stmt = $pdo->prepare("UPDATE pelatihan SET nama_pelatihan = :namaPelatihan, materi = :materi, deskripsi = :deskripsi, 
-                                tanggal_mulai = :tanggalMulai, tanggal_selesai = :tanggalSelesai, id_tingkatan = :idTingkatan, 
-                                tempat_pelaksanaan = :tempatPelaksanaan, id_penyelenggara = :idPenyelenggara, bukti = :bukti 
+        $stmt = $pdo->prepare("UPDATE pelatihan SET nama_pelatihan = :namaPelatihan, materi = :materi, 
+                                deskripsi = :deskripsi, tanggal_mulai = :tanggalMulai, tanggal_selesai = :tanggalSelesai, 
+                                id_tingkatan = :idTingkatan, tempat_pelaksanaan = :tempatPelaksanaan, 
+                                penyelenggara = :penyelenggara, bukti = :bukti 
                                 WHERE id_pelatihan = :idPelatihan AND mahasiswa_id = :mahasiswa_id");
         $stmt->bindParam(':namaPelatihan', $namaPelatihan);
         $stmt->bindParam(':materi', $materi);
         $stmt->bindParam(':deskripsi', $deskripsi);
         $stmt->bindParam(':tanggalMulai', $tanggalMulai);
         $stmt->bindParam(':tanggalSelesai', $tanggalSelesai);
-        $stmt->bindParam(':idTingkatan', $idTingkatan);
+        $stmt->bindParam(':idTingkatan', $idTingkatan, PDO::PARAM_INT);
         $stmt->bindParam(':tempatPelaksanaan', $tempatPelaksanaan);
-        $stmt->bindParam(':idPenyelenggara', $idPenyelenggara);
+        $stmt->bindParam(':penyelenggara', $penyelenggara);
         $stmt->bindParam(':bukti', json_encode($existingBukti)); // Simpan array bukti dalam format JSON
         $stmt->bindParam(':idPelatihan', $idPelatihan, PDO::PARAM_INT);
         $stmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);

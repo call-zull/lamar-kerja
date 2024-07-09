@@ -10,10 +10,10 @@ include '../includes/db.php';
 // Function to fetch applicants from lamaran_mahasiswas table
 function fetchApplicants($pdo) {
     try {
-        $sql = "SELECT lm.*, u.username as nama_mahasiswa, lk.nama_pekerjaan as nama_pekerjaan, lk.posisi
-        FROM lamaran_mahasiswas lm
-        JOIN users u ON lm.user_id = u.id
-        JOIN lowongan_kerja lk ON lm.lowongan_id = lk.id";
+        $sql = "SELECT lm.*, m.nama_mahasiswa, lk.nama_pekerjaan as nama_pekerjaan, lk.posisi
+                FROM lamaran_mahasiswas lm
+                JOIN mahasiswas m ON lm.mahasiswa_id = m.id
+                JOIN lowongan_kerja lk ON lm.lowongan_id = lk.id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -23,12 +23,11 @@ function fetchApplicants($pdo) {
     }
 }
 
-
+// Display success message if available
 if (isset($_SESSION['message'])) {
     echo "<div class='alert alert-success'>" . $_SESSION['message'] . "</div>";
     unset($_SESSION['message']);
 }
-
 
 // Fetching applicants
 $applicants = fetchApplicants($pdo);
@@ -152,15 +151,6 @@ $applicants = fetchApplicants($pdo);
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
-        <!-- Success Message -->
-        <?php if (!empty($success_message)) : ?>
-                            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                                <?php echo $success_message; ?>
-                        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                <?php endif; ?>
                 <h2 class="header-left">Pelamar</h2>
                 <div class="search-and-add">
                     <div class="form-group mb-0">
@@ -181,30 +171,31 @@ $applicants = fetchApplicants($pdo);
                             </tr>
                         </thead>
                         <tbody>
-                            <?php
-                            if ($applicants) {
-                                $no = 1;
-                                foreach ($applicants as $row) {
-                                                echo "<tr>";
-                                                echo "<td>" . $no . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['nama_mahasiswa'] ?? '') . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['nama_pekerjaan'] ?? '') . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['posisi'] ?? '') . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['pesan'] ?? '') . "</td>";
-                                                echo "<td>" . htmlspecialchars($row['status'] ?? '') . "</td>";
-                                                echo "<td>
-                                                        <button class='btn btn-warning btn-sm' data-toggle='modal' data-target='#modalEdit' 
-                                                            data-id='" . $row['id'] . "' 
-                                                            data-status='" . htmlspecialchars($row['status'] ?? '') . "'>Ubah status lamaran </button>
-                                                        <button class='btn btn-danger btn-sm' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
-                                                      </td>";
-                                                echo "</tr>";
-                                                $no++;
-                                            }
-                            } else {
-                                echo "<tr><td colspan='5'>Tidak ada data</td></tr>";
+                        <?php
+                        if ($applicants) {
+                            $no = 1;
+                            foreach ($applicants as $row) {
+                                echo "<tr>";
+                                echo "<td>" . $no . "</td>";
+                                echo "<td>" . htmlspecialchars($row['nama_mahasiswa'] ?? '') . "</td>";
+                                echo "<td>" . htmlspecialchars($row['nama_pekerjaan'] ?? '') . "</td>";
+                                echo "<td>" . htmlspecialchars($row['posisi'] ?? '') . "</td>";
+                                echo "<td>" . htmlspecialchars($row['pesan'] ?? '') . "</td>";
+                                echo "<td>" . htmlspecialchars($row['status'] ?? '') . "</td>";
+                                echo "<td>
+                                        <button class='btn btn-warning btn-sm' data-toggle='modal' data-target='#modalEdit' 
+                                            data-id='" . $row['id'] . "' 
+                                            data-nama='" . htmlspecialchars($row['nama_mahasiswa'] ?? '') . "' 
+                                            data-status='" . htmlspecialchars($row['status'] ?? '') . "'>Ubah status lamaran </button>
+                                        <button class='btn btn-danger btn-sm' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
+                                      </td>";
+                                echo "</tr>";
+                                $no++;
                             }
-                            ?>
+                        } else {
+                            echo "<tr><td colspan='7'>Tidak ada data</td></tr>";
+                        }
+                        ?>
                         </tbody>
                     </table>
                 </div>
@@ -222,7 +213,7 @@ $applicants = fetchApplicants($pdo);
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalEditLabel">Edit Pelamar</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
+                        <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
                     <div class="modal-body">
@@ -296,7 +287,6 @@ $(document).ready(function() {
         
         var modal = $(this);
         modal.find('#edit_id').val(id);
-        modal.find('#edit_nama_pelamar').val(nama);
         modal.find('#edit_status').val(status);
     });
 
@@ -320,3 +310,4 @@ $(document).ready(function() {
 </script>
 </body>
 </html>
+

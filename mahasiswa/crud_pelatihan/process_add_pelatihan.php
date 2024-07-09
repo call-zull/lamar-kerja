@@ -10,7 +10,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $tanggalSelesai = $_POST['tanggal_selesai'];
     $idTingkatan = $_POST['id_tingkatan'];
     $tempatPelaksanaan = $_POST['tempat_pelaksanaan'];
-    $idPenyelenggara = $_POST['id_penyelenggara'];
+    $penyelenggara = $_POST['penyelenggara'];
     $mahasiswaId = $_SESSION['mahasiswa_id'];
 
     $bukti = [];
@@ -37,8 +37,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Simpan data ke database menggunakan prepared statement PDO
     $jsonBukti = json_encode($bukti); // Simpan array path bukti sebagai JSON
-    $stmt = $pdo->prepare("INSERT INTO pelatihan (nama_pelatihan, materi, deskripsi, tanggal_mulai, tanggal_selesai, id_tingkatan, tempat_pelaksanaan, id_penyelenggara, bukti, mahasiswa_id) 
-                            VALUES (:namaPelatihan, :materi, :deskripsi, :tanggalMulai, :tanggalSelesai, :idTingkatan, :tempatPelaksanaan, :idPenyelenggara, :bukti, :mahasiswaId)");
+    $stmt = $pdo->prepare("INSERT INTO pelatihan (nama_pelatihan, materi, deskripsi, tanggal_mulai, tanggal_selesai, id_tingkatan, tempat_pelaksanaan, penyelenggara, bukti, mahasiswa_id) 
+                            VALUES (:namaPelatihan, :materi, :deskripsi, :tanggalMulai, :tanggalSelesai, :idTingkatan, :tempatPelaksanaan, :penyelenggara, :bukti, :mahasiswaId)");
     $stmt->bindParam(':namaPelatihan', $namaPelatihan);
     $stmt->bindParam(':materi', $materi);
     $stmt->bindParam(':deskripsi', $deskripsi);
@@ -46,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->bindParam(':tanggalSelesai', $tanggalSelesai);
     $stmt->bindParam(':idTingkatan', $idTingkatan);
     $stmt->bindParam(':tempatPelaksanaan', $tempatPelaksanaan);
-    $stmt->bindParam(':idPenyelenggara', $idPenyelenggara);
+    $stmt->bindParam(':penyelenggara', $penyelenggara);
     $stmt->bindParam(':bukti', $jsonBukti);
     $stmt->bindParam(':mahasiswaId', $mahasiswaId);
 
@@ -69,3 +69,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 // Tutup koneksi database
 $pdo = null;
 ?>
+

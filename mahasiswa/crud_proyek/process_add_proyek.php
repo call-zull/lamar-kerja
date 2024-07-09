@@ -1,6 +1,6 @@
 <?php
 session_start();
-include '../../includes/db.php';
+include '../../includes/db.php'; // Pastikan file db.php sudah termasuk koneksi PDO
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $namaProyek = $_POST['nama_proyek'];
@@ -12,21 +12,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $mahasiswaId = $_SESSION['mahasiswa_id'];
 
     $bukti = [];
-    $targetDir = "../../assets/mahasiswa/proyek/";
-
-    // Proses upload file bukti
-    if (!empty($_FILES['bukti_file']['tmp_name'])) {
-        $fileName = basename($_FILES['bukti_file']['name']);
-        $fileExt = pathinfo($fileName, PATHINFO_EXTENSION);
-        $uniqueName = uniqid('', true) . '.' . $fileExt; // Buat nama file unik
-        $targetFilePath = $targetDir . $uniqueName;
-
-        if (move_uploaded_file($_FILES['bukti_file']['tmp_name'], $targetFilePath)) {
-            $bukti[] = $targetFilePath;
-        } else {
-            echo "Gagal memindahkan file yang diunggah.";
-        }
-    }
 
     // Proses link Google Drive
     if (!empty($_POST['bukti_link']) && $_POST['bukti_link'] !== '-') {

@@ -276,6 +276,7 @@ $perusahaans = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
 
         <!-- Scripts -->
+         <script src="../script_admin.js"></script>
         <script src="../../app/plugins/jquery/jquery.min.js"></script>
         <script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
         <script src="../../app/plugins/datatables/jquery.dataTables.min.js"></script>

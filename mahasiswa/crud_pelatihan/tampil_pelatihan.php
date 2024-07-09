@@ -15,16 +15,14 @@ if (isset($_SESSION['success_message'])) {
 
 // Fetch pelatihan data from database
 $mahasiswa_id = $_SESSION['mahasiswa_id'];
-$sql = "SELECT p.id_pelatihan, p.nama_pelatihan, p.materi, p.deskripsi, p.tanggal_mulai, p.tanggal_selesai, t.nama AS tingkatan, p.tempat_pelaksanaan, ps.nama_lembaga AS nama_penyelenggara, p.bukti
+$sql = "SELECT p.id_pelatihan, p.nama_pelatihan, p.materi, p.deskripsi, p.tanggal_mulai, p.tanggal_selesai, t.nama AS tingkatan, p.tempat_pelaksanaan, p.penyelenggara, p.bukti
         FROM pelatihan p
         LEFT JOIN tingkatan t ON p.id_tingkatan = t.id
-        LEFT JOIN penyelenggara_sertifikasi ps ON p.id_penyelenggara = ps.id
         WHERE p.mahasiswa_id = ?";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$mahasiswa_id]);
 $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -35,9 +33,6 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="../../app/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../app/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="../../app/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="../app/dist/css/adminlte.min.css">
-    <link rel="stylesheet" href="../app/dist/css/adminlte.dark.min.css" media="screen">
-    <link rel="stylesheet" href="../app/dist/css/adminlte.light.min.css" media="screen">
     <link rel="stylesheet" href="../../app/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../../app/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -46,6 +41,7 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
             background-color: #343a40 !important;
         }
         .table-responsive {
+            overflow-x: auto;
             overflow-y: auto;
             max-height: 400px; /* Adjust height as needed */
         }
@@ -58,13 +54,13 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
         }
 
         .table-responsive thead th {
-        color: #ffffff;
-        border-color: #454d55; 
+            color: #ffffff;
+            border-color: #454d55; 
         }
 
         .table-responsive tbody tr:hover {
-        background-color: #f2f2f2; 
-        }       
+            background-color: #f2f2f2; 
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -109,17 +105,17 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             </div>
                             <div class="card-body">
                                 <div class="table-responsive">
-                                    <table id="pelatihanTable" class="table table-bordered table-striped">
+                                    <table id="pelatihanTable" class="table table-bordered table-striped nowrap">
                                         <thead>
                                             <tr>
                                                 <th>No</th>
-                                                <th>Nama Pelatihan</th>
+                                                <th>Nama</th>
                                                 <th>Materi</th>
                                                 <th>Deskripsi</th>
                                                 <th>Tanggal Mulai</th>
                                                 <th>Tanggal Selesai</th>
                                                 <th>Tingkatan</th>
-                                                <th>Tempat Pelaksanaan</th>
+                                                <th>Tempat</th>
                                                 <th>Penyelenggara</th>
                                                 <th>Bukti</th>
                                                 <th>Aksi</th>
@@ -136,7 +132,7 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td><?= htmlspecialchars($item['tanggal_selesai']); ?></td>
                                                     <td><?= htmlspecialchars($item['tingkatan']); ?></td>
                                                     <td><?= htmlspecialchars($item['tempat_pelaksanaan']); ?></td>
-                                                    <td><?= htmlspecialchars($item['nama_penyelenggara']); ?></td>
+                                                    <td><?= htmlspecialchars($item['penyelenggara']); ?></td>
                                                     <td>
                                                         <?php
                                                         $buktiArray = json_decode($item['bukti'], true);
@@ -218,19 +214,8 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <input type="text" class="form-control" id="tempatPelaksanaan" name="tempat_pelaksanaan" required>
                         </div>
                         <div class="form-group">
-                            <label for="idPenyelenggara">Penyelenggara</label>
-                            <select class="form-control" id="idPenyelenggara" name="id_penyelenggara" required>
-                                <option value="">-- Pilih Penyelenggara --</option>
-                                <?php
-                                // Fetch penyelenggara_sertifikasi from database
-                                $sql_penyelenggara = "SELECT id, nama_lembaga FROM penyelenggara_sertifikasi";
-                                $stmt_penyelenggara = $pdo->query($sql_penyelenggara);
-                                $penyelenggara = $stmt_penyelenggara->fetchAll();
-                                foreach ($penyelenggara as $penyelenggara_item) {
-                                    echo "<option value='{$penyelenggara_item['id']}'>{$penyelenggara_item['nama_lembaga']}</option>";
-                                }
-                                ?>
-                            </select>
+                            <label for="penyelenggara">Penyelenggara</label>
+                            <input type="text" class="form-control" id="penyelenggara" name="penyelenggara" required>
                         </div>
                         <div class="form-group">
                             <label for="bukti">Bukti (upload berupa .pdf atau img, max 5mb)</label>
@@ -297,15 +282,8 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <input type="text" class="form-control" id="editTempatPelaksanaan" name="tempat_pelaksanaan" required>
                         </div>
                         <div class="form-group">
-                            <label for="editIdPenyelenggara">Penyelenggara</label>
-                            <select class="form-control" id="editIdPenyelenggara" name="id_penyelenggara" required>
-                                <option value="">-- Pilih Penyelenggara --</option>
-                                <?php
-                                foreach ($penyelenggara as $penyelenggara_item) {
-                                    echo "<option value='{$penyelenggara_item['id']}'>{$penyelenggara_item['nama_lembaga']}</option>";
-                                }
-                                ?>
-                            </select>
+                            <label for="editPenyelenggara">Penyelenggara</label>
+                            <input type="text" class="form-control" id="editPenyelenggara" name="penyelenggara" required>
                         </div>
                         <div class="form-group">
                             <label for="editBukti">Bukti</label>
@@ -352,62 +330,61 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <script src="script_mhs.js"></script>
-    <script src="../app/dist/js/adminlte.min.js"></script>
-    <script src="../../app/plugins/jquery/jquery.min.js"></script>
-    <script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <script src="../../app/plugins/datatables/jquery.dataTables.min.js"></script>
-    <script src="../../app/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
-    <script src="../../app/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
-    <script src="../../app/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
-    <script src="../../app/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
-    <script src="../../app/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
-    <script src="../../app/plugins/jszip/jszip.min.js"></script>
-    <script src="../../app/plugins/pdfmake/pdfmake.min.js"></script>
-    <script src="../../app/plugins/pdfmake/vfs_fonts.js"></script>
-    <script src="../../app/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
-    <script src="../../app/plugins/datatables-buttons/js/buttons.print.min.js"></script>
-    <script src="../../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+<script src="script_mhs.js"></script>
+<script src="../app/dist/js/adminlte.min.js"></script>
+<script src="../../app/plugins/jquery/jquery.min.js"></script>
+<script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../../app/plugins/datatables/jquery.dataTables.min.js"></script>
+<script src="../../app/plugins/datatables-bs4/js/dataTables.bootstrap4.min.js"></script>
+<script src="../../app/plugins/datatables-responsive/js/dataTables.responsive.min.js"></script>
+<script src="../../app/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
+<script src="../../app/plugins/datatables-buttons/js/dataTables.buttons.min.js"></script>
+<script src="../../app/plugins/datatables-buttons/js/buttons.bootstrap4.min.js"></script>
+<script src="../../app/plugins/jszip/jszip.min.js"></script>
+<script src="../../app/plugins/pdfmake/pdfmake.min.js"></script>
+<script src="../../app/plugins/pdfmake/vfs_fonts.js"></script>
+<script src="../../app/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
+<script src="../../app/plugins/datatables-buttons/js/buttons.print.min.js"></script>
+<script src="../../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 
-    <script>
-    $(document).ready(function () {
-        // Initialize DataTable
-        var table = $("#pelatihanTable").DataTable({
-            "responsive": true,
-            "autoWidth": false,
-        });
+<script>
+$(document).ready(function () {
+    // Initialize DataTable
+    var table = $("#pelatihanTable").DataTable({
+        "responsive": true,
+        "autoWidth": false,
+    });
 
-        // Fill edit form with existing data
-        $('.editBtn').on('click', function () {
-            var id = $(this).data('id');
-            $.ajax({
-                url: 'get_pelatihan.php',
-                type: 'POST',
-                data: { id: id },
-                dataType: 'json',
-                success: function (response) {
-                    $('#editPelatihanId').val(response.id_pelatihan);
-                    $('#editNamaPelatihan').val(response.nama_pelatihan);
-                    $('#editMateri').val(response.materi);
-                    $('#editDeskripsi').val(response.deskripsi);
-                    $('#editTanggalMulai').val(response.tanggal_mulai);
-                    $('#editTanggalSelesai').val(response.tanggal_selesai);
-                    $('#editIdTingkatan').val(response.id_tingkatan);
-                    $('#editTempatPelaksanaan').val(response.tempat_pelaksanaan);
-                    $('#editIdPenyelenggara').val(response.id_penyelenggara);
-                    $('#editBukti').val('');
-                    $('#editBuktiLink').val('');
-                }
-            });
-        });
-
-        // Set pelatihan ID for deletion
-        $('.deleteBtn').on('click', function () {
-            var id = $(this).data('id');
-            $('#deletePelatihanId').val(id);
+    // Fill edit form with existing data
+    $('.editBtn').on('click', function () {
+        var id = $(this).data('id');
+        $.ajax({
+            url: 'get_pelatihan.php',
+            type: 'POST',
+            data: { id: id },
+            dataType: 'json',
+            success: function (response) {
+                $('#editPelatihanId').val(response.id_pelatihan);
+                $('#editNamaPelatihan').val(response.nama_pelatihan);
+                $('#editMateri').val(response.materi);
+                $('#editDeskripsi').val(response.deskripsi);
+                $('#editTanggalMulai').val(response.tanggal_mulai);
+                $('#editTanggalSelesai').val(response.tanggal_selesai);
+                $('#editIdTingkatan').val(response.id_tingkatan);
+                $('#editTempatPelaksanaan').val(response.tempat_pelaksanaan);
+                $('#editPenyelenggara').val(response.penyelenggara);
+                $('#editBukti').val('');
+                $('#editBuktiLink').val('');
+            }
         });
     });
-    </script>
+
+    // Set pelatihan ID for deletion
+    $('.deleteBtn').on('click', function () {
+        var id = $(this).data('id');
+        $('#deletePelatihanId').val(id);
+    });
+});
+</script>
 </body>
 </html>
-

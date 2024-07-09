@@ -86,43 +86,14 @@
                     </ul>
                 </li>
                 <!-- Portofolio Mahasiswa -->
-                <li class="nav-item has-treeview">
-                    <a href="#" class="nav-link">
-                        <i class="nav-icon fas fa-file-alt"></i>
-                        <p>
-                            Portofolio Mahasiswa
-                            <i class="right fas fa-angle-left"></i>
-                        </p>
-                    </a>
-                    <ul class="nav nav-treeview">
-                        <li class="nav-item">
-                            <a href="data_portofolio/data_sertifikasi.php" class="nav-link">
-                                <i class="fas fa-award nav-icon"></i>
-                                <p>Data Sertifikasi</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="data_portofolio/data_lomba.php" class="nav-link">
-                                <i class="fas fa-trophy nav-icon"></i>
-                                <p>Data Lomba</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="data_portofolio/data_pelatihan.php" class="nav-link">
-                                <i class="fas fa-chalkboard-teacher nav-icon"></i>
-                                <p>Data Pelatihan</p>
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="data_portofolio/data_proyek.php" class="nav-link">
-                                <i class="far fa-folder-open nav-icon"></i>
-                                <p>Data Proyek</p>
-                            </a>
-                        </li>
-                    </ul>
-                </li>
-                <!-- Lowker -->
                 <li class="nav-item">
+                    <a href="data_portofolio/portofolio_mhs.php" class="nav-link">
+                        <i class="nav-icon fas fa-file-alt"></i>
+                        <p>Data Portofolio</p>
+                    </a>
+                </li>
+                 <!-- Lowker -->
+                 <li class="nav-item">
                     <a href="perusahaan_admin.php" class="nav-link">
                         <i class="nav-icon fas fa-building"></i>
                         <p>Lowker</p>
