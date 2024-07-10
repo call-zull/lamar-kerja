@@ -1,69 +1,125 @@
-<!-- Registration Form for Students -->
-<form id="register-student">
-    <h2>Register as Student</h2>
-    <label for="student-name">Name:</label>
-    <input type="text" id="student-name" name="student-name" required>
-    <label for="student-nim">NIM:</label>
-    <input type="text" id="student-nim" name="student-nim" pattern="\d{10}" required>
-    <label for="student-email">Email:</label>
-    <input type="email" id="student-email" name="student-email" required>
-    <label for="student-department">Department:</label>
-    <select id="student-department" name="student-department" required>
-        <!-- Options for departments -->
-    </select>
-    <label for="student-program">Study Program:</label>
-    <select id="student-program" name="student-program" required>
-        <!-- Options for study programs -->
-    </select>
-    <label for="student-password">Password:</label>
-    <input type="password" id="student-password" name="student-password" required>
-    <button type="submit">Register</button>
-</form>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Register - SI Portofolio POLIBAN</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700&display=fallback">
+    <link rel="stylesheet" href="../app/plugins/fontawesome-free/css/all.min.css">
+    <link rel="stylesheet" href="../app/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
+    <link rel="stylesheet" href="../app/dist/css/adminlte.min.css">
+    <style>
+        .register-page {
+            background-image: url('../assets/images/poliban_background.jpg');
+            background-size: cover;
+            background-position: center;
+            height: 100vh;
+        }
+        .register-box {
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+            padding: 20px;
+        }
+        .logo {
+            width: 80px;
+        }
+    </style>
+</head>
+<body class="hold-transition register-page">
+    <div class="register-box">
+        <div class="card card-outline card-primary">
+            <div class="card-header text-center">
+                <a href="../app/index.html" class="h4"><b>SI</b>Portofolio</a>
+                <p><img src="../assets/images/logo_poliban.png" alt="POLIBAN Logo" class="logo"></p>
+            </div>
+            <div class="card-body">
+                <p class="login-box-msg">Daftar Akun Baru</p>
+                <?php
+                session_start();
+                if (isset($_SESSION['error'])) {
+                    echo '<div class="alert alert-danger">' . $_SESSION['error'] . '</div>';
+                    unset($_SESSION['error']);
+                }
+                if (isset($_SESSION['success'])) {
+                    echo '<div class="alert alert-success">' . $_SESSION['success'] . '</div>';
+                    unset($_SESSION['success']);
+                }
+                ?>
+                <form action="../auth/process_register.php" method="post">
+                    <div class="input-group mb-3">
+                        <input type="text" class="form-control" placeholder="Username" name="username" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-user"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <input type="password" class="form-control" placeholder="Password" name="password" required>
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-lock"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3">
+                        <select class="form-control" name="role" id="role" required>
+                            <option value="" disabled selected>Pilih role</option>
+                            <option value="mahasiswa">Mahasiswa</option>
+                            <option value="perusahaan">Perusahaan</option>
+                        </select>
+                    </div>
+                    <div class="input-group mb-3" id="nim-field" style="display: none;">
+                        <input type="text" class="form-control" placeholder="NIM" name="nim">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fas fa-id-card"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="input-group mb-3" id="whatsapp-field" style="display: none;">
+                        <input type="text" class="form-control" placeholder="No. WhatsApp untuk konfirmasi akun" name="no_telp">
+                        <div class="input-group-append">
+                            <div class="input-group-text">
+                                <span class="fab fa-whatsapp"></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-primary btn-block">Register</button>
+                        </div>
+                    </div>
+                </form>
+                <p class="mb-1">
+                    <a href="login.php">Sudah punya akun? Login</a>
+                </p>
+            </div>
+        </div>
+    </div>
+    <script src="../app/plugins/jquery/jquery.min.js"></script>
+    <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../app/dist/js/adminlte.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#role').change(function() {
+                if ($(this).val() == 'mahasiswa') {
+                    $('#nim-field').show();
+                    $('#whatsapp-field').show();
+                } else if ($(this).val() == 'perusahaan') {
+                    $('#nim-field').hide();
+                    $('#whatsapp-field').show();
+                } else {
+                    $('#nim-field').hide();
+                    $('#whatsapp-field').hide();
+                }
+            });
 
-<!-- Registration Form for Admins -->
-<form id="register-admin">
-    <h2>Register as Admin</h2>
-    <label for="admin-name">Name:</label>
-    <input type="text" id="admin-name" name="admin-name" required>
-    <label for="admin-id">Admin ID:</label>
-    <input type="text" id="admin-id" name="admin-id" pattern="\d{10}" required>
-    <label for="admin-email">Email:</label>
-    <input type="email" id="admin-email" name="admin-email" required>
-    <label for="admin-password">Password:</label>
-    <input type="password" id="admin-password" name="admin-password" required>
-    <button type="submit">Register</button>
-</form>
-
-<!-- Registration Form for CDC -->
-<form id="register-cdc">
-    <h2>Register as CDC</h2>
-    <label for="cdc-name">Name:</label>
-    <input type="text" id="cdc-name" name="cdc-name" required>
-    <label for="cdc-id">CDC ID:</label>
-    <input type="text" id="cdc-id" name="cdc-id" pattern="\d{10}" required>
-    <label for="cdc-email">Email:</label>
-    <input type="email" id="cdc-email" name="cdc-email" required>
-    <label for="cdc-password">Password:</label>
-    <input type="password" id="cdc-password" name="cdc-password" required>
-    <button type="submit">Register</button>
-</form>
-
-<!-- Registration Form for Companies -->
-<form id="register-company">
-    <h2>Register as Company</h2>
-    <label for="company-name">Company Name:</label>
-    <input type="text" id="company-name" name="company-name" required>
-    <label for="company-reg-number">Registration Number:</label>
-    <input type="text" id="company-reg-number" name="company-reg-number" required>
-    <label for="company-email">Email:</label>
-    <input type="email" id="company-email" name="company-email" required>
-    <label for="company-address">Address:</label>
-    <input type="text" id="company-address" name="company-address" required>
-    <label for="company-contact">Contact Person:</label>
-    <input type="text" id="company-contact" name="company-contact" required>
-    <label for="company-phone">Phone Number:</label>
-    <input type="text" id="company-phone" name="company-phone" required>
-    <label for="company-password">Password:</label>
-    <input type="password" id="company-password" name="company-password" required>
-    <button type="submit">Register</button>
-</form>
+            // Disable form submission on reload
+            if ( window.history.replaceState ) {
+                window.history.replaceState( null, null, window.location.href );
+            }
+        });
+    </script>
+</body>
+</html>

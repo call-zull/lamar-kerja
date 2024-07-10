@@ -49,6 +49,30 @@
                         <p>Profile</p>
                     </a>
                 </li>
+                <!-- Registrasi -->
+                <li class="nav-item has-treeview">
+                    <a href="#" class="nav-link">
+                        <i class="nav-icon fas fa-user-plus"></i>
+                        <p>
+                           Registrasi
+                            <i class="right fas fa-angle-left"></i>
+                        </p>
+                    </a>
+                    <ul class="nav nav-treeview">
+                        <li class="nav-item">
+                            <a href="registrasi_mahasiswa.php" class="nav-link">
+                                <i class="fas fa-user-shield nav-icon"></i>
+                                <p>Mahasiswa</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="registrasi_perusahaan.php" class="nav-link">
+                                <i class="fas fa-user-graduate nav-icon"></i>
+                                <p>Perusahaan</p>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
                 <!-- User -->
                 <li class="nav-item has-treeview">
                     <a href="#" class="nav-link">

@@ -162,6 +162,9 @@ $portfolios = getLatestPortfolios($pdo, $jurusan, $prodi);
                         <a class="nav-link web-poliban" href="https://www.poliban.ac.id/">Web Poliban</a>
                     </li>
                     <li class="nav-item">
+                        <a class="nav-link register" href="auth/register.php">Register</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link login" href="auth/login.php">Login</a>
                     </li>
                 </ul>
