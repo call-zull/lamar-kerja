@@ -216,8 +216,6 @@ $portfolios = getLatestPortfolios($pdo, $jurusan, $prodi);
                                 Jurusan: <?= htmlspecialchars($portfolio['jurusan']) ?><br>
                                 Prodi: <?= htmlspecialchars($portfolio['prodi']) ?><br>
                                 Keahlian: <?= htmlspecialchars($portfolio['title']) ?><br>
-                                Tanggal: <?= htmlspecialchars($portfolio['date']) ?><br>
-                                <a href="<?= htmlspecialchars($portfolio['evidence']) ?>" target="_blank">Lihat Bukti</a>
                             </p>
                             <div class="row">
                                 <div class="d-flex">
@@ -259,8 +257,6 @@ $portfolios = getLatestPortfolios($pdo, $jurusan, $prodi);
                                                 Status: <?= htmlspecialchars($portfolio['status']) ?><br>
                                                 Email: <?= htmlspecialchars($portfolio['email']) ?><br>
                                                 Keahlian: <?= htmlspecialchars($portfolio['title']) ?><br>
-                                                Tanggal: <?= htmlspecialchars($portfolio['date']) ?><br>
-                                                <a href="<?= htmlspecialchars($portfolio['evidence']) ?>" target="_blank">Link Bukti</a>
                                             </p>
                                         </div>
                                     </div>
