@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->beginTransaction();
 
         // Insert into users table
-        $sql_user = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'mahasiswa')";
+        $sql_user = "INSERT INTO users (username, password, role, approved) VALUES (:username, :password, 'mahasiswa', 1)";
         $stmt_user = $pdo->prepare($sql_user);
         $stmt_user->execute([
             ':username' => $username,
@@ -38,8 +38,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $user_id = $pdo->lastInsertId();
 
         // Insert into mahasiswas table
-        $sql_mahasiswa = "INSERT INTO mahasiswas (user_id, nim, nama_mahasiswa, jurusan_id, prodi_id, tahun_masuk, status, jk, alamat, email, no_telp) 
-                         VALUES (:user_id, :nim, :nama_mahasiswa, :jurusan, :prodi, :tahun_masuk, :status, :jk, :alamat, :email, :no_telp)";
+        $sql_mahasiswa = "INSERT INTO mahasiswas (user_id, nim, nama_mahasiswa, jurusan_id, prodi_id, tahun_masuk, status, jk, alamat, email, no_telp, approved) 
+                         VALUES (:user_id, :nim, :nama_mahasiswa, :jurusan, :prodi, :tahun_masuk, :status, :jk, :alamat, :email, :no_telp, 1)";
         $stmt_mahasiswa = $pdo->prepare($sql_mahasiswa);
         $stmt_mahasiswa->execute([
             ':user_id' => $user_id,
@@ -68,5 +68,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header('Location: tampil_user_mahasiswa.php');
     exit;
 }
-
 ?>

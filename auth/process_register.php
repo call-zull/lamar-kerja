@@ -3,29 +3,34 @@ session_start();
 include('../includes/db.php');
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Collect form data
     $username = $_POST['username'];
     $password = $_POST['password'];
     $role = $_POST['role'];
     $approved = 0; // Default approval status is 0 (not approved)
+    $no_telp = $_POST['no_telp']; // All roles require WhatsApp number
 
-    // Validate NIM for mahasiswa
     if ($role === 'mahasiswa') {
         $nim = $_POST['nim'];
+        $nama_mahasiswa = $_POST['nama_mahasiswa'];
+        $jurusan_id = $_POST['jurusan_id'];
+        $prodi_id = $_POST['prodi_id'];
 
+        // Validate NIM format
         if (!preg_match('/^[A-Ea-e]\d{9}$/', $nim)) {
-            $_SESSION['error'] = 'NIM tidak valid';
+            $_SESSION['error'] = 'NIM tidak valid. Format yang benar adalah huruf A-E atau a-e diikuti oleh 9 angka.';
             header('Location: register.php');
             exit;
         }
 
-        // Mahasiswa harus memasukkan nomor WhatsApp
-        $no_telp = $_POST['no_telp']; // Updated to use 'no_telp' input
-    } elseif ($role === 'perusahaan') {
-        // Perusahaan juga harus memasukkan nomor WhatsApp
-        $no_telp = $_POST['no_telp']; // Updated to use 'no_telp' input
-    } else {
-        // Role lainnya tidak memerlukan nomor WhatsApp, jadi inisialisasi $no_telp sebagai null atau kosong
-        $no_telp = null;
+        // Validate Jurusan and Program Studi
+        $stmtJurusan = $pdo->prepare("SELECT COUNT(*) FROM jurusans WHERE id = ?");
+        $stmtProdi = $pdo->prepare("SELECT COUNT(*) FROM prodis WHERE id = ?");
+        if (!$stmtJurusan->execute([$jurusan_id]) || !$stmtProdi->execute([$prodi_id]) || $stmtJurusan->fetchColumn() == 0 || $stmtProdi->fetchColumn() == 0) {
+            $_SESSION['error'] = 'Jurusan atau Program Studi tidak valid.';
+            header('Location: register.php');
+            exit;
+        }
     }
 
     try {
@@ -47,17 +52,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $userId = $pdo->lastInsertId();
 
         if ($role === 'mahasiswa') {
-            // Insert mahasiswa data (tanpa prodi_id dan jurusan_id)
-            $stmtMahasiswa = $pdo->prepare("INSERT INTO mahasiswas (user_id, nim, no_telp) VALUES (:user_id, :nim, :no_telp)");
-            $stmtMahasiswa->execute(['user_id' => $userId, 'nim' => $nim, 'no_telp' => $no_telp]);
+            // Insert mahasiswa data
+            $stmtMahasiswa = $pdo->prepare("INSERT INTO mahasiswas (user_id, nama_mahasiswa, nim, jurusan_id, prodi_id) VALUES (:user_id, :nama_mahasiswa, :nim, :jurusan_id, :prodi_id)");
+            $stmtMahasiswa->execute([
+                'user_id' => $userId,
+                'nama_mahasiswa' => $nama_mahasiswa,
+                'nim' => $nim,
+                'jurusan_id' => $jurusan_id,
+                'prodi_id' => $prodi_id
+            ]);
             $_SESSION['success'] = 'Registrasi berhasil! Mohon tunggu persetujuan admin.';
         } elseif ($role === 'perusahaan') {
             // Insert perusahaan data
             $stmtPerusahaan = $pdo->prepare("INSERT INTO perusahaans (user_id, approved, no_telp) VALUES (:user_id, 0, :no_telp)");
             $stmtPerusahaan->execute(['user_id' => $userId, 'no_telp' => $no_telp]);
-            $_SESSION['success'] = 'Registrasi berhasil. Mohon tunggu admin mengkonfirmasi akun';
+            $_SESSION['success'] = 'Registrasi berhasil. Mohon tunggu admin mengkonfirmasi akun.';
         }
-        
 
         $pdo->commit();
         header('Location: register.php');

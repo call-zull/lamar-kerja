@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 include '../includes/db.php';
 
 // Fetch existing mahasiswa data
-$stmt_mahasiswa = $pdo->query("SELECT * FROM mahasiswas");
+$stmt_mahasiswa = $pdo->query("SELECT m.*, u.username, u.no_telp FROM mahasiswas m JOIN users u ON m.user_id = u.id WHERE m.approved = 0");
 
 // Current date for display
 $days = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'];
@@ -103,10 +103,10 @@ $currentDate = "$day, $date $month $year";
                                         $prodi_name = $stmt_prodi_name->fetchColumn();
                                         
                                         echo '<td>' . htmlspecialchars($prodi_name) . '</td>';
-                                        echo '<td>' . (isset($mahasiswa['whatsapp']) ? htmlspecialchars($mahasiswa['whatsapp']) : '') . '</td>';
+                                        echo '<td>' . (isset($mahasiswa['no_telp']) ? htmlspecialchars($mahasiswa['no_telp']) : '') . '</td>';
                                         echo '<td>';
-                                        echo '<button class="btn btn-success btn-sm btn-terima" data-mahasiswa-id="' . $mahasiswa['id'] . '">Terima</button> ';
-                                        echo '<button class="btn btn-danger btn-sm btn-tolak" data-mahasiswa-id="' . $mahasiswa['id'] . '">Tolak</button>';
+                                        echo '<button class="btn btn-success btn-sm btn-terima" data-mahasiswa-id="' . $mahasiswa['user_id'] . '" data-username="' . htmlspecialchars($mahasiswa['username']) . '" data-whatsapp="' . htmlspecialchars($mahasiswa['no_telp']) . '">Terima</button> ';
+                                        echo '<button class="btn btn-danger btn-sm btn-tolak" data-mahasiswa-id="' . $mahasiswa['user_id'] . '" data-username="' . htmlspecialchars($mahasiswa['username']) . '">Tolak</button>';
                                         echo '</td>';
                                         echo '</tr>';
                                         $number++; // Increment nomor urut
@@ -129,6 +129,27 @@ $currentDate = "$day, $date $month $year";
 </div>
 <!-- ./wrapper -->
 
+<!-- Bootstrap modal -->
+<div class="modal fade" id="konfirmasiModal" tabindex="-1" role="dialog" aria-labelledby="konfirmasiModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="konfirmasiModalLabel">Konfirmasi Aksi</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <!-- Placeholder untuk pesan konfirmasi -->
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                <button type="button" class="btn btn-primary" id="btnKonfirmasiAksi">Ya, Lanjutkan</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- Include external JS file -->
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -138,42 +159,69 @@ $currentDate = "$day, $date $month $year";
         // Handle click on "Terima" button
         $('.btn-terima').click(function() {
             var mahasiswaId = $(this).data('mahasiswa-id');
-            $.ajax({
-                url: 'aksi_terima.php',
-                type: 'POST',
-                data: { mahasiswa_id: mahasiswaId },
-                success: function(response) {
-                    // Handle success response if needed
-                    console.log('Mahasiswa diterima');
-                    // Optionally, you can update the UI or reload the data
-                    // Example: window.location.reload();
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response if needed
-                    console.error('Error:', error);
+            var username = $(this).data('username');
+            var whatsappNumber = $(this).data('whatsapp');
+            $('#konfirmasiModal').find('.modal-body').html('Apakah Anda yakin ingin menerima mahasiswa ' + username + '?');
+            $('#btnKonfirmasiAksi').removeClass('btn-danger').addClass('btn-success').attr('data-mahasiswa-id', mahasiswaId).attr('data-username', username).attr('data-whatsapp', whatsappNumber); // Atur kelas untuk tombol konfirmasi
+            $('#konfirmasiModal').modal('show');
+        });
+
+        // Handle konfirmasi modal action
+        $('#btnKonfirmasiAksi').click(function() {
+            var mahasiswaId = $(this).attr('data-mahasiswa-id');
+            var username = $(this).attr('data-username');
+            var whatsappNumber = $(this).attr('data-whatsapp');
+            
+            if (mahasiswaId !== null) {
+                var actionUrl = '';
+                var actionType = '';
+                
+                if ($(this).hasClass('btn-success')) { // Periksa kelas pada tombol konfirmasi
+                    actionUrl = 'aksi_terima_mahasiswa.php';
+                    actionType = 'Terima';
+                    
+                    // Buka aplikasi WhatsApp dan kirim pesan otomatis
+                    if (whatsappNumber) {
+                        var pesan = 'Halo ' + username + ', akun Anda sudah dikonfirmasi oleh admin. Silakan masuk menggunakan username dan password yang sudah Anda daftarkan sebelumnya.';
+                        var whatsappUrl = 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(pesan);
+                        window.open(whatsappUrl, '_blank');
+                    }
+                } else if ($(this).hasClass('btn-danger')) { // Periksa kelas pada tombol konfirmasi
+                    actionUrl = 'aksi_tolak_mahasiswa.php';
+                    actionType = 'Tolak';
                 }
-            });
+
+                $.ajax({
+                    url: actionUrl,
+                    type: 'POST',
+                    data: { mahasiswa_id: mahasiswaId },
+                    success: function(response) {
+                        var res = JSON.parse(response);
+                        if (res.status === 'success') {
+                            console.log('Mahasiswa ' + actionType + ' berhasil');
+                            $('button[data-mahasiswa-id="' + mahasiswaId + '"]').closest('tr').remove(); // Hapus baris dari tabel
+                        } else {
+                            console.error('Error:', res.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error:', error);
+                    }
+                });
+            }
+
+            $('#konfirmasiModal').modal('hide');
         });
 
         // Handle click on "Tolak" button
         $('.btn-tolak').click(function() {
             var mahasiswaId = $(this).data('mahasiswa-id');
-            $.ajax({
-                url: 'aksi_tolak.php',
-                type: 'POST',
-                data: { mahasiswa_id: mahasiswaId },
-                success: function(response) {
-                    // Handle success response if needed
-                    console.log('Mahasiswa ditolak');
-                    // Optionally, you can update the UI or reload the data
-                    // Example: window.location.reload();
-                },
-                error: function(xhr, status, error) {
-                    // Handle error response if needed
-                    console.error('Error:', error);
-                }
-            });
+            var username = $(this).data('username');
+            $('#konfirmasiModal').find('.modal-body').html('Apakah Anda yakin ingin menolak mahasiswa ' + username + '?');
+            $('#btnKonfirmasiAksi').removeClass('btn-success').addClass('btn-danger').attr('data-mahasiswa-id', mahasiswaId).attr('data-username', username); // Atur kelas untuk tombol konfirmasi
+            $('#konfirmasiModal').modal('show');
         });
+
     });
 </script>
 </body>

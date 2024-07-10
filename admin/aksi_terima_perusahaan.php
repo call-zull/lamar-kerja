@@ -9,9 +9,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['perusahaan_id'])) {
     $stmt = $pdo->prepare("UPDATE users SET approved = 1 WHERE id = ?");
     $stmt->execute([$perusahaanId]);
     
-    // Handle success or error response
-    echo "Perusahaan berhasil diterima.";
+    // Handle success response
+    echo json_encode(['status' => 'success', 'message' => 'Perusahaan berhasil diterima.']);
 } else {
-    echo "Permintaan tidak valid.";
+    // Handle error response
+    echo json_encode(['status' => 'error', 'message' => 'Permintaan tidak valid.']);
 }
 ?>

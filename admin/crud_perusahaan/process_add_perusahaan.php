@@ -29,7 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $user_id = $pdo->lastInsertId();
 
         // Insert into perusahaan table
-        $sql_perusahaan = "INSERT INTO perusahaans (user_id, nama_perusahaan, email_perusahaan, alamat_perusahaan) VALUES (:user_id, :nama_perusahaan, :email_perusahaan, :alamat_perusahaan)";
+        $sql_perusahaan = "INSERT INTO perusahaans (user_id, nama_perusahaan, email_perusahaan, alamat_perusahaan, approved) 
+        VALUES (:user_id, :nama_perusahaan, :email_perusahaan, :alamat_perusahaan, 1)";
         $stmt_perusahaan = $pdo->prepare($sql_perusahaan);
         $stmt_perusahaan->execute([
             ':user_id' => $user_id,
