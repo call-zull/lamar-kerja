@@ -5,10 +5,9 @@ if (isset($_POST['id'])) {
     $mahasiswa_id = $_POST['id'];
 
     try {
-        $sql = "SELECT p.*, t.nama, l.nama_lembaga 
+        $sql = "SELECT p.*, t.nama 
                 FROM pelatihan p
                 JOIN tingkatan t ON p.id_tingkatan = t.id
-                JOIN penyelenggara_sertifikasi l ON p.id_penyelenggara = l.id
                 WHERE p.mahasiswa_id = ?";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$mahasiswa_id]);
@@ -28,7 +27,7 @@ if (isset($_POST['id'])) {
                 echo "<td>" . htmlspecialchars($training['materi']) . "</td>";
                 echo "<td>" . htmlspecialchars($training['deskripsi']) . "</td>";
                 echo "<td>" . htmlspecialchars($training['nama']) . "</td>";
-                echo "<td>" . htmlspecialchars($training['nama_lembaga']) . "</td>";
+                echo "<td>" . htmlspecialchars($training['penyelenggara']) . "</td>"; // Menggunakan kolom penyelenggara langsung dari tabel pelatihan
                 echo "<td>" . htmlspecialchars($training['tanggal_mulai']) . "</td>";
                 echo "<td>" . htmlspecialchars($training['tanggal_selesai']) . "</td>";
                 echo "<td>" . htmlspecialchars($training['tempat_pelaksanaan']) . "</td>";
