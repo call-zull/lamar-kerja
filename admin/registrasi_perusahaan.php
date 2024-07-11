@@ -58,6 +58,11 @@ $stmt_perusahaan = $pdo->query("SELECT * FROM users WHERE approved = 0 AND role 
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Daftar Perusahaan</h3>
+                                <!-- Add Export to Excel and PDF buttons -->
+                                <div class="card-tools">
+                                    <a href="export_excel_perusahaan.php" class="btn btn-primary">Export to Excel</a>
+                                    <a href="export_pdf_perusahaan.php" class="btn btn-danger">Lihat PDF</a>
+                                </div>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">
@@ -129,72 +134,73 @@ $stmt_perusahaan = $pdo->query("SELECT * FROM users WHERE approved = 0 AND role 
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>
 <script>
-// Handle click on "Terima" button
-$('.btn-terima').click(function() {
-    var perusahaanId = $(this).data('perusahaan-id');
-    var username = $(this).data('username');
-    var whatsappNumber = $(this).data('whatsapp');
-    $('#konfirmasiModal').find('.modal-body').html('Apakah Anda yakin ingin menerima perusahaan ' + username + '?');
-    $('#btnKonfirmasiAksi').removeClass('btn-danger').addClass('btn-success').attr('data-perusahaan-id', perusahaanId).attr('data-username', username).attr('data-whatsapp', whatsappNumber); // Atur kelas untuk tombol konfirmasi
-    $('#konfirmasiModal').modal('show');
-});
+$(document).ready(function() {
+    // Handle click on "Terima" button
+    $('.btn-terima').click(function() {
+        var perusahaanId = $(this).data('perusahaan-id');
+        var username = $(this).data('username');
+        var whatsappNumber = $(this).data('whatsapp');
+        $('#konfirmasiModal').find('.modal-body').html('Apakah Anda yakin ingin menerima perusahaan ' + username + '?');
+        $('#btnKonfirmasiAksi').removeClass('btn-danger').addClass('btn-success').attr('data-perusahaan-id', perusahaanId).attr('data-username', username).attr('data-whatsapp', whatsappNumber); // Atur kelas untuk tombol konfirmasi
+        $('#konfirmasiModal').modal('show');
+    });
 
-// Handle konfirmasi modal action
-$('#btnKonfirmasiAksi').click(function() {
-    var perusahaanId = $(this).attr('data-perusahaan-id');
-    var username = $(this).attr('data-username');
-    var whatsappNumber = $(this).attr('data-whatsapp');
-    
-    if (perusahaanId !== null) {
-        var actionUrl = '';
-        var actionType = '';
+    // Handle konfirmasi modal action
+    $('#btnKonfirmasiAksi').click(function() {
+        var perusahaanId = $(this).attr('data-perusahaan-id');
+        var username = $(this).attr('data-username');
+        var whatsappNumber = $(this).attr('data-whatsapp');
         
-        if ($(this).hasClass('btn-success')) { // Periksa kelas pada tombol konfirmasi
-            actionUrl = 'aksi_terima_perusahaan.php';
-            actionType = 'Terima';
+        if (perusahaanId !== null) {
+            var actionUrl = '';
+            var actionType = '';
             
-            // Buka aplikasi WhatsApp dan kirim pesan otomatis
-            if (whatsappNumber) {
-                var pesan = 'Halo atas nama perusahaan ' + username + ', akun Anda sudah dikonfirmasi oleh admin. Silakan masuk menggunakan username dan password yang sudah Anda daftarkan sebelumnya.';
-                var whatsappUrl = 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(pesan);
-                window.open(whatsappUrl, '_blank');
+            if ($(this).hasClass('btn-success')) { // Periksa kelas pada tombol konfirmasi
+                actionUrl = 'aksi_terima_perusahaan.php';
+                actionType = 'Terima';
+                
+                // Buka aplikasi WhatsApp dan kirim pesan otomatis
+                if (whatsappNumber) {
+                    var pesan = 'Halo atas nama perusahaan ' + username + ', akun Anda sudah dikonfirmasi oleh admin. Silakan masuk menggunakan username dan password yang sudah Anda daftarkan sebelumnya.';
+                    var whatsappUrl = 'https://wa.me/' + whatsappNumber + '?text=' + encodeURIComponent(pesan);
+                    window.open(whatsappUrl, '_blank');
+                }
+            } else if ($(this).hasClass('btn-danger')) { // Periksa kelas pada tombol konfirmasi
+                actionUrl = 'aksi_tolak_perusahaan.php';
+                actionType = 'Tolak';
             }
-        } else if ($(this).hasClass('btn-danger')) { // Periksa kelas pada tombol konfirmasi
-            actionUrl = 'aksi_tolak_perusahaan.php';
-            actionType = 'Tolak';
+
+            $.ajax({
+                url: actionUrl,
+                type: 'POST',
+                data: { perusahaan_id: perusahaanId },
+                success: function(response) {
+                    var res = JSON.parse(response);
+                    if (res.status === 'success') {
+                        console.log('Perusahaan ' + actionType + ' berhasil');
+                        $('button[data-perusahaan-id="' + perusahaanId + '"]').closest('tr').remove(); // Hapus baris dari tabel
+                    } else {
+                        console.error('Error:', res.message);
+                    }
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error:', error);
+                }
+            });
         }
 
-        $.ajax({
-            url: actionUrl,
-            type: 'POST',
-            data: { perusahaan_id: perusahaanId },
-            success: function(response) {
-                var res = JSON.parse(response);
-                if (res.status === 'success') {
-                    console.log('Perusahaan ' + actionType + ' berhasil');
-                    $('button[data-perusahaan-id="' + perusahaanId + '"]').closest('tr').remove(); // Hapus baris dari tabel
-                } else {
-                    console.error('Error:', res.message);
-                }
-            },
-            error: function(xhr, status, error) {
-                console.error('Error:', error);
-            }
-        });
-    }
+        $('#konfirmasiModal').modal('hide');
+    });
 
-    $('#konfirmasiModal').modal('hide');
+    // Handle click on "Tolak" button
+    $('.btn-tolak').click(function() {
+        var perusahaanId = $(this).data('perusahaan-id');
+        var username = $(this).data('username');
+        $('#konfirmasiModal').find('.modal-body').html('Apakah Anda yakin ingin menolak perusahaan ' + username + '?');
+        $('#btnKonfirmasiAksi').removeClass('btn-success').addClass('btn-danger').attr('data-perusahaan-id', perusahaanId).attr('data-username', username); // Atur kelas untuk tombol konfirmasi
+        $('#konfirmasiModal').modal('show');
+    });
 });
-
-// Handle click on "Tolak" button
-$('.btn-tolak').click(function() {
-    var perusahaanId = $(this).data('perusahaan-id');
-    var username = $(this).data('username');
-    $('#konfirmasiModal').find('.modal-body').html('Apakah Anda yakin ingin menolak perusahaan ' + username + '?');
-    $('#btnKonfirmasiAksi').removeClass('btn-success').addClass('btn-danger').attr('data-perusahaan-id', perusahaanId).attr('data-username', username); // Atur kelas untuk tombol konfirmasi
-    $('#konfirmasiModal').modal('show');
-});
-
 </script>
 </body>
 </html>

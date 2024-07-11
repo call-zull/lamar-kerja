@@ -66,6 +66,11 @@ $currentDate = "$day, $date $month $year";
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">Daftar Mahasiswa</h3>
+                                <!-- Add Export to Excel and PDF buttons -->
+                                <div class="card-tools">
+                                    <a href="export_excel_mhs.php" class="btn btn-primary">Export to Excel</a>
+                                    <a href="export_pdf_mhs.php" class="btn btn-danger">Lihat PDF</a>
+                                </div>
                             </div>
                             <!-- /.card-header -->
                             <div class="card-body">

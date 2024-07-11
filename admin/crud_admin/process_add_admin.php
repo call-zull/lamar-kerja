@@ -18,8 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // Insert into users table
-        $sql_user = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'admin')";
+        // Insert into users table with approved = 1
+        $sql_user = "INSERT INTO users (username, password, role, approved) VALUES (:username, :password, 'admin', 1)";
         $stmt_user = $pdo->prepare($sql_user);
         $stmt_user->execute([
             ':username' => $username,
@@ -29,8 +29,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Get last inserted user ID
         $user_id = $pdo->lastInsertId();
 
-        // Insert into admins table
-        $sql_admin = "INSERT INTO admins (user_id, nama_admin, email, jurusan_id, prodi_id) VALUES (:user_id, :nama_admin, :email, :jurusan, :prodi)";
+        // Update approved status in users table
+        $sql_update_user = "UPDATE users SET approved = 1 WHERE id = :user_id";
+        $stmt_update_user = $pdo->prepare($sql_update_user);
+        $stmt_update_user->execute([
+            ':user_id' => $user_id,
+        ]);
+
+        // Insert into admins table with approved value from users
+        $sql_admin = "INSERT INTO admins (user_id, nama_admin, email, jurusan_id, prodi_id, approved) 
+                      VALUES (:user_id, :nama_admin, :email, :jurusan, :prodi, (SELECT approved FROM users WHERE id = :user_id))";
         $stmt_admin = $pdo->prepare($sql_admin);
         $stmt_admin->execute([
             ':user_id' => $user_id,
@@ -49,7 +57,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $pdo->rollBack();
         echo "Error: " . $e->getMessage();
     }
-    } else {
+} else {
     header('Location: tampil_user_admin.php');
     exit;
 }

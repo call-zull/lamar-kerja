@@ -17,8 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     try {
         $pdo->beginTransaction();
 
-        // Insert into users table
-        $sql_user = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'cdc')";
+        // Insert into users table with approved = 1
+        $sql_user = "INSERT INTO users (username, password, role, approved) VALUES (:username, :password, 'cdc', 1)";
         $stmt_user = $pdo->prepare($sql_user);
         $stmt_user->execute([
             ':username' => $username,
@@ -28,8 +28,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Get last inserted user ID
         $user_id = $pdo->lastInsertId();
 
-        // Insert into cdcs table
-        $sql_cdc = "INSERT INTO cdcs (user_id, nama_cdc, alamat_cdc, email_cdc) VALUES (:user_id, :nama_cdc, :alamat_cdc, :email_cdc)";
+        // Insert into cdcs table with approved value from users
+        $sql_cdc = "INSERT INTO cdcs (user_id, nama_cdc, alamat_cdc, email_cdc, approved) 
+                    VALUES (:user_id, :nama_cdc, :alamat_cdc, :email_cdc, (SELECT approved FROM users WHERE id = :user_id))";
         $stmt_cdc = $pdo->prepare($sql_cdc);
         $stmt_cdc->execute([
             ':user_id' => $user_id,

@@ -5,9 +5,9 @@ include '../includes/db.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['perusahaan_id'])) {
     $perusahaanId = $_POST['perusahaan_id'];
     
-    // Optionally, you can delete or update the status of the company to rejected
-    // $stmt = $pdo->prepare("DELETE FROM users WHERE id = ?");
-    // $stmt->execute([$perusahaanId]);
+    // Update approved status to 2
+    $stmt = $pdo->prepare("UPDATE users SET approved = 2 WHERE id = ?");
+    $stmt->execute([$perusahaanId]);
     
     // Handle success response
     echo json_encode(['status' => 'success', 'message' => 'Perusahaan berhasil ditolak.']);

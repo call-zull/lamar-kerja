@@ -5,12 +5,18 @@ include '../includes/db.php';
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['mahasiswa_id'])) {
     $mahasiswaId = $_POST['mahasiswa_id'];
     
-    // Optionally, you can delete or update the status of the mahasiswa to rejected
-    // $stmt = $pdo->prepare("DELETE FROM mahasiswas WHERE user_id = ?");
-    // $stmt->execute([$mahasiswaId]);
+    // Update approved status to 2
+    $stmt = $pdo->prepare("UPDATE mahasiswas SET approved = 2 WHERE user_id = ?");
+    $stmt->execute([$mahasiswaId]);
+    
+    // Optionally, update user status
+    $stmt_user = $pdo->prepare("UPDATE users SET approved = 2 WHERE id = ?");
+    $stmt_user->execute([$mahasiswaId]);
     
     // Handle success response
     echo json_encode(['status' => 'success', 'message' => 'Mahasiswa berhasil ditolak.']);
 } else {
     // Handle error response
-    echo json_encode(['status' => '
+    echo json_encode(['status' => 'error', 'message' => 'Permintaan tidak valid.']);
+}
+?>
