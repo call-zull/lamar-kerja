@@ -15,6 +15,10 @@ if (isset($_SESSION['success_message'])) {
 
 // Fetch competency data from database
 $mahasiswa_id = $_SESSION['mahasiswa_id'];
+
+// Debugging output
+echo "Session Mahasiswa ID: $mahasiswa_id<br>";
+
 $sql = "SELECT s.id, s.nama_sertifikasi, s.nomor_sk, s.lembaga_id, p.nama_lembaga, s.tanggal_diperoleh, s.tanggal_kadaluarsa, s.bukti
         FROM sertifikasi s
         LEFT JOIN penyelenggara_sertifikasi p ON s.lembaga_id = p.id
@@ -22,6 +26,13 @@ $sql = "SELECT s.id, s.nama_sertifikasi, s.nomor_sk, s.lembaga_id, p.nama_lembag
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$mahasiswa_id]);
 $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// Debugging output untuk hasil query
+if (empty($sertifikasi)) {
+    echo "Error: Sertifikasi data tidak ditemukan untuk Mahasiswa ID: $mahasiswa_id<br>";
+} else {
+    echo "Data Sertifikasi ditemukan untuk Mahasiswa ID: $mahasiswa_id<br>";
+}
 ?>
 
 <!DOCTYPE html>
@@ -41,8 +52,28 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="../../app/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <style>
-        .nav-sidebar .nav-link.active {
+        nav-sidebar .nav-link.active {
             background-color: #343a40 !important;
+        }
+
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .context-menu a {
+            color: #333;
+            display: block;
+            padding: 8px 10px;
+            text-decoration: none;
+        }
+
+        .context-menu a:hover {
+            background-color: #f2f2f2;
         }
         .table-responsive {
             overflow-y: auto;
@@ -63,7 +94,7 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         .table-responsive tbody tr:hover {
         background-color: #f2f2f2; 
-        }       
+        }   
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -140,8 +171,12 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td>
                                                         <?php
                                                         $buktiArray = json_decode($item['bukti'], true);
-                                                        foreach ($buktiArray as $buktiPath) {
-                                                            echo '<a href="' . htmlspecialchars($buktiPath) . '" target="_blank">Lihat Bukti</a><br>';
+                                                        if (is_array($buktiArray)) {
+                                                            foreach ($buktiArray as $buktiPath) {
+                                                                echo '<a href="' . htmlspecialchars($buktiPath) . '" target="_blank">Lihat Bukti</a><br>';
+                                                            }
+                                                        } else {
+                                                            echo '<a href="' . htmlspecialchars($item['bukti']) . '" target="_blank">Lihat Bukti</a>';
                                                         }
                                                         ?>
                                                     </td>
@@ -178,6 +213,7 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </button>
                     </div>
                     <div class="modal-body">
+                        <input type="hidden" name="mahasiswa_id" value="<?php echo htmlspecialchars($_SESSION['mahasiswa_id']); ?>">
                         <div class="form-group">
                             <label for="namaSertifikasi">Nama Sertifikasi</label>
                             <input type="text" class="form-control" id="namaSertifikasi" name="nama_sertifikasi" required>
@@ -187,19 +223,18 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <select class="form-control" id="lembagaId" name="lembaga_id" required>
                                 <option value="">-- Pilih Lembaga --</option>
                                 <?php
-                                // Fetch penyelenggara_sertifikasi from database
                                 $sql_lembaga = "SELECT id, nama_lembaga FROM penyelenggara_sertifikasi";
                                 $stmt_lembaga = $pdo->query($sql_lembaga);
                                 $lembaga = $stmt_lembaga->fetchAll();
                                 foreach ($lembaga as $lembaga_item) {
-                                    echo "<option value='{$lembaga_item['id']}'>{$lembaga_item['nama_lembaga']}</option>";
+                                    echo "<option value='" . htmlspecialchars($lembaga_item['id']) . "'>" . htmlspecialchars($lembaga_item['nama_lembaga']) . "</option>";
                                 }
                                 ?>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="nomorSk">Nomor SK</label>
-                            <input type="number" class="form-control" id="nomorSk" name="nomor_sk" required>
+                            <input type="text" class="form-control" id="nomorSk" name="nomor_sk" required>
                         </div>
                         <div class="form-group">
                             <label for="tanggalDiperoleh">Tanggal Diperoleh</label>
@@ -207,7 +242,7 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="form-group">
                             <label for="tanggalKadaluarsa">Tanggal Kadaluarsa</label>
-                            <input type="date" class="form-control" id="tanggalKadaluarsa" name="tanggal_kadaluarsa" required>
+                            <input type="date" class="form-control" id="tanggalKadaluarsa" name="tanggal_kadaluarsa">
                         </div>
                         <div class="form-group">
                             <label for="bukti">Bukti (upload berupa .pdf atau img, max 5mb)</label>
@@ -248,7 +283,7 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <option value="">-- Pilih Lembaga --</option>
                                 <?php
                                 foreach ($lembaga as $lembaga_item) {
-                                    echo "<option value='{$lembaga_item['id']}'>{$lembaga_item['nama_lembaga']}</option>";
+                                    echo "<option value='" . htmlspecialchars($lembaga_item['id']) . "'>" . htmlspecialchars($lembaga_item['nama_lembaga']) . "</option>";
                                 }
                                 ?>
                             </select>
@@ -310,7 +345,6 @@ $sertifikasi = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 </div>
 
-
 <script src="script_mhs.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>
 <script src="../../app/plugins/jquery/jquery.min.js"></script>
@@ -333,23 +367,7 @@ $(document).ready(function () {
     // Initialize DataTable
     var table = $("#kompetensiTable").DataTable({
         "responsive": true,
-        "autoWidth": false,
-        // "buttons": [
-        //     'copyHtml5',
-        //     {
-        //         extend: 'excelHtml5',
-        //         className: 'btn btn-success ml-2',
-        //         titleAttr: 'Export to Excel'
-        //     },
-        //     {
-        //         extend: 'pdfHtml5',
-        //         className: 'btn btn-danger ml-2',
-        //         titleAttr: 'Export to PDF',
-        //         exportOptions: {
-        //             columns: [0, 1, 2, 3, 4, 5, 6]
-        //         }
-        //     }
-        // ]
+        "autoWidth": false
     });
 
     // Fill edit form with existing data
@@ -369,6 +387,19 @@ $(document).ready(function () {
                 $('#editTanggalKadaluarsa').val(response.tanggal_kadaluarsa);
                 $('#editBukti').val('');
                 $('#editBuktiLink').val('');
+                // Update currentBukti section
+                var currentBuktiHtml = '';
+                if (response.bukti) {
+                    var buktiArray = JSON.parse(response.bukti);
+                    if (Array.isArray(buktiArray)) {
+                        buktiArray.forEach(function (buktiPath) {
+                            currentBuktiHtml += '<a href="' + buktiPath + '" target="_blank">Lihat Bukti</a><br>';
+                        });
+                    } else {
+                        currentBuktiHtml = '<a href="' + response.bukti + '" target="_blank">Lihat Bukti</a>';
+                    }
+                }
+                $('#currentBukti').html(currentBuktiHtml);
             }
         });
     });
@@ -378,17 +409,7 @@ $(document).ready(function () {
         var id = $(this).data('id');
         $('#deleteKompetensiId').val(id);
     });
-
-    // PDF and Excel export buttons
-    // $('#pdfButton').click(function () {
-    //     table.button('.buttons-pdf').trigger();
-    // });
-
-    // $('#excelButton').click(function () {
-    //     table.button('.buttons-excel').trigger();
-    // });
 });
-
 </script>
 </body>
 </html>

@@ -24,6 +24,51 @@ $stmt_perusahaan = $pdo->query("SELECT * FROM users WHERE approved = 0 AND role 
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <!-- Bootstrap modal CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <style>
+               .nav-sidebar .nav-link.active {
+            background-color: #343a40 !important;
+        }
+
+        .context-menu {
+            display: none;
+            position: absolute;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            z-index: 1000;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .context-menu a {
+            color: #333;
+            display: block;
+            padding: 8px 10px;
+            text-decoration: none;
+        }
+
+        .context-menu a:hover {
+            background-color: #f2f2f2;
+        }
+        .table-responsive {
+            overflow-y: auto;
+            max-height: 400px; /* Adjust height as needed */
+        }
+
+        .table-responsive thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #343a40; /* Ensure the header has a background */
+        }
+
+        .table-responsive thead th {
+        color: #ffffff;
+        border-color: #454d55; 
+        }
+
+        .table-responsive tbody tr:hover {
+        background-color: #f2f2f2; 
+        } 
+    </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <div class="wrapper">
@@ -130,6 +175,7 @@ $stmt_perusahaan = $pdo->query("SELECT * FROM users WHERE approved = 0 AND role 
 </div>
 
 <!-- Include external JS file -->
+<script src="script_admin.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>

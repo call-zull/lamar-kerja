@@ -66,11 +66,28 @@ $cdcs = $stmt->fetchAll(PDO::FETCH_ASSOC);
         .context-menu a:hover {
             background-color: #f2f2f2;
         }
-
-        .profile-img {
-            max-width: 100px;
-            max-height: 100px;
+        .table-responsive {
+            overflow-y: auto;
+            max-height: 400px; /* Adjust height as needed */
         }
+
+        .table-responsive thead {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #343a40; /* Ensure the header has a background */
+        }
+
+        .table-responsive thead th {
+        color: #ffffff;
+        border-color: #454d55; 
+        }
+
+        .table-responsive tbody tr:hover {
+        background-color: #f2f2f2; 
+        } 
+    
+         
     </style>
 </head>
 
