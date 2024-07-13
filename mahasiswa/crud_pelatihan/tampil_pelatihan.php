@@ -2,7 +2,7 @@
 session_start();
 include '../../includes/db.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa' || !isset($_SESSION['mahasiswa_id'])) {
     header('Location: ../../auth/login.php');
     exit;
 }
@@ -13,7 +13,6 @@ if (isset($_SESSION['success_message'])) {
     unset($_SESSION['success_message']); 
 }
 
-// Fetch pelatihan data from database
 $mahasiswa_id = $_SESSION['mahasiswa_id'];
 $sql = "SELECT p.id_pelatihan, p.nama_pelatihan, p.materi, p.deskripsi, p.tanggal_mulai, p.tanggal_selesai, t.nama AS tingkatan, p.tempat_pelaksanaan, p.penyelenggara, p.bukti
         FROM pelatihan p
@@ -37,10 +36,9 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="../../app/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <style>
-       nav-sidebar .nav-link.active {
+        nav-sidebar .nav-link.active {
             background-color: #343a40 !important;
         }
-
         .context-menu {
             display: none;
             position: absolute;
@@ -49,50 +47,44 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
             z-index: 1000;
             box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
         }
-
         .context-menu a {
             color: #333;
             display: block;
             padding: 8px 10px;
             text-decoration: none;
         }
-
         .context-menu a:hover {
             background-color: #f2f2f2;
         }
         .table-responsive {
-            overflow-y: auto;
-            max-height: 400px; /* Adjust height as needed */
+            overflow-x: auto;
+            max-height: 400px;
         }
-
         .table-responsive thead {
             position: sticky;
             top: 0;
             z-index: 1;
-            background-color: #343a40; /* Ensure the header has a background */
+            background-color: #343a40;
         }
-
         .table-responsive thead th {
-        color: #ffffff;
-        border-color: #454d55; 
+            color: #ffffff;
+            border-color: #454d55; 
         }
-
         .table-responsive tbody tr:hover {
-        background-color: #f2f2f2; 
-        } 
+            background-color: #f2f2f2; 
+        }
+        .table th, .table td {
+            white-space: nowrap;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <div class="wrapper">
-    <!-- Navbar -->
     <?php include 'navbar_mhs.php'; ?>
 
-    <!-- Content Wrapper -->
     <div class="content-wrapper">
-        <!-- Content Header -->
         <div class="content-header">
             <div class="container-fluid">
-                <!-- Success Message -->
                 <?php if (!empty($success_message)) : ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?php echo $success_message; ?>
@@ -104,12 +96,10 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
 
-        <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-12">
-                        <!-- Data Card -->
                         <div class="card">
                             <div class="card-header">
                                 <h3 class="card-title">
@@ -155,16 +145,18 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <td>
                                                         <?php
                                                         $buktiArray = json_decode($item['bukti'], true);
-                                                        foreach ($buktiArray as $buktiPath) {
-                                                            echo '<a href="' . htmlspecialchars($buktiPath) . '" target="_blank">Lihat Bukti</a><br>';
+                                                        if (is_array($buktiArray)) {
+                                                            foreach ($buktiArray as $buktiPath) {
+                                                                echo '<a href="' . htmlspecialchars($buktiPath) . '" target="_blank">Lihat Bukti</a><br>';
+                                                            }
                                                         }
                                                         ?>
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-warning editBtn" data-toggle="modal" data-target="#editPelatihanModal" data-id="<?php echo $item['id_pelatihan']; ?>">
+                                                        <button class="btn btn-sm btn-warning editBtn" data-toggle="modal" data-target="#editPelatihanModal" data-id="<?= $item['id_pelatihan']; ?>">
                                                             <i class="fas fa-edit"></i> Edit
                                                         </button>
-                                                        <button class="btn btn-sm btn-danger deleteBtn" data-toggle="modal" data-target="#deletePelatihanModal" data-id="<?php echo $item['id_pelatihan']; ?>">
+                                                        <button class="btn btn-sm btn-danger deleteBtn" data-toggle="modal" data-target="#deletePelatihanModal" data-id="<?= $item['id_pelatihan']; ?>">
                                                             <i class="fas fa-trash-alt"></i> Hapus
                                                         </button>
                                                     </td>
@@ -185,7 +177,7 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal fade" id="addPelatihanModal" tabindex="-1" aria-labelledby="addPelatihanModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="addPelatihanForm" method="POST" action="process_add_pelatihan.php" enctype="multipart/form-data">
+                <form id="addPelatihanForm" method="POST" action="process_add_pelatihan.php" enctype="multipart/form-data" onsubmit="return validateForm('add')">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addPelatihanModalLabel">Tambah Pelatihan</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -218,7 +210,6 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <select class="form-control" id="idTingkatan" name="id_tingkatan" required>
                                 <option value="">-- Pilih Tingkatan --</option>
                                 <?php
-                                // Fetch tingkatan from database
                                 $sql_tingkatan = "SELECT id, nama FROM tingkatan";
                                 $stmt_tingkatan = $pdo->query($sql_tingkatan);
                                 $tingkatan = $stmt_tingkatan->fetchAll();
@@ -238,10 +229,11 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="form-group">
                             <label for="bukti">Bukti (upload berupa .pdf atau img, max 5mb)</label>
-                            <input type="file" class="form-control-file" id="bukti" name="bukti_file">
+                            <input type="file" class="form-control-file" id="bukti_file" name="bukti_file" accept=".pdf,.jpg,.jpeg,.png">
                             <label for="bukti_link">Atau Masukkan Link Google Drive (jika file melebihi 5mb):</label>
                             <input type="url" class="form-control" id="bukti_link" name="bukti_link" placeholder="salin link g-drive yang sudah Anda buat">
                         </div>
+                        <div id="addValidationMessage" class="text-danger"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -256,7 +248,7 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal fade" id="editPelatihanModal" tabindex="-1" aria-labelledby="editPelatihanModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="editPelatihanForm" method="POST" action="update_pelatihan.php" enctype="multipart/form-data">
+                <form id="editPelatihanForm" method="POST" action="update_pelatihan.php" enctype="multipart/form-data" onsubmit="return validateForm('edit')">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editPelatihanModalLabel">Edit Pelatihan</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -310,11 +302,12 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div id="currentBukti">
                                 <!-- Display current bukti here -->
                             </div>
-                            <input type="file" class="form-control-file" id="editBukti" name="bukti_file">
+                            <input type="file" class="form-control-file" id="editBukti_file" name="bukti_file" accept=".pdf,.jpg,.jpeg,.png">
                             <label for="editBuktiLink">Atau Masukkan Link Google Drive:</label>
                             <input type="url" class="form-control" id="editBuktiLink" name="bukti_link">
                             <small id="buktiHelp" class="form-text text-muted">Upload file bukti baru jika ingin mengganti.</small>
                         </div>
+                        <div id="editValidationMessage" class="text-danger"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -348,6 +341,7 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
             </div>
         </div>
     </div>
+</div>
 
 <script src="script_mhs.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>
@@ -368,13 +362,9 @@ $pelatihan = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <script>
 $(document).ready(function () {
-    // Initialize DataTable
-    var table = $("#pelatihanTable").DataTable({
-        "responsive": true,
-        "autoWidth": false,
-    });
+    $('#pelatihanTable').DataTable();
 
-    // Fill edit form with existing data
+    // Handle edit button click to populate data in modal
     $('.editBtn').on('click', function () {
         var id = $(this).data('id');
         $.ajax({
@@ -392,8 +382,21 @@ $(document).ready(function () {
                 $('#editIdTingkatan').val(response.id_tingkatan);
                 $('#editTempatPelaksanaan').val(response.tempat_pelaksanaan);
                 $('#editPenyelenggara').val(response.penyelenggara);
-                $('#editBukti').val('');
+                $('#editBukti_file').val('');
                 $('#editBuktiLink').val('');
+
+                var currentBuktiHtml = '';
+                if (response.bukti) {
+                    var buktiArray = JSON.parse(response.bukti);
+                    if (Array.isArray(buktiArray)) {
+                        buktiArray.forEach(function (buktiPath) {
+                            currentBuktiHtml += '<a href="' + buktiPath + '" target="_blank">Lihat Bukti</a><br>';
+                        });
+                    } else {
+                        currentBuktiHtml = '<a href="' + response.bukti + '" target="_blank">Lihat Bukti</a>';
+                    }
+                }
+                $('#currentBukti').html(currentBuktiHtml);
             }
         });
     });
@@ -403,7 +406,44 @@ $(document).ready(function () {
         var id = $(this).data('id');
         $('#deletePelatihanId').val(id);
     });
-});
+
+    // Custom validation for add form
+    $('#addPelatihanForm').on('submit', function () {
+        return validateForm('add');
+    });
+
+    // Custom validation for edit form
+    $('#editPelatihanForm').on('submit', function () {
+        return validateForm('edit');
+    });
+
+    function validateForm(type) {
+        let fileInput, linkInput, validationMessage;
+        if (type === 'add') {
+            fileInput = document.getElementById('bukti_file');
+            linkInput = document.getElementById('bukti_link');
+            validationMessage = document.getElementById('addValidationMessage');
+        } else if (type === 'edit') {
+            fileInput = document.getElementById('editBukti_file');
+            linkInput = document.getElementById('editBuktiLink');
+            validationMessage = document.getElementById('editValidationMessage');
+        }
+
+        validationMessage.innerHTML = '';  // Clear previous messages
+
+        if (fileInput.files.length > 0 && linkInput.value !== "") {
+            validationMessage.innerHTML = "Silakan upload salah satu bukti saja: file atau link Google Drive.";
+            return false;
+        }
+
+        if (fileInput.files.length === 0 && linkInput.value === "") {
+            validationMessage.innerHTML = "Silakan upload salah satu bukti: file atau link Google Drive.";
+            return false;
+            }
+
+            return true;
+        }
+    });
 </script>
 </body>
 </html>

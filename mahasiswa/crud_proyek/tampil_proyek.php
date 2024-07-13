@@ -2,7 +2,7 @@
 session_start();
 include '../../includes/db.php';
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa' || !isset($_SESSION['mahasiswa_id'])) {
     header('Location: ../../auth/login.php');
     exit;
 }
@@ -256,9 +256,15 @@ $proyek = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <textarea class="form-control" id="editTujuanProyek" name="tujuan_proyek" required></textarea>
                     </div>
                     <div class="form-group">
-                        <label for="editBuktiLink">Masukkan Link Google Drive:</label>
-                        <input type="url" class="form-control" id="editBuktiLink" name="bukti_link">
-                        <small id="buktiHelp" class="form-text text-muted">Upload file bukti baru jika ingin mengganti.</small>
+                        <label for="editBukti">Bukti Saat Ini</label>
+                        <br>
+                        <div id="currentBukti">
+                            <!-- Display current bukti here -->
+                        </div>
+                        <label for="editBuktiLink">Masukkan Link Google Drive Baru:</label>
+                        <input type="url" class="form-control" id="editBuktiLink" name="bukti_link" required>
+                        <small id="buktiHelp" class="form-text text-muted">Masukkan link Google Drive baru jika ingin mengganti bukti.</small>
+                        <div id="editValidationMessage" class="text-danger"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -271,8 +277,8 @@ $proyek = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
    
 
-    <!-- Delete Proyek Modal -->
-    <div class="modal fade" id="deleteProyekModal" tabindex="-1" aria-labelledby="deleteProyekModalLabel" aria-hidden="true">
+       <!-- Delete Proyek Modal -->
+       <div class="modal fade" id="deleteProyekModal" tabindex="-1" aria-labelledby="deleteProyekModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <form id="deleteProyekForm" method="POST" action="delete_proyek.php">
@@ -287,7 +293,7 @@ $proyek = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         <input type="hidden" id="deleteProyekId" name="id">
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
                         <button type="submit" class="btn btn-danger">Hapus</button>
                     </div>
                 </form>
@@ -311,13 +317,12 @@ $proyek = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <script src="../../app/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="../../app/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="../../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
+
 <script>
 $(document).ready(function () {
-    var table = $("#proyekTable").DataTable({
-        "responsive": true,
-        "autoWidth": false,
-    });
+    $('#proyekTable').DataTable();
 
+    // Handle edit button click to populate data in modal
     $('.editBtn').on('click', function () {
         var id = $(this).data('id');
         $.ajax({
@@ -333,24 +338,61 @@ $(document).ready(function () {
                 $('#editWaktuAwal').val(response.waktu_awal);
                 $('#editWaktuSelesai').val(response.waktu_selesai);
                 $('#editTujuanProyek').val(response.tujuan_proyek);
-                
-                // Handle bukti: check if it's a link or file
-                if (response.bukti_link !== null && response.bukti_link !== '') {
-                    $('#editBuktiLink').val(response.bukti_link);
-                    $('#editBukti').val('');
-                } else {
-                    $('#editBuktiLink').val('');
-                    // You may want to handle file display or update differently
+                $('#editBuktiLink').val('');
+
+                var currentBuktiHtml = '';
+                if (response.bukti) {
+                    var buktiArray = JSON.parse(response.bukti);
+                    if (Array.isArray(buktiArray)) {
+                        buktiArray.forEach(function (buktiPath) {
+                            currentBuktiHtml += '<a href="' + buktiPath + '" target="_blank">Lihat Bukti</a><br>';
+                        });
+                    } else {
+                        currentBuktiHtml = '<a href="' + response.bukti + '" target="_blank">Lihat Bukti</a>';
+                    }
                 }
+                $('#currentBukti').html(currentBuktiHtml);
             }
         });
     });
 
+    // Set proyek ID for deletion
     $('.deleteBtn').on('click', function () {
         var id = $(this).data('id');
         $('#deleteProyekId').val(id);
     });
+
+    // Custom validation for add form
+    $('#addProyekForm').on('submit', function () {
+        return validateForm('add');
+    });
+
+    // Custom validation for edit form
+    $('#editProyekForm').on('submit', function () {
+        return validateForm('edit');
+    });
+
+    function validateForm(type) {
+        let linkInput, validationMessage;
+        if (type === 'add') {
+            linkInput = document.getElementById('bukti_link');
+            validationMessage = document.getElementById('addValidationMessage');
+        } else if (type === 'edit') {
+            linkInput = document.getElementById('editBuktiLink');
+            validationMessage = document.getElementById('editValidationMessage');
+        }
+
+        validationMessage.innerHTML = '';  // Clear previous messages
+
+        if (linkInput.value === "") {
+            validationMessage.innerHTML = "Silakan masukkan link Google Drive.";
+            return false;
+        }
+
+        return true;
+    }
 });
 </script>
 </body>
 </html>
+

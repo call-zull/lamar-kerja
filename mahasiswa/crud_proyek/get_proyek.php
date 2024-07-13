@@ -1,34 +1,31 @@
 <?php
 session_start();
-include '../../includes/db.php';
+include '../../includes/db.php'; // Ensure db.php is included for PDO connection
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
-    http_response_code(403);
-    echo json_encode(array("message" => "Akses ditolak."));
+    header('Location: ../../auth/login.php');
     exit;
 }
 
-// Pastikan request adalah POST dan terdapat ID yang dikirim
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['id'])) {
-    $id = $_POST['id']; // Ambil ID dari POST data
-    $mahasiswa_id = $_SESSION['mahasiswa_id']; // Ambil mahasiswa_id dari sesi
+    $idProyek = $_POST['id'];
+    $mahasiswa_id = $_SESSION['mahasiswa_id'];
 
-    // Query untuk mengambil data proyek berdasarkan ID dan mahasiswa_id
-    $stmt = $pdo->prepare("SELECT * FROM proyek WHERE id_proyek = ? AND mahasiswa_id = ?");
-    $stmt->execute([$id, $mahasiswa_id]);
-    $proyek = $stmt->fetch(PDO::FETCH_ASSOC);
+    $sql = "SELECT id, nama_proyek, partner, peran, waktu_awal, waktu_selesai, tujuan_proyek, bukti 
+            FROM proyek 
+            WHERE id = :idProyek AND mahasiswa_id = :mahasiswa_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->bindParam(':idProyek', $idProyek, PDO::PARAM_INT);
+    $stmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);
+    $stmt->execute();
+    $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // Jika data ditemukan, kirimkan sebagai JSON
-    if ($proyek) {
-        echo json_encode($proyek);
+    if ($result) {
+        echo json_encode($result);
     } else {
-        // Jika data tidak ditemukan, kirimkan respons kode status 404
-        http_response_code(404);
-        echo json_encode(array("message" => "Data proyek tidak ditemukan."));
+        echo json_encode(['error' => 'Data proyek tidak ditemukan.']);
     }
 } else {
-    // Jika tidak ada ID yang diterima atau request bukan POST, kirimkan respons kode status 400
-    http_response_code(400);
-    echo json_encode(array("message" => "Permintaan tidak valid."));
+    echo json_encode(['error' => 'Invalid request.']);
 }
 ?>

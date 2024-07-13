@@ -46,9 +46,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['mahasiswa_id'] = $mahasiswa['id'];  // Simpan ID mahasiswa
 
                 // Debugging output
-                echo "Logged in as Mahasiswa. User ID: " . $_SESSION['user_id'] . "<br>";
-                echo "Mahasiswa ID: " . $_SESSION['mahasiswa_id'] . "<br>";
-                exit;
+                // echo "Logged in as Mahasiswa. User ID: " . $_SESSION['user_id'] . "<br>";
+                // echo "Mahasiswa ID: " . $_SESSION['mahasiswa_id'] . "<br>";
+                // exit;
 
                 header('Location: ../mahasiswa/index.php');
                 exit;

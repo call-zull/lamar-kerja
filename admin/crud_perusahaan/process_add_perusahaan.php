@@ -13,16 +13,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nama_perusahaan = $_POST['nama_perusahaan'];
     $email_perusahaan = $_POST['email_perusahaan'];
     $alamat_perusahaan = $_POST['alamat_perusahaan'];
+    $approved = 0;
+
+    // Jika yang membuat akun adalah admin, set nilai approved menjadi 1
+    if ($_SESSION['role'] == 'admin') {
+        $approved = 1;
+    }
 
     try {
         $pdo->beginTransaction();
 
         // Insert into users table
-        $sql_user = "INSERT INTO users (username, password, role) VALUES (:username, :password, 'perusahaan')";
+        $sql_user = "INSERT INTO users (username, password, role, approved) VALUES (:username, :password, 'perusahaan', :approved)";
         $stmt_user = $pdo->prepare($sql_user);
         $stmt_user->execute([
             ':username' => $username,
             ':password' => $password,
+            ':approved' => $approved,
         ]);
 
         // Get last inserted user ID
@@ -30,13 +37,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         // Insert into perusahaan table
         $sql_perusahaan = "INSERT INTO perusahaans (user_id, nama_perusahaan, email_perusahaan, alamat_perusahaan, approved) 
-        VALUES (:user_id, :nama_perusahaan, :email_perusahaan, :alamat_perusahaan, 1)";
+        VALUES (:user_id, :nama_perusahaan, :email_perusahaan, :alamat_perusahaan, :approved)";
         $stmt_perusahaan = $pdo->prepare($sql_perusahaan);
         $stmt_perusahaan->execute([
             ':user_id' => $user_id,
             ':nama_perusahaan' => $nama_perusahaan,
             ':email_perusahaan' => $email_perusahaan,
             ':alamat_perusahaan' => $alamat_perusahaan,
+            ':approved' => $approved,
         ]);
 
         $pdo->commit();

@@ -142,7 +142,6 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <th>Tempat Pelaksanaan</th>
                                                 <th>Bukti</th>
                                                 <th>Aksi</th>
-                                                
                                             </tr>
                                         </thead>
                                         <tbody>
@@ -165,10 +164,10 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                         ?>
                                                     </td>
                                                     <td>
-                                                        <button class="btn btn-sm btn-warning editBtn" data-toggle="modal" data-target="#editCompetitionModal" data-id="<?php echo $item['id']; ?>">
+                                                        <button class="btn btn-sm btn-warning editBtn" data-toggle="modal" data-target="#editCompetitionModal" data-id="<?= $item['id']; ?>">
                                                             <i class="fas fa-edit"></i> Edit
                                                         </button>
-                                                        <button class="btn btn-sm btn-danger deleteBtn" data-toggle="modal" data-target="#deleteCompetitionModal" data-id="<?php echo $item['id']; ?>">
+                                                        <button class="btn btn-sm btn-danger deleteBtn" data-toggle="modal" data-target="#deleteCompetitionModal" data-id="<?= $item['id']; ?>">
                                                             <i class="fas fa-trash-alt"></i> Hapus
                                                         </button>
                                                     </td>
@@ -189,7 +188,7 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal fade" id="addCompetitionModal" tabindex="-1" aria-labelledby="addCompetitionModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="addCompetitionForm" method="POST" action="process_add_lomba.php" enctype="multipart/form-data">
+                <form id="addCompetitionForm" method="POST" action="process_add_lomba.php" enctype="multipart/form-data" onsubmit="return validateForm('add')">
                     <div class="modal-header">
                         <h5 class="modal-title" id="addCompetitionModalLabel">Tambah Lomba</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -251,10 +250,11 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
                         </div>
                         <div class="form-group">
                             <label for="bukti">Bukti (upload berupa .pdf atau img, max 5mb)</label>
-                            <input type="file" class="form-control-file" id="bukti" name="bukti_file">
+                            <input type="file" class="form-control-file" id="bukti_file" name="bukti_file" accept=".pdf,.jpg,.jpeg,.png">
                             <label for="bukti_link">Atau Masukkan Link Google Drive (jika file melebihi 5mb):</label>
                             <input type="url" class="form-control" id="bukti_link" name="bukti_link" placeholder="salin link g-drive yang sudah Anda buat">
                         </div>
+                        <div id="addValidationMessage" class="text-danger"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
@@ -269,7 +269,7 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <div class="modal fade" id="editCompetitionModal" tabindex="-1" aria-labelledby="editCompetitionModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
-                <form id="editCompetitionForm" method="POST" action="update_lomba.php" enctype="multipart/form-data">
+                <form id="editCompetitionForm" method="POST" action="update_lomba.php" enctype="multipart/form-data" onsubmit="return validateForm('edit')">
                     <div class="modal-header">
                         <h5 class="modal-title" id="editCompetitionModalLabel">Edit Lomba</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -328,15 +328,16 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
                             <div id="currentBukti">
                                 <!-- Display current bukti here -->
                             </div>
-                            <input type="file" class="form-control-file" id="editBukti" name="bukti_file">
+                            <input type="file" class="form-control-file" id="editBukti_file" name="bukti_file" accept=".pdf,.jpg,.jpeg,.png">
                             <label for="editBuktiLink">Atau Masukkan Link Google Drive:</label>
                             <input type="url" class="form-control" id="editBuktiLink" name="bukti_link">
                             <small id="buktiHelp" class="form-text text-muted">Upload file bukti baru jika ingin mengganti.</small>
                         </div>
+                        <div id="editValidationMessage" class="text-danger"></div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Batal</button>
-                        <button type="submit" class="btn btn-primary">Simpan</button>
+                        <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
                     </div>
                 </form>
             </div>
@@ -386,10 +387,7 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 <script>
     $(document).ready(function () {
-        $('#lombaTable').DataTable({
-            "responsive": true,
-            "autoWidth": false,
-        });
+        $('#lombaTable').DataTable();
 
         // Handle edit button click to populate data in modal
         $('.editBtn').on('click', function () {
@@ -410,6 +408,19 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     $('#editTempatPelaksanaan').val(response.tempat_pelaksanaan);
                     $('#editBukti').val('');
                     $('#editBuktiLink').val('');
+                    // Update currentBukti section
+                    var currentBuktiHtml = '';
+                    if (response.bukti) {
+                        var buktiArray = JSON.parse(response.bukti);
+                        if (Array.isArray(buktiArray)) {
+                            buktiArray.forEach(function (buktiPath) {
+                                currentBuktiHtml += '<a href="' + buktiPath + '" target="_blank">Lihat Bukti</a><br>';
+                            });
+                        } else {
+                            currentBuktiHtml = '<a href="' + response.bukti + '" target="_blank">Lihat Bukti</a>';
+                        }
+                    }
+                    $('#currentBukti').html(currentBuktiHtml);
                 }
             });
         });
@@ -419,7 +430,45 @@ $lomba = $stmt->fetchAll(PDO::FETCH_ASSOC);
             var id = $(this).data('id');
             $('#deleteLombaId').val(id);
         });
+
+        // Custom validation for add form
+        $('#addCompetitionForm').on('submit', function () {
+            return validateForm('add');
+        });
+
+        // Custom validation for edit form
+        $('#editCompetitionForm').on('submit', function () {
+            return validateForm('edit');
+        });
+
+        function validateForm(type) {
+            let fileInput, linkInput, validationMessage;
+            if (type === 'add') {
+                fileInput = document.getElementById('bukti_file');
+                linkInput = document.getElementById('bukti_link');
+                validationMessage = document.getElementById('addValidationMessage');
+            } else if (type === 'edit') {
+                fileInput = document.getElementById('editBukti_file');
+                linkInput = document.getElementById('editBuktiLink');
+                validationMessage = document.getElementById('editValidationMessage');
+            }
+
+            validationMessage.innerHTML = '';  // Clear previous messages
+
+            if (fileInput.files.length > 0 && linkInput.value !== "") {
+                validationMessage.innerHTML = "Silakan upload salah satu bukti saja: file atau link Google Drive.";
+                return false;
+            }
+
+            if (fileInput.files.length === 0 && linkInput.value === "") {
+                validationMessage.innerHTML = "Silakan upload salah satu bukti: file atau link Google Drive.";
+                return false;
+            }
+
+            return true;
+        }
     });
 </script>
 </body>
 </html>
+

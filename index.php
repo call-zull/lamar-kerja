@@ -1,52 +1,44 @@
 <?php
 require_once __DIR__ . '/includes/db.php';
 
-function getLatestPortfolios($pdo, $search = null) {
+function getStudentPortfolios($pdo, $search = null) {
     $sql = "
-        SELECT 'sertifikasi' AS type, s.id, s.nama_sertifikasi AS title, s.tanggal_diperoleh AS date, s.bukti AS evidence, 
-               m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p1.nama_prodi AS prodi,
-               m.jk, m.alamat, m.tahun_masuk, m.status, m.email
-        FROM sertifikasi s
-        JOIN mahasiswas m ON s.mahasiswa_id = m.id
-        JOIN jurusans j ON m.jurusan_id = j.id
-        JOIN prodis p1 ON m.prodi_id = p1.id
+        SELECT m.id AS mahasiswa_id, m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p.nama_prodi AS prodi, m.keahlian, 
+               m.jk, m.alamat, m.tahun_masuk, m.status, m.email, 'sertifikasi' AS type, s.id, s.nama_sertifikasi AS title, s.tanggal_diperoleh AS date, s.bukti AS evidence
+        FROM mahasiswas m
+        LEFT JOIN sertifikasi s ON s.mahasiswa_id = m.id
+        LEFT JOIN jurusans j ON m.jurusan_id = j.id
+        LEFT JOIN prodis p ON m.prodi_id = p.id
         WHERE 1
         UNION
-        SELECT 'lomba' AS type, l.id, l.nama_lomba AS title, l.tanggal_pelaksanaan AS date, l.bukti AS evidence, 
-               m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p2.nama_prodi AS prodi,
-               m.jk, m.alamat, m.tahun_masuk, m.status, m.email
-        FROM lomba l
-        JOIN mahasiswas m ON l.mahasiswa_id = m.id
-        JOIN jurusans j ON m.jurusan_id = j.id
-        JOIN prodis p2 ON m.prodi_id = p2.id
+        SELECT m.id AS mahasiswa_id, m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p.nama_prodi AS prodi, m.keahlian,
+               m.jk, m.alamat, m.tahun_masuk, m.status, m.email, 'lomba' AS type, l.id, l.nama_lomba AS title, l.tanggal_pelaksanaan AS date, l.bukti AS evidence
+        FROM mahasiswas m
+        LEFT JOIN lomba l ON l.mahasiswa_id = m.id
+        LEFT JOIN jurusans j ON m.jurusan_id = j.id
+        LEFT JOIN prodis p ON m.prodi_id = p.id
         WHERE 1
         UNION
-        SELECT 'pelatihan' AS type, p3.id_pelatihan AS id, p3.nama_pelatihan AS title, p3.tanggal_mulai AS date, p3.bukti AS evidence, 
-               m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p3_prodi.nama_prodi AS prodi,
-               m.jk, m.alamat, m.tahun_masuk, m.status, m.email
-        FROM pelatihan p3
-        JOIN mahasiswas m ON p3.mahasiswa_id = m.id
-        JOIN jurusans j ON m.jurusan_id = j.id
-        JOIN prodis p3_prodi ON m.prodi_id = p3_prodi.id
+        SELECT m.id AS mahasiswa_id, m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p.nama_prodi AS prodi, m.keahlian,
+               m.jk, m.alamat, m.tahun_masuk, m.status, m.email, 'pelatihan' AS type, p3.id_pelatihan AS id, p3.nama_pelatihan AS title, p3.tanggal_mulai AS date, p3.bukti AS evidence
+        FROM mahasiswas m
+        LEFT JOIN pelatihan p3 ON p3.mahasiswa_id = m.id
+        LEFT JOIN jurusans j ON m.jurusan_id = j.id
+        LEFT JOIN prodis p ON m.prodi_id = p.id
         WHERE 1
         UNION
-        SELECT 'proyek' AS type, p4.id AS id, p4.nama_proyek AS title, p4.waktu_awal AS date, p4.bukti AS evidence, 
-               m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p4_prodi.nama_prodi AS prodi,
-               m.jk, m.alamat, m.tahun_masuk, m.status, m.email
-        FROM proyek p4
-        JOIN mahasiswas m ON p4.mahasiswa_id = m.id
-        JOIN jurusans j ON m.jurusan_id = j.id
-        JOIN prodis p4_prodi ON m.prodi_id = p4_prodi.id
+        SELECT m.id AS mahasiswa_id, m.nama_mahasiswa, m.nim, m.profile_image, j.nama_jurusan AS jurusan, p.nama_prodi AS prodi, m.keahlian,
+               m.jk, m.alamat, m.tahun_masuk, m.status, m.email, 'proyek' AS type, p4.id AS id, p4.nama_proyek AS title, p4.waktu_awal AS date, p4.bukti AS evidence
+        FROM mahasiswas m
+        LEFT JOIN proyek p4 ON p4.mahasiswa_id = m.id
+        LEFT JOIN jurusans j ON m.jurusan_id = j.id
+        LEFT JOIN prodis p ON m.prodi_id = p.id
         WHERE 1";
 
     if ($search) {
-        $searchCondition = " AND (p1.nama_prodi LIKE :search OR p2.nama_prodi LIKE :search OR p3_prodi.nama_prodi LIKE :search OR p4_prodi.nama_prodi LIKE :search
-                                 OR s.nama_sertifikasi LIKE :search OR l.nama_lomba LIKE :search OR p3.nama_pelatihan LIKE :search OR p4.nama_proyek LIKE :search)";
+        $searchCondition = " AND (p.nama_prodi LIKE :search OR s.nama_sertifikasi LIKE :search OR l.nama_lomba LIKE :search OR p3.nama_pelatihan LIKE :search OR p4.nama_proyek LIKE :search)";
         $sql .= $searchCondition;
     }
-
-    $sql .= " ORDER BY date DESC
-              LIMIT 20"; // Adjust the limit as needed
 
     $stmt = $pdo->prepare($sql);
 
@@ -56,12 +48,45 @@ function getLatestPortfolios($pdo, $search = null) {
     }
 
     $stmt->execute();
-    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    $portfolios = [];
+    foreach ($results as $result) {
+        $id = $result['mahasiswa_id'];
+        if (!isset($portfolios[$id])) {
+            $portfolios[$id] = [
+                'mahasiswa_id' => $result['mahasiswa_id'],
+                'nama_mahasiswa' => $result['nama_mahasiswa'],
+                'nim' => $result['nim'],
+                'profile_image' => $result['profile_image'],
+                'jurusan' => $result['jurusan'],
+                'prodi' => $result['prodi'],
+                'keahlian' => $result['keahlian'],
+                'jk' => $result['jk'],
+                'alamat' => $result['alamat'],
+                'tahun_masuk' => $result['tahun_masuk'],
+                'status' => $result['status'],
+                'email' => $result['email'],
+                'sertifikasi' => [],
+                'lomba' => [],
+                'pelatihan' => [],
+                'proyek' => []
+            ];
+        }
+        $portfolios[$id][$result['type']][] = [
+            'id' => $result['id'],
+            'title' => $result['title'],
+            'date' => $result['date'],
+            'evidence' => $result['evidence']
+        ];
+    }
+
+    return $portfolios;
 }
 
 $search = isset($_GET['search']) ? $_GET['search'] : null;
 
-$portfolios = getLatestPortfolios($pdo, $search);
+$portfolios = getStudentPortfolios($pdo, $search);
 ?>
 
 <!DOCTYPE html>
@@ -103,7 +128,7 @@ $portfolios = getLatestPortfolios($pdo, $search);
                         <ul class="dropdown-menu" aria-labelledby="teknikSipilDropdown">
                             <li><a class="dropdown-item" href="teknik_sipil_dan_kebumian/D4_Sarjana_Terapan_Teknik_Bangunan_Rawa.php">D4 Sarjana Terapan Teknik Bangunan Rawa</a></li>
                             <li><a class="dropdown-item" href="teknik_sipil_dan_kebumian/D4_Sarjana_Terapan_Teknologi_Rekayasa_Geomatika.php">D4 Sarjana Terapan Teknologi Rekayasa Geomatika</a></li>
-                            <li><a class="dropdown-item" href="teknik_sipil_dan_kebumian/D4_Sarjana_Terapan_Teknologi_Rekayasa_Konstruksi_Jalan.php">D4 Sarjana Terapan Teknologi Rekayasa Konstruksi Jalan</a></li>
+                            <li><a class="dropdown-item" href="teknik_sipil_dan_kebumian/D4_Sarjana_Terapan Teknologi Rekayasa Konstruksi Jalan.php">D4 Sarjana Terapan Teknologi Rekayasa Konstruksi Jalan</a></li>
                             <li><a class="dropdown-item" href="teknik_sipil_dan_kebumian/D3_Teknik_Sipil.php">D3 Teknik Sipil</a></li>
                             <li><a class="dropdown-item" href="teknik_sipil_dan_kebumian/D3_Teknik_Pertambangan.php">D3 Teknik Pertambangan</a></li>
                         </ul>
@@ -135,7 +160,7 @@ $portfolios = getLatestPortfolios($pdo, $search);
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="teknikElektroDropdown">
                             <li><a class="dropdown-item" href="teknik_elektro/D4_Sarjana_Terapan_Teknologi_Rekayasa_Pembangkit_Energi.php">D4 Sarjana Terapan Teknologi Rekayasa Pembangkit Energi</a></li>
-                            <li><a class="dropdown-item" href="teknik_elektro/D4_Sarjana_Terapan_Sistem_Informasi_Kota_Cerdas.php">D4 Sarjana Terapan Sistem Informasi Kota Cerdas</a></li>
+                            <li><a class="dropdown-item" href="teknik_elektro/D4_Sarjana Terapan Sistem Informasi Kota Cerdas.php">D4 Sarjana Terapan Sistem Informasi Kota Cerdas</a></li>
                             <li><a class="dropdown-item" href="teknik_elektro/D4_Sarjana_Terapan_Teknologi_Rekayasa_Otomasi.php">D4 Sarjana Terapan Teknologi Rekayasa Otomasi</a></li>
                             <li><a class="dropdown-item" href="teknik_elektro/D3_Teknik_Listrik.php">D3 Teknik Listrik</a></li>
                             <li><a class="dropdown-item" href="teknik_elektro/D3_Teknik_Informatika.php">D3 Teknik Informatika</a></li>
@@ -225,15 +250,15 @@ $portfolios = getLatestPortfolios($pdo, $search);
                                     NIM: <?= htmlspecialchars($portfolio['nim']) ?><br>
                                     Jurusan: <?= htmlspecialchars($portfolio['jurusan']) ?><br>
                                     Prodi: <?= htmlspecialchars($portfolio['prodi']) ?><br>
-                                    Keahlian: <?= htmlspecialchars($portfolio['title']) ?><br>
+                                    Keahlian: <?= htmlspecialchars($portfolio['keahlian']) ?: 'Belum ada keahlian' ?><br>
                                 </p>
                                 <div class="row">
                                     <div class="d-flex">
                                         <div class="me-2">
-                                            <button type="button" class="btn btn-success more" data-bs-toggle="modal" data-bs-target="#modal<?= $portfolio['id'] ?>">Selengkapnya</button>
+                                            <button type="button" class="btn btn-success more" data-bs-toggle="modal" data-bs-target="#modal<?= $portfolio['mahasiswa_id'] ?>">Selengkapnya</button>
                                         </div>
                                         <div>
-                                            <button type="button" class="btn btn-primary portfolio" data-type="<?= htmlspecialchars($portfolio['type']) ?>" data-id="<?= htmlspecialchars($portfolio['id']) ?>" data-bs-toggle="modal" data-bs-target="#portfolioModal">Portofolio</button>
+                                            <button type="button" class="btn btn-primary portfolio" data-id="<?= htmlspecialchars($portfolio['mahasiswa_id']) ?>" data-bs-toggle="modal" data-bs-target="#portfolioModal">Portofolio</button>
                                         </div>
                                     </div>
                                 </div>
@@ -242,11 +267,11 @@ $portfolios = getLatestPortfolios($pdo, $search);
                     </div>
 
                     <!-- Modal -->
-                    <div class="modal fade" id="modal<?= $portfolio['id'] ?>" tabindex="-1" aria-labelledby="modalLabel<?= $portfolio['id'] ?>" aria-hidden="true">
+                    <div class="modal fade" id="modal<?= $portfolio['mahasiswa_id'] ?>" tabindex="-1" aria-labelledby="modalLabel<?= $portfolio['mahasiswa_id'] ?>" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
-                                    <h5 class="modal-title" id="modalLabel<?= $portfolio['id'] ?>">Detail Mahasiswa</h5>
+                                    <h5 class="modal-title" id="modalLabel<?= $portfolio['mahasiswa_id'] ?>">Detail Mahasiswa</h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
@@ -266,7 +291,7 @@ $portfolios = getLatestPortfolios($pdo, $search);
                                                     Tahun Masuk: <?= htmlspecialchars($portfolio['tahun_masuk']) ?><br>
                                                     Status: <?= htmlspecialchars($portfolio['status']) ?><br>
                                                     Email: <?= htmlspecialchars($portfolio['email']) ?><br>
-                                                    Keahlian: <?= htmlspecialchars($portfolio['title']) ?><br>
+                                                    Keahlian: <?= htmlspecialchars($portfolio['keahlian']) ?: 'Belum ada keahlian' ?><br>
                                                 </p>
                                             </div>
                                         </div>
@@ -326,7 +351,7 @@ $portfolios = getLatestPortfolios($pdo, $search);
                                     const bukti = JSON.parse(item.bukti);
                                     const buktiPath = bukti.map(b => `<a href="assets/mahasiswa/sertifikasi/${b}" target="_blank">Lihat Bukti</a>`).join(', ');
                                     html += `<tr>
-                                        <td>${index + 1}</td>
+                                                                                <td>${index + 1}</td>
                                         <td>${item.nama_sertifikasi}</td>
                                         <td>${item.nomor_sk}</td>
                                         <td>${item.lembaga}</td>
@@ -418,7 +443,7 @@ $portfolios = getLatestPortfolios($pdo, $search);
                 });
             });
         });
-
     </script>
 </body>
 </html>
+
