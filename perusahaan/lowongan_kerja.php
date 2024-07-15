@@ -7,11 +7,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
 
 include '../includes/db.php';
 
-// Function to fetch all jobs from the database
+// Fungsi untuk mengambil semua lowongan pekerjaan dari database
 function fetchJobs($pdo) {
     try {
-        $sql = "SELECT lowongan_kerja.*, prodis.nama_prodi FROM lowongan_kerja 
-                LEFT JOIN prodis ON FIND_IN_SET(prodis.id, lowongan_kerja.prodi_id)";
+        $sql = "SELECT lowongan_kerja.*, GROUP_CONCAT(prodis.nama_prodi SEPARATOR ', ') AS nama_prodi 
+                FROM lowongan_kerja 
+                LEFT JOIN lowongan_kerja_prodi ON lowongan_kerja.id = lowongan_kerja_prodi.lowongan_kerja_id
+                LEFT JOIN prodis ON lowongan_kerja_prodi.prodi_id = prodis.id
+                GROUP BY lowongan_kerja.id";
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -20,7 +23,7 @@ function fetchJobs($pdo) {
     }
 }
 
-// Fetching jobs
+// Mengambil semua lowongan pekerjaan
 $jobs = fetchJobs($pdo);
 ?>
 <!DOCTYPE html>
@@ -37,55 +40,25 @@ $jobs = fetchJobs($pdo);
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.9.7/dist/tagify.css">
     <style>
-        .nav-sidebar .nav-link.active {
-            background-color: #343a40 !important;
-        }
-        .content-wrapper {
-            margin-top: 20px;
-        }
-        .table-responsive {
-            overflow-y: auto;
-            max-height: 400px;
-        }
-        .table-responsive thead {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            background-color: #343a40;
-        }
-        .table-responsive thead th {
-            color: #ffffff;
-            border-color: #454d55;
-        }
-        .table-responsive tbody tr:hover {
-            background-color: #f2f2f2;
-        }
-   
-        .tagify__tag__removeBtn {
-            color: #fff;
-            margin-left: 5px;
-        }
-        .input-group .form-control {
-            border-right: 0;
-        }
-        .input-group-append .btn {
-            border-left: 0;
-        }
-    
-        .tag-input {
-        min-height: 38px;
-        display: flex;
-        flex-wrap: wrap;
-        }
-
+        .nav-sidebar .nav-link.active { background-color: #343a40 !important; }
+        .content-wrapper { margin-top: 20px; }
+        .table-responsive { overflow-y: auto; max-height: 400px; }
+        .table-responsive thead { position: sticky; top: 0; z-index: 1; background-color: #343a40; }
+        .table-responsive thead th { color: #ffffff; border-color: #454d55; }
+        .table-responsive tbody tr:hover { background-color: #f2f2f2; }
+        .tagify__tag__removeBtn { color: #fff; margin-left: 5px; }
+        .input-group .form-control { border-right: 0; }
+        .input-group-append .btn { border-left: 0; }
+        .tag-input { min-height: 38px; display: flex; flex-wrap: wrap; }
+        .tag-input-wrapper { position: relative; width: 100%; }
+        .tag-input { min-height: 38px; display: flex; flex-wrap: wrap; align-items: center; border: 1px solid #ced4da; padding: 6px; border-radius: 0.25rem; background-color: #fff; overflow: hidden; }
+        .tagify__tag { margin: 2px; }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <div class="wrapper">
-    <!-- Navbar -->
     <?php include 'navbar_perusahaan.php'; ?>
     
-    <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
         <div class="content-header">
             <div class="container-fluid">
@@ -99,7 +72,7 @@ $jobs = fetchJobs($pdo);
                 <?php endif; ?>
             </div>
         </div>
-        <!-- Main content -->
+
         <section class="content">
             <div class="container-fluid">
                 <div class="card">
@@ -137,7 +110,18 @@ $jobs = fetchJobs($pdo);
                                             echo "<td>" . htmlspecialchars($row['posisi']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['kualifikasi']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['nama_prodi']) . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['keahlian']) . "</td>";
+
+                                            // Decode JSON keahlian
+                                            $keahlian = json_decode($row['keahlian'], true);
+                                            if (is_array($keahlian)) {
+                                                $keahlian_list = array_map(function($item) {
+                                                    return $item['value'];
+                                                }, $keahlian);
+                                                echo "<td>" . htmlspecialchars(implode(', ', $keahlian_list)) . "</td>";
+                                            } else {
+                                                echo "<td>" . htmlspecialchars($row['keahlian']) . "</td>";
+                                            }
+
                                             echo "<td>" . htmlspecialchars($row['tanggal_posting']) . "</td>";
                                             echo "<td>
                                                     <button class='btn btn-sm btn-warning editBtn' data-toggle='modal' data-target='#modalEdit' 
@@ -145,7 +129,7 @@ $jobs = fetchJobs($pdo);
                                                         data-nama='" . htmlspecialchars($row['nama_pekerjaan']) . "' 
                                                         data-posisi='" . htmlspecialchars($row['posisi']) . "'
                                                         data-kualifikasi='" . htmlspecialchars($row['kualifikasi']) . "'
-                                                        data-prodi_id='" . htmlspecialchars($row['prodi_id']) . "'
+                                                        data-prodi_id='" . htmlspecialchars($row['nama_prodi']) . "'
                                                         data-keahlian='" . htmlspecialchars($row['keahlian']) . "'>Edit</button>
                                                     <button class='btn btn-sm btn-danger deleteBtn' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
                                                     <button class='btn btn-sm btn-info lihatPelamarBtn' data-toggle='modal' data-target='#modalPelamar' data-id='" . $row['id'] . "'>Lihat Pelamar</button>
@@ -164,9 +148,7 @@ $jobs = fetchJobs($pdo);
                 </div>
             </div>
         </section>
-        <!-- /.content -->
     </div>
-    <!-- /.content-wrapper -->
 
     <!-- Modal Tambah -->
     <div class="modal fade" id="modalTambah" tabindex="-1" aria-labelledby="modalTambahLabel" aria-hidden="true">
@@ -194,19 +176,14 @@ $jobs = fetchJobs($pdo);
                         </div>
                         <div class="form-group">
                             <label for="prodi_id">Prodi</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="prodi_id" name="prodi_id[]" required>
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-secondary" id="addProdiButton">+</button>
-                                </div>
-                            </div>
+                            <input type="text" class="form-control" id="prodi_id" name="prodi_id" required>
                         </div>
                         <div class="form-group">
                             <label for="keahlian">Keahlian</label>
                             <div class="input-group">
                                 <input type="text" class="form-control" id="keahlian" name="keahlian" required>
                                 <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-secondary" id="addTagButton">+</button>
+                                    <button class="btn btn-outline-secondary" type="button" id="addTagButton">+</button>
                                 </div>
                             </div>
                         </div>
@@ -246,22 +223,12 @@ $jobs = fetchJobs($pdo);
                             <input type="text" class="form-control" id="edit_kualifikasi" name="edit_kualifikasi" required>
                         </div>
                         <div class="form-group">
-    <label for="edit_prodi_id">Prodi</label>
-    <div class="input-group">
-        <input type="text" class="form-control" id="edit_prodi_id" name="edit_prodi_id[]" required>
-        <div class="input-group-append">
-            <button type="button" class="btn btn-outline-secondary" id="editAddProdiButton">+</button>
-        </div>
-    </div>
-</div>
+                            <label for="edit_prodi_id">Prodi</label>
+                            <input type="text" class="form-control" id="edit_prodi_id" name="edit_prodi_id" required>
+                        </div>
                         <div class="form-group">
                             <label for="edit_keahlian">Keahlian</label>
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="edit_keahlian" name="edit_keahlian" required>
-                                <div class="input-group-append">
-                                    <button type="button" class="btn btn-outline-secondary" id="editAddTagButton">+</button>
-                                </div>
-                            </div>
+                            <input type="text" class="form-control" id="edit_keahlian" name="edit_keahlian" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -328,7 +295,6 @@ $jobs = fetchJobs($pdo);
         </div>
     </div>
 </div>
-<!-- ./wrapper -->
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
@@ -351,121 +317,140 @@ $jobs = fetchJobs($pdo);
 <script src="../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 
 <script>
-    $(document).ready(function() {
-        $('#lowonganTable').DataTable();
+$(document).ready(function() {
+    $('#lowonganTable').DataTable();
 
-        var keahlianInput = document.querySelector('#keahlian');
-        var tagifyKeahlian = new Tagify(keahlianInput);
+    var keahlianInput = document.querySelector('#keahlian');
+    var tagifyKeahlian = new Tagify(keahlianInput, {
+        dropdown: {
+            maxItems: 20,
+            classname: "tags-look",
+            enabled: 0,
+            closeOnSelect: false
+        }
+    });
 
-        var editKeahlianInput = document.querySelector('#edit_keahlian');
-        var tagifyEditKeahlian = new Tagify(editKeahlianInput);
+    $('#addTagButton').on('click', function() {
+        tagifyKeahlian.addEmptyTag();
+    });
 
-        $('#addTagButton').on('click', function() {
-            tagifyKeahlian.addEmptyTag();
-        });
+    var editKeahlianInput = document.querySelector('#edit_keahlian');
+    var tagifyEditKeahlian = new Tagify(editKeahlianInput, {
+        dropdown: {
+            maxItems: 20,
+            classname: "tags-look",
+            enabled: 0,
+            closeOnSelect: false
+        }
+    });
 
-        $('#editAddTagButton').on('click', function() {
-            tagifyEditKeahlian.addEmptyTag();
-        });
+    $('#editAddTagButton').on('click', function() {
+        tagifyEditKeahlian.addEmptyTag();
+    });
 
-        // Initialize Tagify for Prodi input
-        var prodiInput = document.querySelector('#prodi_id');
-        var tagifyProdi = new Tagify(prodiInput, {
-            whitelist: [<?php
-                $sql_prodi = "SELECT nama_prodi FROM prodis";
+    var prodiInput = document.querySelector('#prodi_id');
+    var tagifyProdi = new Tagify(prodiInput, {
+        whitelist: [
+            <?php
+                $sql_prodi = "SELECT id, nama_prodi FROM prodis";
                 $stmt_prodi = $pdo->query($sql_prodi);
                 $prodiArray = [];
                 while ($prodi = $stmt_prodi->fetch(PDO::FETCH_ASSOC)) {
-                    $prodiArray[] = "'" . $prodi['nama_prodi'] . "'";
+                    $prodiArray[] = "{id: '" . $prodi['id'] . "', value: '" . $prodi['nama_prodi'] . "'}";
                 }
                 echo implode(",", $prodiArray);
-            ?>],
-            dropdown: {
-                maxItems: 20,
-                classname: "tags-look",
-                enabled: 0,
-                closeOnSelect: false
-            }
-        });
+            ?>
+        ],
+        dropdown: {
+            maxItems: 20,
+            classname: "tags-look",
+            enabled: 0,
+            closeOnSelect: false
+        }
+    });
 
-        var editProdiInput = document.querySelector('#edit_prodi_id');
-        var tagifyEditProdi = new Tagify(editProdiInput, {
-            whitelist: [<?php
-                $sql_prodi = "SELECT nama_prodi FROM prodis";
+    var editProdiInput = document.querySelector('#edit_prodi_id');
+    var tagifyEditProdi = new Tagify(editProdiInput, {
+        whitelist: [
+            <?php
+                $sql_prodi = "SELECT id, nama_prodi FROM prodis";
                 $stmt_prodi = $pdo->query($sql_prodi);
                 $prodiArray = [];
                 while ($prodi = $stmt_prodi->fetch(PDO::FETCH_ASSOC)) {
-                    $prodiArray[] = "'" . $prodi['nama_prodi'] . "'";
+                    $prodiArray[] = "{id: '" . $prodi['id'] . "', value: '" . $prodi['nama_prodi'] . "'}";
                 }
                 echo implode(",", $prodiArray);
-            ?>],
-            dropdown: {
-                maxItems: 20,
-                classname: "tags-look",
-                enabled: 0,
-                closeOnSelect: false
+            ?>
+        ],
+        dropdown: {
+            maxItems: 20,
+            classname: "tags-look",
+            enabled: 0,
+            closeOnSelect: false
+        }
+    });
+
+    $('#addProdiButton').on('click', function() {
+        tagifyProdi.addEmptyTag();
+    });
+
+    $('#editAddProdiButton').on('click', function() {
+        tagifyEditProdi.addEmptyTag();
+    });
+
+    $('#modalEdit').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+        var nama = button.data('nama');
+        var posisi = button.data('posisi');
+        var kualifikasi = button.data('kualifikasi');
+        var prodi_id = button.data('prodi_id').split(',');
+        var keahlian = button.data('keahlian');
+
+        var modal = $(this);
+        modal.find('#edit_id').val(id);
+        modal.find('#edit_nama_pekerjaan').val(nama);
+        modal.find('#edit_posisi').val(posisi);
+        modal.find('#edit_kualifikasi').val(kualifikasi);
+        
+        tagifyEditProdi.removeAllTags();
+        prodi_id.forEach(function(prodi) {
+            tagifyEditProdi.addTags(prodi);
+        });
+
+        tagifyEditKeahlian.removeAllTags();
+        try {
+            const parsedKeahlian = JSON.parse(keahlian);
+            const keahlianList = Array.isArray(parsedKeahlian) ? parsedKeahlian.map(item => item.value) : [keahlian];
+            tagifyEditKeahlian.addTags(keahlianList);
+        } catch(e) {
+            tagifyEditKeahlian.addTags([keahlian]);
+        }
+    });
+
+    $('#modalHapus').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+
+        var modal = $(this);
+        modal.find('#hapus_id').val(id);
+    });
+
+    $('#modalPelamar').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+        
+        $.ajax({
+            url: 'fetch_applicants.php',
+            method: 'GET',
+            data: { lowongan_id: id },
+            success: function(response) {
+                $('#pelamarTableBody').html(response);
             }
-        });
-
-        $('#addProdiButton').on('click', function() {
-            tagifyProdi.addEmptyTag();
-        });
-
-        $('#editAddProdiButton').on('click', function() {
-            tagifyEditProdi.addEmptyTag();
-        });
-
-        $('#modalEdit').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var id = button.data('id');
-            var nama = button.data('nama');
-            var posisi = button.data('posisi');
-            var kualifikasi = button.data('kualifikasi');
-            var prodi_id = button.data('prodi_id').split(',');
-            var keahlian = button.data('keahlian');
-
-            var modal = $(this);
-            modal.find('#edit_id').val(id);
-            modal.find('#edit_nama_pekerjaan').val(nama);
-            modal.find('#edit_posisi').val(posisi);
-            modal.find('#edit_kualifikasi').val(kualifikasi);
-            
-            tagifyEditProdi.removeAllTags();
-            prodi_id.forEach(function(prodi) {
-                tagifyEditProdi.addTags(prodi);
-            });
-
-            tagifyEditKeahlian.removeAllTags();
-            tagifyEditKeahlian.addTags(keahlian.split(","));
-        });
-
-        $('#modalHapus').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var id = button.data('id');
-
-            var modal = $(this);
-            modal.find('#hapus_id').val(id);
-        });
-
-        $('#modalPelamar').on('show.bs.modal', function (event) {
-            var button = $(event.relatedTarget);
-            var id = button.data('id');
-            
-            $.ajax({
-                url: 'fetch_applicants.php',
-                method: 'GET',
-                data: { lowongan_id: id },
-                success: function(response) {
-                    $('#pelamarTableBody').html(response);
-                }
-            });
         });
     });
+});
 </script>
 
-
-
-    
 </body>
 </html>
-
