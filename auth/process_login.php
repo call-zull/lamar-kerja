@@ -22,7 +22,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $stmtCDC = $pdo->prepare("SELECT approved FROM cdcs WHERE user_id = :user_id");
             $stmtCDC->execute(['user_id' => $user['id']]);
             $cdc = $stmtCDC->fetch();
-
+            //baru
             if ($cdc && $cdc['approved'] == 1) {
                 $_SESSION['user_id'] = $user['id'];
                 $_SESSION['role'] = $user['role'];

@@ -400,7 +400,6 @@ $jobs = fetchJobs($pdo);
 <script src="../app/plugins/datatables-buttons/js/buttons.html5.min.js"></script>
 <script src="../app/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
-
 <script>
 $(document).ready(function() {
     $('#lowonganTable').DataTable();
@@ -571,7 +570,6 @@ $(document).ready(function() {
     });
 });
 </script>
-
 
 </body>
 </html>
