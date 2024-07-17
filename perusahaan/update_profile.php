@@ -15,10 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $nama_perusahaan = $_POST['nama_perusahaan'];
     $alamat_perusahaan = $_POST['alamat_perusahaan'];
     $email_perusahaan = $_POST['email_perusahaan'];
+    $jenis_perusahaan = $_POST['jenis_perusahaan'];
+    $tahun_didirikan = $_POST['tahun_didirikan'];
+    $pimpinan_perusahaan = $_POST['pimpinan_perusahaan'];
+    $deskripsi_perusahaan = $_POST['deskripsi_perusahaan'];
+    $no_telp = $_POST['no_telp'];
 
     // Handle file upload if there is a file selected
     if (!empty($_FILES['fileToUpload']['name'])) {
-        $target_dir = "../assets/perusahaan/profile";
+        $target_dir = "../assets/perusahaan/profile/";
         $target_file = $target_dir . basename($_FILES['fileToUpload']['name']);
         $uploadOk = 1;
         $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
@@ -56,21 +61,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             if (move_uploaded_file($_FILES['fileToUpload']['tmp_name'], $target_file)) {
                 echo "The file " . htmlspecialchars(basename($_FILES['fileToUpload']['name'])) . " has been uploaded.";
+                $profile_image = basename($_FILES['fileToUpload']['name']);
             } else {
                 echo "Sorry, there was an error uploading your file.";
             }
         }
+    } else {
+        // If no new image was uploaded, keep the current image
+        $profile_image = null;
     }
 
-    // Update perusahaan profile data in database
-    $profile_image = isset($_FILES['fileToUpload']['name']) ? $_FILES['fileToUpload']['name'] : null;
-
     try {
+        // Update perusahaan profile data in database
         $sql = "UPDATE perusahaans 
-                SET nama_perusahaan = ?, alamat_perusahaan = ?, email_perusahaan = ?, profile_image = ?
+                SET nama_perusahaan = ?, alamat_perusahaan = ?, email_perusahaan = ?, jenis_perusahaan_id = ?, tahun_didirikan = ?, pimpinan_perusahaan = ?, deskripsi_perusahaan = ?, profile_image = COALESCE(?, profile_image), no_telp = ?
                 WHERE id = ?";
         $stmt = $pdo->prepare($sql);
-        $stmt->execute([$nama_perusahaan, $alamat_perusahaan, $email_perusahaan, $profile_image, $perusahaan_id]);
+        $stmt->execute([$nama_perusahaan, $alamat_perusahaan, $email_perusahaan, $jenis_perusahaan, $tahun_didirikan, $pimpinan_perusahaan, $deskripsi_perusahaan, $profile_image, $no_telp, $perusahaan_id]);
 
         // Redirect to profile page after update
         header('Location: profile_perusahaan.php');

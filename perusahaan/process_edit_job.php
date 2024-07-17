@@ -6,26 +6,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_pekerjaan = $_POST['edit_nama_pekerjaan'];
     $posisi = $_POST['edit_posisi'];
     $kualifikasi = $_POST['edit_kualifikasi'];
-    $prodi_id = isset($_POST['edit_prodi_id']) && !empty($_POST['edit_prodi_id']) ? $_POST['edit_prodi_id'] : NULL;
+    $prodi = isset($_POST['edit_prodi']) ? $_POST['edit_prodi'] : '';
     $keahlian = $_POST['edit_keahlian'];
+    $batas_waktu = $_POST['edit_batas_waktu']; 
 
     try {
         $sql = "UPDATE lowongan_kerja 
-                SET nama_pekerjaan = :nama_pekerjaan, posisi = :posisi, kualifikasi = :kualifikasi, prodi_id = :prodi_id, keahlian = :keahlian 
+                SET nama_pekerjaan = :nama_pekerjaan, posisi = :posisi, kualifikasi = :kualifikasi, prodi = :prodi, keahlian = :keahlian, batas_waktu = :batas_waktu 
                 WHERE id = :id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute([
             ':nama_pekerjaan' => $nama_pekerjaan,
             ':posisi' => $posisi,
             ':kualifikasi' => $kualifikasi,
-            ':prodi_id' => $prodi_id,
+            ':prodi' => $prodi,
             ':keahlian' => $keahlian,
+            ':batas_waktu' => $batas_waktu, 
             ':id' => $id
         ]);
 
-        header('Location: lowongan_kerja.php?success=1');
+        $_SESSION['success_message'] = "Lowongan berhasil diupdate.";
+        header('Location: lowongan_kerja.php');
+        exit;
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }
 }
+?>
+
 ?>

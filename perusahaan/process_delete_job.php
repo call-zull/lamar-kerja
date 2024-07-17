@@ -9,7 +9,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([':id' => $id]);
 
-        header('Location: lowongan_kerja.php?success=1');
+        $_SESSION['success_message'] = "Lowongan berhasil dihapus.";
+        header('Location: lowongan_kerja.php');
+        exit;
     } catch (PDOException $e) {
         echo "Error: " . $e->getMessage();
     }

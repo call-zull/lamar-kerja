@@ -7,14 +7,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
 
 include '../includes/db.php';
 
+$success_message = '';
+if (isset($_SESSION['success_message'])) {
+    $success_message = $_SESSION['success_message'];
+    unset($_SESSION['success_message']); // Clear notification after displaying
+}
 // Fungsi untuk mengambil semua lowongan pekerjaan dari database
 function fetchJobs($pdo) {
     try {
-        $sql = "SELECT lowongan_kerja.*, GROUP_CONCAT(prodis.nama_prodi SEPARATOR ', ') AS nama_prodi 
-                FROM lowongan_kerja 
-                LEFT JOIN lowongan_kerja_prodi ON lowongan_kerja.id = lowongan_kerja_prodi.lowongan_kerja_id
-                LEFT JOIN prodis ON lowongan_kerja_prodi.prodi_id = prodis.id
-                GROUP BY lowongan_kerja.id";
+        $sql = "SELECT * FROM lowongan_kerja";
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -25,6 +26,8 @@ function fetchJobs($pdo) {
 
 // Mengambil semua lowongan pekerjaan
 $jobs = fetchJobs($pdo);
+
+?>
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -40,19 +43,65 @@ $jobs = fetchJobs($pdo);
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.9.7/dist/tagify.css">
     <style>
-        .nav-sidebar .nav-link.active { background-color: #343a40 !important; }
-        .content-wrapper { margin-top: 20px; }
-        .table-responsive { overflow-y: auto; max-height: 400px; }
-        .table-responsive thead { position: sticky; top: 0; z-index: 1; background-color: #343a40; }
-        .table-responsive thead th { color: #ffffff; border-color: #454d55; }
-        .table-responsive tbody tr:hover { background-color: #f2f2f2; }
-        .tagify__tag__removeBtn { color: #fff; margin-left: 5px; }
-        .input-group .form-control { border-right: 0; }
-        .input-group-append .btn { border-left: 0; }
-        .tag-input { min-height: 38px; display: flex; flex-wrap: wrap; }
-        .tag-input-wrapper { position: relative; width: 100%; }
-        .tag-input { min-height: 38px; display: flex; flex-wrap: wrap; align-items: center; border: 1px solid #ced4da; padding: 6px; border-radius: 0.25rem; background-color: #fff; overflow: hidden; }
-        .tagify__tag { margin: 2px; }
+        .nav-sidebar .nav-link.active {
+            background-color: #343a40 !important; 
+        }
+        .content-wrapper {
+            margin-top: 20px;
+        }
+        .table-responsive { 
+            overflow-y: auto;
+            max-height: 400px;
+        }
+        .table-responsive thead {
+            position: sticky;
+            top: 0; z-index: 1; 
+            background-color: #343a40; 
+        }
+        .table-responsive thead th { 
+            color: #ffffff; 
+            border-color: #454d55; 
+        }
+        .table-responsive tbody tr:hover {
+             background-color: #f2f2f2; 
+        }
+        .tagify__tag__removeBtn {
+             color: #fff; 
+             margin-left: 5px; 
+        }
+        .input-group .form-control { 
+            border-right: 0; 
+        }
+        .input-group-append .btn { 
+            border-left: 0;
+        }
+        .tag-input { 
+            min-height: 38px;
+            display: flex; 
+            flex-wrap: wrap;
+        }
+        .tag-input-wrapper { 
+            position: relative; 
+            width: 100%; 
+        }
+        .tag-input {
+            min-height: 38px;
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            border: 1px solid #ced4da;
+            padding: 6px;
+            border-radius: 0.25rem; 
+            background-color: #fff; 
+            overflow: hidden; }
+        .tagify__tag {
+            margin: 2px; 
+        }
+        textarea {
+            min-height: 80px; 
+            width: 100%;
+        }
+
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -95,6 +144,7 @@ $jobs = fetchJobs($pdo);
                                         <th>Kualifikasi</th>
                                         <th>Prodi</th>
                                         <th>Keahlian</th>
+                                        <th>Batas Waktu</th>
                                         <th>Tanggal Posting</th>
                                         <th>Aksi</th>
                                     </tr>
@@ -109,10 +159,20 @@ $jobs = fetchJobs($pdo);
                                             echo "<td>" . htmlspecialchars($row['nama_pekerjaan']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['posisi']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['kualifikasi']) . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['nama_prodi']) . "</td>";
 
-                                            // Decode JSON keahlian
+                                            // Decode JSON prodi dan keahlian
+                                            $prodi = json_decode($row['prodi'], true);
                                             $keahlian = json_decode($row['keahlian'], true);
+
+                                            if (is_array($prodi)) {
+                                                $prodi_list = array_map(function($item) {
+                                                    return $item['value'];
+                                                }, $prodi);
+                                                echo "<td>" . htmlspecialchars(implode(', ', $prodi_list)) . "</td>";
+                                            } else {
+                                                echo "<td>" . htmlspecialchars($row['prodi']) . "</td>";
+                                            }
+
                                             if (is_array($keahlian)) {
                                                 $keahlian_list = array_map(function($item) {
                                                     return $item['value'];
@@ -121,16 +181,14 @@ $jobs = fetchJobs($pdo);
                                             } else {
                                                 echo "<td>" . htmlspecialchars($row['keahlian']) . "</td>";
                                             }
-
+                                            echo "<td>" . htmlspecialchars($row['batas_waktu']) . "</td>"; 
                                             echo "<td>" . htmlspecialchars($row['tanggal_posting']) . "</td>";
                                             echo "<td>
                                                     <button class='btn btn-sm btn-warning editBtn' data-toggle='modal' data-target='#modalEdit' 
                                                         data-id='" . $row['id'] . "' 
                                                         data-nama='" . htmlspecialchars($row['nama_pekerjaan']) . "' 
                                                         data-posisi='" . htmlspecialchars($row['posisi']) . "'
-                                                        data-kualifikasi='" . htmlspecialchars($row['kualifikasi']) . "'
-                                                        data-prodi_id='" . htmlspecialchars($row['nama_prodi']) . "'
-                                                        data-keahlian='" . htmlspecialchars($row['keahlian']) . "'>Edit</button>
+                                                        data-kualifikasi='" . htmlspecialchars($row['kualifikasi']) . "'>Edit</button>
                                                     <button class='btn btn-sm btn-danger deleteBtn' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
                                                     <button class='btn btn-sm btn-info lihatPelamarBtn' data-toggle='modal' data-target='#modalPelamar' data-id='" . $row['id'] . "'>Lihat Pelamar</button>
                                                 </td>";
@@ -172,11 +230,11 @@ $jobs = fetchJobs($pdo);
                         </div>
                         <div class="form-group">
                             <label for="kualifikasi">Kualifikasi</label>
-                            <input type="text" class="form-control" id="kualifikasi" name="kualifikasi" required>
+                            <textarea class="form-control" id="kualifikasi" name="kualifikasi" rows="3" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="prodi_id">Prodi</label>
-                            <input type="text" class="form-control" id="prodi_id" name="prodi_id" required>
+                            <label for="prodi">Prodi</label>
+                            <input type="text" class="form-control" id="prodi" name="prodi" required>
                         </div>
                         <div class="form-group">
                             <label for="keahlian">Keahlian</label>
@@ -186,6 +244,10 @@ $jobs = fetchJobs($pdo);
                                     <button class="btn btn-outline-secondary" type="button" id="addTagButton">+</button>
                                 </div>
                             </div>
+                        </div>
+                        <div class="form-group">
+                        <label for="batas_waktu">Batas Waktu</label>
+                        <input type="date" class="form-control" id="batas_waktu" name="batas_waktu" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -220,15 +282,19 @@ $jobs = fetchJobs($pdo);
                         </div>
                         <div class="form-group">
                             <label for="edit_kualifikasi">Kualifikasi</label>
-                            <input type="text" class="form-control" id="edit_kualifikasi" name="edit_kualifikasi" required>
+                            <textarea class="form-control" id="edit_kualifikasi" name="edit_kualifikasi" rows="3" required></textarea>
                         </div>
                         <div class="form-group">
-                            <label for="edit_prodi_id">Prodi</label>
-                            <input type="text" class="form-control" id="edit_prodi_id" name="edit_prodi_id" required>
+                            <label for="edit_prodi">Prodi</label>
+                            <input type="text" class="form-control" id="edit_prodi" name="edit_prodi" required>
                         </div>
                         <div class="form-group">
                             <label for="edit_keahlian">Keahlian</label>
                             <input type="text" class="form-control" id="edit_keahlian" name="edit_keahlian" required>
+                        </div>
+                        <div class="form-group">
+                        <label for="edit_batas_waktu">Batas Waktu</label>
+                        <input type="date" class="form-control" id="edit_batas_waktu" name="edit_batas_waktu" required>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -265,35 +331,54 @@ $jobs = fetchJobs($pdo);
     </div>
 
     <!-- Modal Lihat Pelamar -->
-    <div class="modal fade" id="modalPelamar" tabindex="-1" aria-labelledby="modalPelamarLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalPelamarLabel">Daftar Pelamar</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <table class="table table-bordered">
-                        <thead>
-                            <tr>
-                                <th>No</th>
-                                <th>Nama Pelamar</th>
-                                <th>Email</th>
-                                <th>No Telepon</th>
-                                <th>Prodi</th>
-                                <th>Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody id="pelamarTableBody">
-                            <!-- Data pelamar akan dimuat di sini melalui AJAX -->
-                        </tbody>
-                    </table>
-                </div>
+<!-- Modal Lihat Pelamar -->
+<div class="modal fade" id="modalPelamar" tabindex="-1" aria-labelledby="modalPelamarLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPelamarLabel">Daftar Pelamar</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th>No</th>
+                            <th>Nama Pelamar</th>
+                            <th>Email</th>
+                            <th>No Telepon</th>
+                            <th>Prodi</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pelamarTableBody">
+                        <!-- Data pelamar akan dimuat di sini melalui AJAX -->
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
+</div>
+
+<!-- Modal Portofolio -->
+<div class="modal fade" id="modalPortofolio" tabindex="-1" aria-labelledby="modalPortofolioLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalPortofolioLabel">Portofolio Mahasiswa</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div id="portofolioContent"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -348,7 +433,7 @@ $(document).ready(function() {
         tagifyEditKeahlian.addEmptyTag();
     });
 
-    var prodiInput = document.querySelector('#prodi_id');
+    var prodiInput = document.querySelector('#prodi');
     var tagifyProdi = new Tagify(prodiInput, {
         whitelist: [
             <?php
@@ -369,7 +454,7 @@ $(document).ready(function() {
         }
     });
 
-    var editProdiInput = document.querySelector('#edit_prodi_id');
+    var editProdiInput = document.querySelector('#edit_prodi');
     var tagifyEditProdi = new Tagify(editProdiInput, {
         whitelist: [
             <?php
@@ -404,28 +489,13 @@ $(document).ready(function() {
         var nama = button.data('nama');
         var posisi = button.data('posisi');
         var kualifikasi = button.data('kualifikasi');
-        var prodi_id = button.data('prodi_id').split(',');
-        var keahlian = button.data('keahlian');
 
         var modal = $(this);
         modal.find('#edit_id').val(id);
         modal.find('#edit_nama_pekerjaan').val(nama);
         modal.find('#edit_posisi').val(posisi);
         modal.find('#edit_kualifikasi').val(kualifikasi);
-        
-        tagifyEditProdi.removeAllTags();
-        prodi_id.forEach(function(prodi) {
-            tagifyEditProdi.addTags(prodi);
-        });
-
-        tagifyEditKeahlian.removeAllTags();
-        try {
-            const parsedKeahlian = JSON.parse(keahlian);
-            const keahlianList = Array.isArray(parsedKeahlian) ? parsedKeahlian.map(item => item.value) : [keahlian];
-            tagifyEditKeahlian.addTags(keahlianList);
-        } catch(e) {
-            tagifyEditKeahlian.addTags([keahlian]);
-        }
+        modal.find('#edit_batas_waktu').val(batas_waktu); 
     });
 
     $('#modalHapus').on('show.bs.modal', function (event) {
@@ -449,8 +519,59 @@ $(document).ready(function() {
             }
         });
     });
+
+    $('#modalPortofolio').on('show.bs.modal', function (event) {
+        var button = $(event.relatedTarget);
+        var mahasiswaId = button.data('mahasiswa-id');
+        var modal = $(this);
+
+        $.ajax({
+            url: 'get_portofolio.php',
+            method: 'GET',
+            data: { mahasiswa_id: mahasiswaId },
+            success: function(response) {
+                var details = JSON.parse(response);
+                var content = '';
+
+                if (details.error) {
+                    content = '<p>Data portofolio tidak ditemukan</p>';
+                } else {
+                    content = '<h5>Sertifikat</h5><ul>';
+                    details.sertifikat.forEach(function(item) {
+                        content += '<li>' + item.nama_sertifikat + '</li>';
+                    });
+                    content += '</ul>';
+
+                    content += '<h5>Lomba</h5><ul>';
+                    details.lomba.forEach(function(item) {
+                        content += '<li>' + item.nama_lomba + '</li>';
+                    });
+                    content += '</ul>';
+
+                    content += '<h5>Pelatihan</h5><ul>';
+                    details.pelatihan.forEach(function(item) {
+                        content += '<li>' + item.nama_pelatihan + '</li>';
+                    });
+                    content += '</ul>';
+
+                    content += '<h5>Proyek</h5><ul>';
+                    details.proyek.forEach(function(item) {
+                        content += '<li>' + item.nama_proyek + '</li>';
+                    });
+                    content += '</ul>';
+                }
+
+                modal.find('#portofolioContent').html(content);
+            },
+            error: function(xhr, status, error) {
+                console.error("Error: " + error);
+                modal.find('#portofolioContent').html('<p>Error loading portofolio</p>');
+            }
+        });
+    });
 });
 </script>
+
 
 </body>
 </html>

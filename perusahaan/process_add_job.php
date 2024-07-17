@@ -7,91 +7,56 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
 
 include '../includes/db.php';
 
-// Function to check if prodi_id is valid
-function isValidProdiId($pdo, $prodi_id) {
-    $sql = "SELECT COUNT(*) FROM prodis WHERE id = :prodi_id";
-    $stmt = $pdo->prepare($sql);
-    $stmt->bindParam(':prodi_id', $prodi_id);
-    $stmt->execute();
-    return $stmt->fetchColumn() > 0;
-}
-
-// Function to add a job
-function addJob($pdo, $nama_pekerjaan, $posisi, $kualifikasi, $prodi_ids, $keahlian) {
+// Fungsi untuk menambahkan lowongan pekerjaan
+function addJob($pdo, $nama_pekerjaan, $posisi, $kualifikasi, $prodi, $keahlian, $batas_waktu) {
     try {
-        // Begin transaction
+        // Mulai transaksi
         $pdo->beginTransaction();
         
+        // Mengubah data prodi dan keahlian menjadi JSON
+        $prodi_json = json_encode($prodi);
         $keahlian_json = json_encode($keahlian);
 
-        $sql = "INSERT INTO lowongan_kerja (nama_pekerjaan, posisi, kualifikasi, keahlian, tanggal_posting) 
-                VALUES (:nama_pekerjaan, :posisi, :kualifikasi, :keahlian, NOW())";
+        // Menambahkan lowongan pekerjaan ke tabel lowongan_kerja
+        $sql = "INSERT INTO lowongan_kerja (nama_pekerjaan, posisi, kualifikasi, prodi, keahlian, tanggal_posting, batas_waktu) 
+                VALUES (:nama_pekerjaan, :posisi, :kualifikasi, :prodi, :keahlian, NOW(), :batas_waktu)";
         $stmt = $pdo->prepare($sql);
         $stmt->bindParam(':nama_pekerjaan', $nama_pekerjaan);
         $stmt->bindParam(':posisi', $posisi);
         $stmt->bindParam(':kualifikasi', $kualifikasi);
+        $stmt->bindParam(':prodi', $prodi_json);
         $stmt->bindParam(':keahlian', $keahlian_json);
+        $stmt->bindParam(':batas_waktu', $batas_waktu);
         $stmt->execute();
         
-        // Get the last inserted ID
-        $lowongan_kerja_id = $pdo->lastInsertId();
-        
-        // Insert each prodi_id into the junction table if valid
-        $sql = "INSERT INTO lowongan_kerja_prodi (lowongan_kerja_id, prodi_id) VALUES (:lowongan_kerja_id, :prodi_id)";
-        $stmt = $pdo->prepare($sql);
-        foreach ($prodi_ids as $prodi_id) {
-            if (isValidProdiId($pdo, $prodi_id)) {
-                $stmt->bindParam(':lowongan_kerja_id', $lowongan_kerja_id);
-                $stmt->bindParam(':prodi_id', $prodi_id);
-                $stmt->execute();
-            } else {
-                throw new Exception("Invalid prodi_id: $prodi_id");
-            }
-        }
-        
-        // Commit transaction
+        // Komit transaksi
         $pdo->commit();
         
         return true;
     } catch (Exception $e) {
-        // Rollback transaction on error
+        // Rollback transaksi jika terjadi kesalahan
         $pdo->rollBack();
         echo "Error adding job: " . $e->getMessage();
         return false;
     }
 }
 
-// Check if form is submitted
+// Memeriksa apakah form telah disubmit
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $nama_pekerjaan = $_POST['nama_pekerjaan'];
     $posisi = $_POST['posisi'];
     $kualifikasi = $_POST['kualifikasi'];
-    $prodi_ids = $_POST['prodi_id']; // Ensure this is an array
-    $keahlian = json_decode($_POST['keahlian'], true); // Decode the JSON string
+    $prodi = json_decode($_POST['prodi'], true); // Memastikan ini adalah array
+    $keahlian = json_decode($_POST['keahlian'], true); // Mendekode string JSON
+    $batas_waktu = $_POST['batas_waktu']; // Mendapatkan batas waktu dari input form
 
-    // Add job to database
-    if (addJob($pdo, $nama_pekerjaan, $posisi, $kualifikasi, $prodi_ids, $keahlian)) {
+    // Menambahkan lowongan pekerjaan ke database
+    if (addJob($pdo, $nama_pekerjaan, $posisi, $kualifikasi, $prodi, $keahlian, $batas_waktu)) {
+        $_SESSION['success_message'] = "Lowongan berhasil ditambahkan.";
         header('Location: lowongan_kerja.php');
         exit;
     }
 }
+?>
 
-// Function to fetch all jobs from the database
-function fetchJobs($pdo) {
-    try {
-        $sql = "SELECT lowongan_kerja.*, GROUP_CONCAT(prodis.nama_prodi SEPARATOR ', ') AS nama_prodi 
-                FROM lowongan_kerja 
-                LEFT JOIN lowongan_kerja_prodi ON lowongan_kerja.id = lowongan_kerja_prodi.lowongan_kerja_id
-                LEFT JOIN prodis ON lowongan_kerja_prodi.prodi_id = prodis.id
-                GROUP BY lowongan_kerja.id";
-        $stmt = $pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        echo "Error fetching jobs: " . $e->getMessage();
-        return false;
-    }
-}
-
-// Fetch all jobs
-$jobs = fetchJobs($pdo);
 ?>

@@ -12,7 +12,7 @@ include '../includes/db.php';
 
 // Fetch perusahaan profile information
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT p.id, p.user_id, p.nama_perusahaan, p.alamat_perusahaan, p.email_perusahaan, p.profile_image
+$sql = "SELECT p.id, p.user_id, p.nama_perusahaan, p.alamat_perusahaan, p.email_perusahaan, p.jenis_perusahaan_id, p.tahun_didirikan, p.pimpinan_perusahaan, p.deskripsi_perusahaan, p.profile_image, p.approved, p.no_telp
         FROM perusahaans p
         WHERE p.user_id = ?";
 $stmt = $pdo->prepare($sql);
@@ -24,6 +24,11 @@ if (!$perusahaan) {
     die("Data perusahaan tidak ditemukan.");
 }
 
+// Fetch jenis perusahaan options
+$sql_jenis = "SELECT id, nama_jenis FROM jenis_perusahaan";
+$stmt_jenis = $pdo->prepare($sql_jenis);
+$stmt_jenis->execute();
+$jenis_perusahaan = $stmt_jenis->fetchAll(PDO::FETCH_ASSOC);
 ?>
 
 <!DOCTYPE html>
@@ -49,8 +54,8 @@ if (!$perusahaan) {
             left: 20px;
         }
         .profile-img {
-            max-width: 200px;
-            max-height: 200px;
+            max-width: 100px;
+            max-height: 100px;
         }
     </style>
 </head>
@@ -126,6 +131,33 @@ if (!$perusahaan) {
                                                     <label for="email_perusahaan">Email Perusahaan</label>
                                                     <input type="email" class="form-control profile-input" id="email_perusahaan" name="email_perusahaan" value="<?php echo $perusahaan['email_perusahaan']; ?>" disabled>
                                                 </div>
+                                                <div class="form-group">
+                                                    <label for="jenis_perusahaan">Jenis Perusahaan</label>
+                                                    <select class="form-control profile-input" id="jenis_perusahaan" name="jenis_perusahaan" disabled>
+                                                        <option value="">Pilih Bidang</option>
+                                                        <?php foreach ($jenis_perusahaan as $jenis) : ?>
+                                                            <option value="<?php echo $jenis['id']; ?>" <?php echo $jenis['id'] == $perusahaan['jenis_perusahaan_id'] ? 'selected' : ''; ?>>
+                                                                <?php echo $jenis['nama_jenis']; ?>
+                                                            </option>
+                                                        <?php endforeach; ?>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="tahun_didirikan">Tahun Didirikan</label>
+                                                    <input type="number" class="form-control profile-input" id="tahun_didirikan" name="tahun_didirikan" value="<?php echo $perusahaan['tahun_didirikan']; ?>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="pimpinan_perusahaan">Pimpinan Perusahaan</label>
+                                                    <input type="text" class="form-control profile-input" id="pimpinan_perusahaan" name="pimpinan_perusahaan" value="<?php echo $perusahaan['pimpinan_perusahaan']; ?>" disabled>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="deskripsi_perusahaan">Deskripsi Perusahaan</label>
+                                                    <textarea class="form-control profile-input" id="deskripsi_perusahaan" name="deskripsi_perusahaan" rows="3" disabled><?php echo $perusahaan['deskripsi_perusahaan']; ?></textarea>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="no_telp">No. Telp</label>
+                                                    <input type="text" class="form-control profile-input" id="no_telp" name="no_telp" value="<?php echo $perusahaan['no_telp']; ?>" disabled>
+                                                </div>
                                             </div>
                                         </div>
                                     </form>
@@ -146,14 +178,12 @@ if (!$perusahaan) {
         const editProfileBtn = document.getElementById('edit-profile-btn');
         const saveProfileBtn = document.getElementById('save-profile-btn');
         const fileToUpload = document.getElementById('fileToUpload');
-        const namaPerusahaanInput = document.getElementById('nama_perusahaan');
-        const alamatPerusahaanInput = document.getElementById('alamat_perusahaan');
-        const emailPerusahaanInput = document.getElementById('email_perusahaan');
+        const profileInputs = document.querySelectorAll('.profile-input');
 
         editProfileBtn.addEventListener('click', function () {
             editProfileBtn.classList.add('d-none');
             saveProfileBtn.classList.remove('d-none');
-            enableInputFields();
+            profileInputs.forEach(input => input.removeAttribute('disabled'));
         });
 
         saveProfileBtn.addEventListener('click', function () {
@@ -165,12 +195,6 @@ if (!$perusahaan) {
                 saveProfileBtn.classList.remove('d-none');
             }
         });
-
-        function enableInputFields() {
-            namaPerusahaanInput.removeAttribute('disabled');
-            alamatPerusahaanInput.removeAttribute('disabled');
-            emailPerusahaanInput.removeAttribute('disabled');
-        }
     </script>
 </body>
 
