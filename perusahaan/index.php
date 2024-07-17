@@ -61,7 +61,8 @@ function fetchStatistics($pdo, $company_id) {
 $company_data = fetchCompanyData($pdo, $_SESSION['user_id']);
 $statistics = fetchStatistics($pdo, $company_data['id']);
 
-// Date Information
+// Date and Time Information
+date_default_timezone_set('Asia/Makassar');
 $days = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'];
 $months = ['January' => 'Januari', 'February' => 'Februari', 'March' => 'Maret', 'April' => 'April', 'May' => 'Mei', 'June' => 'Juni', 'July' => 'Juli', 'August' => 'Agustus', 'September' => 'September', 'October' => 'Oktober', 'November' => 'November', 'December' => 'Desember'];
 
@@ -69,7 +70,8 @@ $day = $days[date('l')];
 $date = date('d');
 $month = $months[date('F')];
 $year = date('Y');
-$currentDate = "$day, $date $month $year";
+$time = date('H:i:s');
+$currentDate = "$day, $date $month $year $time WITA";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -120,7 +122,7 @@ $currentDate = "$day, $date $month $year";
             <div class="container-fluid">
                 <div class="row mb-2">
                     <div class="col-sm-6">
-                        <h3 class="m-0">Dashboard</h3>
+                        <h4 class="m-0">Dashboard</h4>
                     </div>
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
@@ -140,13 +142,13 @@ $currentDate = "$day, $date $month $year";
                     <div class="col-lg-8 col-12">
                         <div class="verified-card">
                             <i class="fas fa-check-circle"></i>
-                            <h5>Selamat Datang, <?php echo htmlspecialchars($company_data['nama_perusahaan']); ?></h5>
+                            <h6>Selamat Datang, <?php echo htmlspecialchars($company_data['nama_perusahaan']); ?></h6>
                         </div>
                     </div>
                     <div class="col-lg-4 col-12">
                         <div class="date-card">
                             <i class="fas fa-calendar-alt"></i>
-                            <h5>Hari ini: <?php echo $currentDate; ?></h5>
+                            <h6>Hari ini: <?php echo $currentDate; ?></h6>
                         </div>
                     </div>
                 </div>
@@ -210,7 +212,7 @@ $currentDate = "$day, $date $month $year";
                         <!-- Custom tabs (Charts with tabs)-->
                         <div class="card">
                             <div class="card-header">
-                                <h3 class="card-title">
+                            <h3 class="card-title">
                                     <i class="fas fa-chart-pie mr-1"></i>
                                     Statistik Lowongan dan Pelamar
                                 </h3>
@@ -224,9 +226,10 @@ $currentDate = "$day, $date $month $year";
                                         </li>
                                     </ul>
                                 </div>
-                            </div>
+                            </div><!-- /.card-header -->
                             <div class="card-body">
                                 <div class="tab-content p-0">
+                                    <!-- Morris chart - Sales -->
                                     <div class="chart tab-pane active" id="lowongan-chart" style="position: relative; height: 300px;">
                                         <canvas id="lowongan-chart-canvas" height="300" style="height: 300px;"></canvas>
                                     </div>
@@ -234,15 +237,25 @@ $currentDate = "$day, $date $month $year";
                                         <canvas id="pelamar-chart-canvas" height="300" style="height: 300px;"></canvas>
                                     </div>
                                 </div>
-                            </div>
+                            </div><!-- /.card-body -->
                         </div>
+                        <!-- /.card -->
+                    </section>
+                    <!-- /.Left col -->
+                    <section class="col-lg-5 connectedSortable">
+                        <!-- Another chart or any other component can go here -->
                     </section>
                 </div>
-            </div>
+                <!-- /.row (main row) -->
+            </div><!-- /.container-fluid -->
         </section>
+        <!-- /.content -->
     </div>
+    <!-- /.content-wrapper -->
 </div>
+<!-- ./wrapper -->
 
+<!-- Include external JS file -->
 <script src="script_perusahaan.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
@@ -299,3 +312,4 @@ $currentDate = "$day, $date $month $year";
 </script>
 </body>
 </html>
+
