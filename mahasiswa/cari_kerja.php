@@ -284,7 +284,7 @@ if ($mahasiswa) {
                     modal.find('#detailNamaPerusahaan').text(details.nama_perusahaan);
                     modal.find('#detailAlamatPerusahaan').text(details.alamat_perusahaan);
                     modal.find('#detailEmailPerusahaan').text(details.email_perusahaan);
-                    modal.find('#detailJenisPerusahaan').text(details.jenis_perusahaan_id);
+                    modal.find('#detailJenisPerusahaan').text(details.nama_jenis); 
                     modal.find('#detailTahunDidirikan').text(details.tahun_didirikan);
                     modal.find('#detailPimpinanPerusahaan').text(details.pimpinan_perusahaan);
                     modal.find('#detailDeskripsiPerusahaan').text(details.deskripsi_perusahaan);
@@ -295,6 +295,7 @@ if ($mahasiswa) {
                 console.error("Error: " + error); // Debugging log
             }
         });
+
     });
 </script>
 </body>

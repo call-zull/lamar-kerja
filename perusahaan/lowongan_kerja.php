@@ -23,11 +23,22 @@ function fetchJobs($pdo) {
         return false;
     }
 }
+// Fungsi untuk mengambil portofolio mahasiswa berdasarkan id
+function fetchPortfolios($pdo, $id_user) {
+    try {
+        $sql = "SELECT * FROM portofolio WHERE id_user = :id_user";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['id_user' => $id_user]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error fetching portfolios: " . $e->getMessage();
+        return false;
+    }
+}
 
 // Mengambil semua lowongan pekerjaan
 $jobs = fetchJobs($pdo);
 
-?>
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -102,6 +113,13 @@ $jobs = fetchJobs($pdo);
             width: 100%;
         }
 
+        /* CSS tambahan untuk memastikan modal mencakup panjang tabel */
+        .modal-lg {
+            max-width: 90%;
+        }
+        .modal-body {
+            overflow-x: auto;
+        }
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -191,12 +209,13 @@ $jobs = fetchJobs($pdo);
                                                         data-kualifikasi='" . htmlspecialchars($row['kualifikasi']) . "'>Edit</button>
                                                     <button class='btn btn-sm btn-danger deleteBtn' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
                                                     <button class='btn btn-sm btn-info lihatPelamarBtn' data-toggle='modal' data-target='#modalPelamar' data-id='" . $row['id'] . "'>Lihat Pelamar</button>
+                                                    
                                                 </td>";
                                             echo "</tr>";
                                             $no++;
                                         }
                                     } else {
-                                        echo "<tr><td colspan='8'>Tidak ada data</td></tr>";
+                                        echo "<tr><td colspan='9'>Tidak ada data</td></tr>";
                                     }
                                     ?>
                                 </tbody>
@@ -330,7 +349,6 @@ $jobs = fetchJobs($pdo);
         </div>
     </div>
 
-    <!-- Modal Lihat Pelamar -->
 <!-- Modal Lihat Pelamar -->
 <div class="modal fade" id="modalPelamar" tabindex="-1" aria-labelledby="modalPelamarLabel" aria-hidden="true">
     <div class="modal-dialog modal-lg">
@@ -342,21 +360,14 @@ $jobs = fetchJobs($pdo);
                 </button>
             </div>
             <div class="modal-body">
-                <table class="table table-bordered">
-                    <thead>
-                        <tr>
-                            <th>No</th>
-                            <th>Nama Pelamar</th>
-                            <th>Email</th>
-                            <th>No Telepon</th>
-                            <th>Prodi</th>
-                            <th>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody id="pelamarTableBody">
-                        <!-- Data pelamar akan dimuat di sini melalui AJAX -->
-                    </tbody>
-                </table>
+                <div style="overflow-x:auto;">
+                    <table class="table table-bordered">
+                      
+                        <tbody id="pelamarTableBody">
+                            <!-- Data pelamar akan dimuat di sini melalui AJAX -->
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     </div>
@@ -364,7 +375,7 @@ $jobs = fetchJobs($pdo);
 
 <!-- Modal Portofolio -->
 <div class="modal fade" id="modalPortofolio" tabindex="-1" aria-labelledby="modalPortofolioLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" id="modalPortofolioLabel">Portofolio Mahasiswa</h5>
@@ -378,6 +389,7 @@ $jobs = fetchJobs($pdo);
         </div>
     </div>
 </div>
+
 
 </div>
 
@@ -401,7 +413,6 @@ $jobs = fetchJobs($pdo);
 <script src="../app/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script>
-$(document).ready(function() {
     $('#lowonganTable').DataTable();
 
     var keahlianInput = document.querySelector('#keahlian');
@@ -494,7 +505,6 @@ $(document).ready(function() {
         modal.find('#edit_nama_pekerjaan').val(nama);
         modal.find('#edit_posisi').val(posisi);
         modal.find('#edit_kualifikasi').val(kualifikasi);
-        modal.find('#edit_batas_waktu').val(batas_waktu); 
     });
 
     $('#modalHapus').on('show.bs.modal', function (event) {
@@ -506,70 +516,174 @@ $(document).ready(function() {
     });
 
     $('#modalPelamar').on('show.bs.modal', function (event) {
-        var button = $(event.relatedTarget);
-        var id = button.data('id');
-        
-        $.ajax({
-            url: 'fetch_applicants.php',
-            method: 'GET',
-            data: { lowongan_id: id },
-            success: function(response) {
-                $('#pelamarTableBody').html(response);
-            }
-        });
+    var button = $(event.relatedTarget);
+    var id = button.data('id');
+    
+    $.ajax({
+        url: 'fetch_applicants.php',
+        method: 'GET',
+        data: { lowongan_id: id },
+        success: function(response) {
+            $('#pelamarTableBody').html(response);
+
+            // Bind the click event to the dynamically added buttons
+            $('.btn-terima').on('click', function () {
+                var id_pelamar = $(this).data('id-pelamar');
+                $.ajax({
+                    url: 'terima_pelamar.php',
+                    method: 'POST',
+                    data: { id_pelamar: id_pelamar },
+                    success: function(response) {
+                        var result = JSON.parse(response);
+                        if (result.success) {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar diterima.</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-success').fadeOut();
+                            }, 2000);
+                            fetchApplicants(id);
+                        } else {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-danger').fadeOut();
+                            }, 2000);
+                        }
+                    }
+                });
+            });
+
+            $('.btn-tolak').on('click', function () {
+                var id_pelamar = $(this).data('id-pelamar');
+                $.ajax({
+                    url: 'tolak_pelamar.php',
+                    method: 'POST',
+                    data: { id_pelamar: id_pelamar },
+                    success: function(response) {
+                        var result = JSON.parse(response);
+                        if (result.success) {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar ditolak.</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-success').fadeOut();
+                            }, 2000);
+                            fetchApplicants(id);
+                        } else {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-danger').fadeOut();
+                            }, 2000);
+                        }
+                    }
+                });
+            });
+        }
     });
+});
+function fetchApplicants(id) {
+    $.ajax({
+        url: 'fetch_applicants.php',
+        method: 'GET',
+        data: { lowongan_id: id },
+        success: function(response) {
+            $('#pelamarTableBody').html(response);
+            // Bind the click event again for newly loaded content
+            $('.btn-terima').on('click', function () {
+                var id_pelamar = $(this).data('id-pelamar');
+                $.ajax({
+                    url: 'terima_pelamar.php',
+                    method: 'POST',
+                    data: { id_pelamar: id_pelamar },
+                    success: function(response) {
+                        var result = JSON.parse(response);
+                        if (result.success) {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar diterima.</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-success').fadeOut();
+                            }, 2000);
+                            fetchApplicants(id);
+                        } else {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-danger').fadeOut();
+                            }, 2000);
+                        }
+                    }
+                });
+            });
+
+            $('.btn-tolak').on('click', function () {
+                var id_pelamar = $(this).data('id-pelamar');
+                $.ajax({
+                    url: 'tolak_pelamar.php',
+                    method: 'POST',
+                    data: { id_pelamar: id_pelamar },
+                    success: function(response) {
+                        var result = JSON.parse(response);
+                        if (result.success) {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar ditolak.</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-success').fadeOut();
+                            }, 2000);
+                            fetchApplicants(id);
+                        } else {
+                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                            setTimeout(function() {
+                                $('#modalPelamar .alert-danger').fadeOut();
+                            }, 2000);
+                        }
+                    }
+                });
+            });
+        }
+    });
+}
+
 
     $('#modalPortofolio').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
-        var mahasiswaId = button.data('mahasiswa-id');
-        var modal = $(this);
-
+        var mahasiswa_id = button.data('mahasiswa_id');
+        
         $.ajax({
-            url: 'get_portofolio.php',
+            url: 'fetch_portfolio.php',
             method: 'GET',
-            data: { mahasiswa_id: mahasiswaId },
+            data: { mahasiswa_id: mahasiswa_id },
             success: function(response) {
-                var details = JSON.parse(response);
+                var portfolio = JSON.parse(response);
                 var content = '';
 
-                if (details.error) {
-                    content = '<p>Data portofolio tidak ditemukan</p>';
+                if (portfolio.error) {
+                    content = '<p>' + portfolio.error + '</p>';
                 } else {
-                    content = '<h5>Sertifikat</h5><ul>';
-                    details.sertifikat.forEach(function(item) {
-                        content += '<li>' + item.nama_sertifikat + '</li>';
+                    content += '<h5>Sertifikasi Mahasiswa</h5><table class="table table-bordered"><thead><tr><th>No</th><th>Nama Sertifikasi</th><th>Nomor SK</th><th>Lembaga</th><th>Tanggal Diperoleh</th><th>Tanggal Kadaluwarsa</th><th>Bukti</th></tr></thead><tbody>';
+                    portfolio.sertifikat.forEach(function(item, index) {
+                        content += '<tr><td>' + (index + 1) + '</td><td>' + item.nama_sertifikat + '</td><td>' + item.nomor_sk + '</td><td>' + item.lembaga + '</td><td>' + item.tanggal_diperoleh + '</td><td>' + item.tanggal_kadaluwarsa + '</td><td><a href="' + item.bukti + '" target="_blank">Lihat Bukti</a></td></tr>';
                     });
-                    content += '</ul>';
+                    content += '</tbody></table>';
 
-                    content += '<h5>Lomba</h5><ul>';
-                    details.lomba.forEach(function(item) {
-                        content += '<li>' + item.nama_lomba + '</li>';
+                    content += '<h5>Lomba Mahasiswa</h5><table class="table table-bordered"><thead><tr><th>No</th><th>Nama Lomba</th><th>Prestasi</th><th>Kategori</th><th>Tingkatan</th><th>Penyelenggara</th><th>Tanggal Pelaksanaan</th><th>Tempat Pelaksanaan</th><th>Bukti</th></tr></thead><tbody>';
+                    portfolio.lomba.forEach(function(item, index) {
+                        content += '<tr><td>' + (index + 1) + '</td><td>' + item.nama_lomba + '</td><td>' + item.prestasi + '</td><td>' + item.kategori + '</td><td>' + item.tingkatan + '</td><td>' + item.penyelenggara + '</td><td>' + item.tanggal_pelaksanaan + '</td><td>' + item.tempat_pelaksanaan + '</td><td><a href="' + item.bukti + '" target="_blank">Lihat Bukti</a></td></tr>';
                     });
-                    content += '</ul>';
+                    content += '</tbody></table>';
 
-                    content += '<h5>Pelatihan</h5><ul>';
-                    details.pelatihan.forEach(function(item) {
-                        content += '<li>' + item.nama_pelatihan + '</li>';
+                    content += '<h5>Pelatihan Mahasiswa</h5><table class="table table-bordered"><thead><tr><th>No</th><th>Nama Pelatihan</th><th>Materi</th><th>Deskripsi</th><th>Tingkatan</th><th>Penyelenggara</th><th>Tanggal Mulai</th><th>Tanggal Selesai</th><th>Tempat Pelaksanaan</th><th>Bukti</th></tr></thead><tbody>';
+                    portfolio.pelatihan.forEach(function(item, index) {
+                        content += '<tr><td>' + (index + 1) + '</td><td>' + item.nama_pelatihan + '</td><td>' + item.materi + '</td><td>' + item.deskripsi + '</td><td>' + item.tingkatan + '</td><td>' + item.penyelenggara + '</td><td>' + item.tanggal_mulai + '</td><td>' + item.tanggal_selesai + '</td><td>' + item.tempat_pelaksanaan + '</td><td><a href="' + item.bukti + '" target="_blank">Lihat Bukti</a></td></tr>';
                     });
-                    content += '</ul>';
+                    content += '</tbody></table>';
 
-                    content += '<h5>Proyek</h5><ul>';
-                    details.proyek.forEach(function(item) {
-                        content += '<li>' + item.nama_proyek + '</li>';
+                    content += '<h5>Proyek Mahasiswa</h5><table class="table table-bordered"><thead><tr><th>No</th><th>Nama Proyek</th><th>Partner</th><th>Peran</th><th>Waktu Awal</th><th>Waktu Selesai</th><th>Tujuan Proyek</th><th>Bukti</th></tr></thead><tbody>';
+                    portfolio.proyek.forEach(function(item, index) {
+                        content += '<tr><td>' + (index + 1) + '</td><td>' + item.nama_proyek + '</td><td>' + item.partner + '</td><td>' + item.peran + '</td><td>' + item.waktu_awal + '</td><td>' + item.waktu_selesai + '</td><td>' + item.tujuan_proyek + '</td><td><a href="' + item.bukti + '" target="_blank">Lihat Bukti</a></td></tr>';
                     });
-                    content += '</ul>';
+                    content += '</tbody></table>';
                 }
 
-                modal.find('#portofolioContent').html(content);
-            },
-            error: function(xhr, status, error) {
-                console.error("Error: " + error);
-                modal.find('#portofolioContent').html('<p>Error loading portofolio</p>');
+                $('#portofolioContent').html(content);
             }
         });
     });
-});
-</script>
 
+    
+</script>
 </body>
 </html>
+
