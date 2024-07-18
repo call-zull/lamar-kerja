@@ -1,28 +1,27 @@
 <nav class="main-header navbar navbar-expand navbar-white navbar-light">
-    <ul class="navbar-nav">
-        <li class="nav-item">
-            <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
-        </li>
-        <li class="nav-item d-none d-sm-inline-block">
-            <a href="#" class="nav-link">SI Portofolio</a>
-        </li>
-    </ul>
-    <ul class="navbar-nav ml-auto">
-        <li class="nav-item">
-            <a class="nav-link" href="#" id="dark-mode-toggle" role="button">
-                <i class="fas fa-moon"></i>
-                Dark Mode
-            </a>
-        </li>
-        <li class="nav-item">
-            <a class="nav-link" href="#" id="light-mode-toggle" role="button">
-                <i class="fas fa-sun"></i>
-                Light Mode
-            </a>
-        </li>
-    </ul>
-</nav>
-
+        <ul class="navbar-nav">
+            <li class="nav-item">
+                <a class="nav-link" data-widget="pushmenu" href="#" role="button"><i class="fas fa-bars"></i></a>
+            </li>
+            <li class="nav-item d-none d-sm-inline-block">
+                <a href="#" class="nav-link">SI Portofolio</a>
+            </li>
+        </ul>
+        <ul class="navbar-nav ml-auto">
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="dark-mode-toggle" role="button">
+                    <i class="fas fa-moon"></i>
+                    Dark Mode
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#" id="light-mode-toggle" role="button">
+                    <i class="fas fa-sun"></i>
+                    Light Mode
+                </a>
+            </li>
+        </ul>
+    </nav>
 
     <aside class="main-sidebar sidebar-dark-primary elevation-4">
     <!-- Brand Logo -->
@@ -84,6 +83,12 @@
                     <a href="../cari_kerja.php" class="nav-link">
                         <i class="nav-icon fas fa-briefcase"></i>
                         <p>Cari Kerja</p>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="../status_lamaran.php" class="nav-link">
+                        <i class="nav-icon fas fa-file-alt"></i>
+                        <p>Lamaran Saya</p>
                     </a>
                 </li>
                 <li class="nav-item">

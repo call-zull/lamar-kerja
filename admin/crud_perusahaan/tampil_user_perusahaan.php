@@ -15,11 +15,27 @@ if (isset($_SESSION['success_message'])) {
     unset($_SESSION['success_message']); // Clear notification after displaying
 }
 
+$jenis_perusahaan = [
+    1 => 'Manufaktur',
+    2 => 'Jasa',
+    3 => 'Teknologi Informasi dan Komunikasi',
+    4 => 'Energi dan Sumber Daya Alam',
+    5 => 'Konstruksi dan Real Estate',
+    6 => 'Ritel dan Perdagangan',
+    7 => 'Agrikultur dan Peternakan',
+    8 => 'Transportasi dan Logistik',
+    9 => 'Keuangan dan Investasi',
+    10 => 'Media dan Hiburan',
+    11 => 'Kesehatan dan Bioteknologi',
+    12 => 'Pendidikan dan Pelatihan'
+];
+
 // Fetch perusahaan data from database
-$sql = "SELECT id, user_id, nama_perusahaan, alamat_perusahaan, email_perusahaan, profile_image FROM perusahaans";
+$sql = "SELECT id, user_id, nama_perusahaan, alamat_perusahaan, email_perusahaan, tahun_didirikan, pimpinan_perusahaan, deskripsi_perusahaan, profile_image, no_telp, jenis_perusahaan_id FROM perusahaans";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $perusahaans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 
 <!DOCTYPE html>
@@ -143,41 +159,52 @@ $perusahaans = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="card-body">
                                     <div class="table-responsive">
                                         <table id="perusahaanTable" class="table table-bordered table-striped">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama Perusahaan</th>
-                                                    <th>Alamat</th>
-                                                    <th>Email</th>
-                                                    <th>Profile</th>
-                                                    <th>Aksi</th>
+                                        <thead>
+                                            <tr>
+                                                <th>No</th>
+                                                <th>Nama Perusahaan</th>
+                                                <th>Alamat</th>
+                                                <th>Email</th>
+                                                <th>Tahun Didirikan</th>
+                                                <th>Pimpinan</th>
+                                                <th>Deskripsi</th>
+                                                <th>Profile</th>
+                                                <th>No. Telepon</th>
+                                                <th>Jenis Perusahaan</th>
+                                                <th>Aksi</th>
                                                 </tr>
                                             </thead>
-                                            <tbody>
-                                                <?php foreach ($perusahaans as $index => $perusahaan) : ?>
-                                                    <tr>
-                                                        <td><?php echo $index + 1; ?></td>
-                                                        <td><?php echo htmlspecialchars($perusahaan['nama_perusahaan']); ?></td>
-                                                        <td><?php echo htmlspecialchars($perusahaan['alamat_perusahaan']); ?></td>
-                                                        <td><?php echo htmlspecialchars($perusahaan['email_perusahaan']); ?></td>
-                                                        <td>
-                                                            <?php if (!empty($perusahaan['profile_image'])) : ?>
-                                                                <img src="../../assets/perusahaan/profile/<?php echo $perusahaan['profile_image']; ?>" class="img-thumbnail profile-img" alt="Profile Image">
-                                                            <?php else : ?>
-                                                                No Image
-                                                            <?php endif; ?>
-                                                        </td>
-                                                        <td>
-                                                            <button class="btn btn-sm btn-primary btn-edit" data-id="<?php echo $perusahaan['id']; ?>" data-nama="<?php echo htmlspecialchars($perusahaan['nama_perusahaan']); ?>" data-email="<?php echo htmlspecialchars($perusahaan['email_perusahaan']); ?>" data-alamat="<?php echo htmlspecialchars($perusahaan['alamat_perusahaan']); ?>">
-                                                                <i class="fas fa-edit"></i> Edit
-                                                            </button>
-                                                            <button class="btn btn-sm btn-danger btn-delete" data-id="<?php echo $perusahaan['id']; ?>" data-user="<?php echo $perusahaan['user_id']; ?>">
-                                                                <i class="fas fa-trash"></i> Hapus
-                                                            </button>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            </tbody>
+                                        <tbody>
+                                            <?php foreach ($perusahaans as $index => $perusahaan) : ?>
+                                                <tr>
+                                                    <td><?php echo $index + 1; ?></td>
+                                                    <td><?php echo htmlspecialchars($perusahaan['nama_perusahaan']); ?></td>
+                                                    <td><?php echo htmlspecialchars($perusahaan['alamat_perusahaan']); ?></td>
+                                                    <td><?php echo htmlspecialchars($perusahaan['email_perusahaan']); ?></td>
+                                                    <td><?php echo !empty($perusahaan['tahun_didirikan']) ? htmlspecialchars($perusahaan['tahun_didirikan']) : 'Data belum diinput'; ?></td>
+                                                    <td><?php echo !empty($perusahaan['pimpinan_perusahaan']) ? htmlspecialchars($perusahaan['pimpinan_perusahaan']) : 'Data belum diinput'; ?></td>
+                                                    <td><?php echo !empty($perusahaan['deskripsi_perusahaan']) ? htmlspecialchars($perusahaan['deskripsi_perusahaan']) : 'Data belum diinput'; ?></td>
+                                                    <td>
+                                                        <?php if (!empty($perusahaan['profile_image'])) : ?>
+                                                            <img src="../../assets/perusahaan/profile/<?php echo $perusahaan['profile_image']; ?>" class="img-thumbnail profile-img" alt="Profile Image">
+                                                        <?php else : ?>
+                                                            No Image
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?php echo !empty($perusahaan['no_telp']) ? htmlspecialchars($perusahaan['no_telp']) : 'Data belum diinput'; ?></td>
+                                                    <td><?php echo isset($jenis_perusahaan[$perusahaan['jenis_perusahaan_id']]) ? htmlspecialchars($jenis_perusahaan[$perusahaan['jenis_perusahaan_id']]) : 'Data belum diinput'; ?></td>
+                                                    <td>
+                                                        <button class="btn btn-sm btn-primary btn-edit" data-id="<?php echo $perusahaan['id']; ?>" data-nama="<?php echo htmlspecialchars($perusahaan['nama_perusahaan']); ?>" data-email="<?php echo htmlspecialchars($perusahaan['email_perusahaan']); ?>" data-alamat="<?php echo htmlspecialchars($perusahaan['alamat_perusahaan']); ?>">
+                                                            <i class="fas fa-edit"></i> Edit
+                                                        </button>
+                                                        <button class="btn btn-sm btn-danger btn-delete" data-id="<?php echo $perusahaan['id']; ?>" data-user="<?php echo $perusahaan['user_id']; ?>">
+                                                            <i class="fas fa-trash"></i> Hapus
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        </tbody>
+
                                         </table>
                                     </div>
                                 </div><!-- /.card-body -->

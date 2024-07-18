@@ -341,7 +341,7 @@ $jobs = fetchJobs($pdo);
                         <p>Apakah Anda yakin ingin menghapus lowongan ini?</p>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
                         <button type="submit" class="btn btn-danger">Hapus</button>
                     </div>
                 </form>

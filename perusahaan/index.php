@@ -46,11 +46,18 @@ function fetchStatistics($pdo, $company_id) {
         $stmt->execute(['company_id' => $company_id]);
         $rejected_count = $stmt->fetch(PDO::FETCH_ASSOC)['rejected_count'];
 
+        // Calculate percentage
+        $total_applicants = $accepted_count + $rejected_count;
+        $accepted_percentage = ($total_applicants > 0) ? round(($accepted_count / $total_applicants) * 100) : 0;
+        $rejected_percentage = ($total_applicants > 0) ? round(($rejected_count / $total_applicants) * 100) : 0;
+
         return [
             'job_count' => $job_count,
             'applicant_count' => $applicant_count,
             'accepted_count' => $accepted_count,
             'rejected_count' => $rejected_count,
+            'accepted_percentage' => $accepted_percentage,
+            'rejected_percentage' => $rejected_percentage,
         ];
     } catch (PDOException $e) {
         echo "Error fetching statistics: " . $e->getMessage();
@@ -71,7 +78,7 @@ $date = date('d');
 $month = $months[date('F')];
 $year = date('Y');
 $time = date('H:i:s');
-$currentDate = "$day, $date $month $year $time WITA";
+$currentDate = "$day, $date $month $year, $time WITA";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -156,7 +163,7 @@ $currentDate = "$day, $date $month $year $time WITA";
                 <!-- Small boxes (Stat box) -->
                 <div class="row">
                     <div class="col-lg-3 col-6">
-                        <div class="small-box bg-info">
+                        <div class="small-box bg-secondary">
                             <div class="inner">
                                 <h3><?php echo htmlspecialchars($statistics['job_count']); ?></h3>
                                 <p>Jumlah Lowongan</p>
@@ -164,11 +171,10 @@ $currentDate = "$day, $date $month $year $time WITA";
                             <div class="icon">
                                 <i class="ion ion-briefcase"></i>
                             </div>
-                            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
-                        <div class="small-box bg-success">
+                        <div class="small-box bg-primary">
                             <div class="inner">
                                 <h3><?php echo htmlspecialchars($statistics['applicant_count']); ?></h3>
                                 <p>Jumlah Pelamar</p>
@@ -176,31 +182,28 @@ $currentDate = "$day, $date $month $year $time WITA";
                             <div class="icon">
                                 <i class="ion ion-person"></i>
                             </div>
-                            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-warning">
                             <div class="inner">
                                 <h3><?php echo htmlspecialchars($statistics['accepted_count']); ?></h3>
-                                <p>Pelamar Diterima</p>
+                                <p>Pelamar Diterima (<?php echo htmlspecialchars($statistics['accepted_percentage']); ?>%)</p>
                             </div>
                             <div class="icon">
                                 <i class="ion ion-checkmark"></i>
                             </div>
-                            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <div class="col-lg-3 col-6">
                         <div class="small-box bg-danger">
                             <div class="inner">
                                 <h3><?php echo htmlspecialchars($statistics['rejected_count']); ?></h3>
-                                <p>Pelamar Ditolak</p>
+                                <p>Pelamar Ditolak (<?php echo htmlspecialchars($statistics['rejected_percentage']); ?>%)</p>
                             </div>
                             <div class="icon">
                                 <i class="ion ion-close"></i>
                             </div>
-                            <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                 </div>
@@ -212,7 +215,7 @@ $currentDate = "$day, $date $month $year $time WITA";
                         <!-- Custom tabs (Charts with tabs)-->
                         <div class="card">
                             <div class="card-header">
-                            <h3 class="card-title">
+                                <h3 class="card-title">
                                     <i class="fas fa-chart-pie mr-1"></i>
                                     Statistik Lowongan dan Pelamar
                                 </h3>
@@ -256,7 +259,6 @@ $currentDate = "$day, $date $month $year $time WITA";
 <!-- ./wrapper -->
 
 <!-- Include external JS file -->
-<script src="script_perusahaan.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>
@@ -284,7 +286,7 @@ $currentDate = "$day, $date $month $year $time WITA";
             labels: ['Jumlah Lowongan', 'Jumlah Pelamar'],
             datasets: [{
                 data: [<?php echo $statistics['job_count']; ?>, <?php echo $statistics['applicant_count']; ?>],
-                backgroundColor: ['#17a2b8', '#28a745']
+                backgroundColor: ['#6c757d','#007bff']
             }]
         },
         options: {
@@ -312,4 +314,3 @@ $currentDate = "$day, $date $month $year $time WITA";
 </script>
 </body>
 </html>
-

@@ -149,9 +149,9 @@ $cdcs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Nama CDC</th>
+                                                    <th>Profile</th>
                                                     <th>Alamat</th>
                                                     <th>Email</th>
-                                                    <th>Profile</th>
                                                     <th>Aksi</th>
                                                 </tr>
                                             </thead>
@@ -160,8 +160,6 @@ $cdcs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <tr>
                                                         <td><?php echo $index + 1; ?></td>
                                                         <td><?php echo htmlspecialchars($cdc['nama_cdc']); ?></td>
-                                                        <td><?php echo htmlspecialchars($cdc['alamat_cdc']); ?></td>
-                                                        <td><?php echo htmlspecialchars($cdc['email_cdc']); ?></td>
                                                         <td>
                                                             <?php if (!empty($cdc['profile_image'])) : ?>
                                                                 <img src="../assets/cdc/profile/<?php echo $cdc['profile_image']; ?>" class="img-thumbnail profile-img" alt="Profile Image">
@@ -169,6 +167,8 @@ $cdcs = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                 No Image
                                                             <?php endif; ?>
                                                         </td>
+                                                        <td><?php echo htmlspecialchars($cdc['alamat_cdc']); ?></td>
+                                                        <td><?php echo htmlspecialchars($cdc['email_cdc']); ?></td>
                                                         <td>
                                                             <button class="btn btn-sm btn-primary btn-edit" data-id="<?php echo $cdc['id']; ?>" data-nama="<?php echo htmlspecialchars($cdc['nama_cdc']); ?>" data-email="<?php echo htmlspecialchars($cdc['email_cdc']); ?>" data-alamat="<?php echo htmlspecialchars($cdc['alamat_cdc']); ?>">
                                                                 <i class="fas fa-edit"></i> Edit

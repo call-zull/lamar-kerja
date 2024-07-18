@@ -86,6 +86,12 @@
                     </a>
                 </li>
                 <li class="nav-item">
+                    <a href="../status_lamaran.php" class="nav-link">
+                        <i class="nav-icon fas fa-file-alt"></i>
+                        <p>Lamaran Saya</p>
+                    </a>
+                </li>
+                <li class="nav-item">
                     <a href="../../auth/logout.php" class="nav-link">
                         <i class="nav-icon fas fa-sign-out-alt"></i>
                         <p>Logout</p>
