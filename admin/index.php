@@ -32,6 +32,12 @@ $date = date('d');
 $month = $months[date('F')];
 $year = date('Y');
 $currentDate = "$day, $date $month $year";
+
+// Fetch departments from the jurusans table
+$sql = "SELECT id, nama_jurusan FROM jurusans";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$jurusans = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -45,6 +51,8 @@ $currentDate = "$day, $date $month $year";
     <link rel="stylesheet" href="../app/dist/css/adminlte.light.min.css" media="screen">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    <!-- ApexCharts CSS -->
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
 <div class="wrapper">
@@ -97,7 +105,7 @@ $currentDate = "$day, $date $month $year";
                         <!-- small box -->
                         <div class="small-box bg-info">
                             <div class="inner">
-                                <h3><?php echo $counts['mahasiswa']; ?></h3>
+                                <h3><?php echo $counts['mhs']; ?></h3>
                                 <p>Jumlah Mahasiswa</p>
                             </div>
                             <div class="icon">
@@ -152,23 +160,107 @@ $currentDate = "$day, $date $month $year";
                 </div>
                 <!-- /.row -->
 
-                <!-- Main row -->
-                <!-- <div class="row">
-                    <section class="col-lg-7 connectedSortable">
+                <!-- Chart Row -->
+                <div class="row">
+                    <div class="col-lg-12 col-12">
                         <div class="card">
-                            <div class="card-header">
-                            
-                            </div>
-                            
                             <div class="card-body">
-                                Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur repellat tempore cumque soluta ullam unde consequuntur voluptatem aperiam suscipit vel est magni aliquam error eius in libero ea, reprehenderit nisi?
+                                <h5 class="card-title">Reports <span>/Today</span></h5>
+                                <!-- Dropdown for jurusan -->
+                                <select id="jurusanFilter" class="form-control mb-3">
+                                    <option value="">Select Jurusan</option>
+                                    <?php foreach ($jurusans as $jurusan): ?>
+                                        <option value="<?php echo $jurusan['id']; ?>"><?php echo $jurusan['nama_jurusan']; ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <!-- Line Chart -->
+                                <div id="reportsChart"></div>
+                                <script>
+                                    document.addEventListener("DOMContentLoaded", () => {
+                                        const chart = new ApexCharts(document.querySelector("#reportsChart"), {
+                                            series: [{
+                                                name: 'Lomba',
+                                                data: [31, 40, 28, 51, 42, 82, 56],
+                                            }, {
+                                                name: 'Pelatihan',
+                                                data: [11, 32, 45, 32, 34, 52, 41]
+                                            }, {
+                                                name: 'Sertifikasi',
+                                                data: [15, 11, 32, 18, 9, 24, 11]
+                                            }, {
+                                                name: 'Proyek',
+                                                data: [20, 30, 15, 35, 25, 45, 30]
+                                            }],
+                                            chart: {
+                                                height: 350,
+                                                type: 'area',
+                                                toolbar: {
+                                                    show: false
+                                                },
+                                            },
+                                            markers: {
+                                                size: 4
+                                            },
+                                            colors: ['#4154f1', '#2eca6a', '#ff771d', '#00cc99'],
+                                            fill: {
+                                                type: "gradient",
+                                                gradient: {
+                                                    shadeIntensity: 1,
+                                                    opacityFrom: 0.3,
+                                                    opacityTo: 0.4,
+                                                    stops: [0, 90, 100]
+                                                }
+                                            },
+                                            dataLabels: {
+                                                enabled: false
+                                            },
+                                            stroke: {
+                                                curve: 'smooth',
+                                                width: 2
+                                            },
+                                            xaxis: {
+                                                type: 'datetime',
+                                                categories: ["2018-09-19T00:00:00.000Z", "2018-09-19T01:30:00.000Z", "2018-09-19T02:30:00.000Z", "2018-09-19T03:30:00.000Z", "2018-09-19T04:30:00.000Z", "2018-09-19T05:30:00.000Z", "2018-09-19T06:30:00.000Z"]
+                                            },
+                                            tooltip: {
+                                                x: {
+                                                    format: 'dd/MM/yy HH:mm'
+                                                },
+                                            }
+                                        });
+
+                                        chart.render();
+
+                                        // Fetch and update chart data based on jurusan
+                                        document.getElementById('jurusanFilter').addEventListener('change', function() {
+                                            const jurusanId = this.value;
+                                            fetch(`fetch_chart_data.php?jurusan_id=${jurusanId}`)
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    chart.updateSeries([{
+                                                        name: 'Lomba',
+                                                        data: data.lomba,
+                                                    }, {
+                                                        name: 'Pelatihan',
+                                                        data: data.pelatihan
+                                                    }, {
+                                                        name: 'Sertifikasi',
+                                                        data: data.sertifikasi
+                                                    }, {
+                                                        name: 'Proyek',
+                                                        data: data.proyek
+                                                    }]);
+                                                });
+                                        });
+                                    });
+                                </script>
+                                <!-- End Line Chart -->
                             </div>
                         </div>
-                        
-                    </section>
-                   
-                </div> -->
-                <!-- /.row (main row) -->
+                    </div>
+                </div>
+                <!-- /.chart row -->
+
             </div><!-- /.container-fluid -->
         </section>
         <!-- /.content -->
@@ -178,7 +270,6 @@ $currentDate = "$day, $date $month $year";
 </div>
 
 <!-- Include external JS file -->
-<script src="script_admin.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>
