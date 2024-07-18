@@ -282,7 +282,7 @@ $jobs = fetchJobs($pdo);
     <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <form action="process_edit_job.php" method="post">
+                <form action="process_update_job.php" method="post">
                     <div class="modal-header">
                         <h5 class="modal-title" id="modalEditLabel">Edit Lowongan Pekerjaan</h5>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
