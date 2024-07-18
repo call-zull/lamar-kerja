@@ -231,9 +231,9 @@ $portfolios = getStudentPortfolios($pdo, $search);
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
-            <a class="navbar-brand" href="#">
+            <a class="navbar-brand" href="https://www.poliban.ac.id/">
                 <img src="../assets/images/logo_poliban.png" alt="Poliban Logo" width="30" height="30" class="d-inline-block align-top">
                 SI Portofolio
             </a>
@@ -242,8 +242,11 @@ $portfolios = getStudentPortfolios($pdo, $search);
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.php">Beranda</a>
+                    </li>
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id                            teknikSipilDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link dropdown-toggle" href="#" idteknikSipilDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Teknik Sipil dan Kebumian
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="teknikSipilDropdown">
@@ -299,9 +302,6 @@ $portfolios = getStudentPortfolios($pdo, $search);
                         </ul>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link web-poliban" href="https://www.poliban.ac.id/">Web Poliban</a>
-                    </li>
-                    <li class="nav-item">
                         <a class="nav-link register" href="../auth/register.php">Register</a>
                     </li>
                     <li class="nav-item">
@@ -312,10 +312,11 @@ $portfolios = getStudentPortfolios($pdo, $search);
         </div>
     </nav>
 
+
     <div class="container mt-5">
         <div class="row mb-4">
             <div class="col text-center">
-                <h2>Portofolio Mahasiswa Teknik Sipil dan Kebumian</h2>
+                <h2>Portofolio Mahasiswa Jurusan Teknik Sipil dan Kebumian</h2>
                 <p class="lead">Kumpulan karya terbaik dari mahasiswa dan alumni D4 Sarjana Terapan Teknik Bangunan Rawa</p>
             </div>
         </div>
@@ -505,7 +506,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
             button.addEventListener('click', function () {
                 const id = this.getAttribute('data-id');
 
-                fetch(`fetch_portfolio_details.php?id=${id}`)
+                fetch(`../fetch_portfolio_details.php?id=${id}`)
                     .then(response => response.json())
                     .then(data => {
                         const modalTitle = document.querySelector('#portfolioModalLabel');

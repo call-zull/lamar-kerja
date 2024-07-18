@@ -57,12 +57,12 @@
                         </a>
                     </li>
                     <!-- Pelamar -->
-                    <!-- <li class="nav-item">
-                        <a href="pelamar.php" class="nav-link">
+                    <li class="nav-item">
+                        <a href="data_mahasiswa.php" class="nav-link">
                             <i class="nav-icon fas fa-users"></i>
-                            <p>Pelamar</p>
+                            <p>Data Mahasiswa</p>
                         </a>
-                    </li> -->
+                    </li>
                     <!-- Logout -->
                     <li class="nav-item">
                         <a href="../auth/logout.php" class="nav-link">

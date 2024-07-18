@@ -65,7 +65,7 @@
                     </div>
                 </form>
                 <p class="mb-1">
-                    <a href="#">Lupa password?</a>
+                    <a href="lupa_password.php">Lupa password?</a>
                 </p>
             </div>
         </div>

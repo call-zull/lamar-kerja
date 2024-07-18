@@ -161,8 +161,8 @@ $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                 <tr>
                                                     <th>No</th>
                                                     <th>Nama</th>
-                                                    <th>Email</th>
                                                     <th>Profile</th>
+                                                    <th>Email</th>   
                                                     <th>Prodi</th>
                                                     <th>Jurusan</th>
                                                     <th>Aksi</th>
@@ -173,7 +173,6 @@ $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                     <tr>
                                                         <td><?php echo $index + 1; ?></td>
                                                         <td><?php echo htmlspecialchars($admin['nama_admin']); ?></td>
-                                                        <td><?php echo htmlspecialchars($admin['email']); ?></td>
                                                         <td>
                                                             <?php if (!empty($admin['profile_image'])) : ?>
                                                                 <img src="../assets/admin/profile<?php echo $admin['id']; ?>/<?php echo $admin['profile_image']; ?>" class="img-thumbnail" style="max-width: 50px;">
@@ -181,6 +180,7 @@ $admins = $stmt->fetchAll(PDO::FETCH_ASSOC);
                                                                 No Image
                                                             <?php endif; ?>
                                                         </td>
+                                                        <td><?php echo htmlspecialchars($admin['email']); ?></td>
                                                         <td><?php echo isset($admin['nama_prodi']) ? htmlspecialchars($admin['nama_prodi']) : ''; ?></td>
                                                         <td><?php echo isset($admin['nama_jurusan']) ? htmlspecialchars($admin['nama_jurusan']) : ''; ?></td>
                                                         <td>
