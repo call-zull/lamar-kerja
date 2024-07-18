@@ -76,7 +76,7 @@ $jobs = fetchJobs($pdo);
         .table-responsive tbody tr:hover {
              background-color: #f2f2f2; 
         }
-        .tagify__tag__removeBtn {
+        .tagify_tag_removeBtn {
              color: #fff; 
              margin-left: 5px; 
         }
@@ -686,4 +686,3 @@ function fetchApplicants(id) {
 </script>
 </body>
 </html>
-

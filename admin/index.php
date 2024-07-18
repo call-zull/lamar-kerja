@@ -7,14 +7,29 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
 include '../includes/db.php';
 
-// Ambil data jumlah pengguna berdasarkan role
+
+// Fetch admin data based on user ID
+function fetchAdminData($pdo, $user_id) {
+    try {
+        $sql = "SELECT * FROM admins WHERE user_id = :user_id";
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute(['user_id' => $user_id]);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        echo "Error fetching admin data: " . $e->getMessage();
+        return false;
+    }
+}
+
+// Ambil data jumlah pengguna berdasarkan role dari tabel users
 $sql = "SELECT role, COUNT(*) as count FROM users GROUP BY role";
 $stmt = $pdo->prepare($sql);
 $stmt->execute();
 $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 $counts = [
-    'mhs' => 0,
+    'mahasiswa' => 0,
+    'alumni' => 0,
     'cdc' => 0,
     'perusahaan' => 0,
     'admin' => 0,
@@ -24,6 +39,32 @@ foreach ($results as $row) {
     $counts[$row['role']] = $row['count'];
 }
 
+// Ambil data jumlah mahasiswa aktif dan alumni dari tabel mahasiswas
+$sql = "SELECT status, COUNT(*) as count FROM mahasiswas GROUP BY status";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+$mahasiswa_counts = [
+    'Mahasiswa Aktif' => 0,
+    'Alumni' => 0,
+];
+
+foreach ($results as $row) {
+    $mahasiswa_counts[$row['status']] = $row['count'];
+}
+
+// Fetch departments from the jurusans table
+$sql = "SELECT id, nama_jurusan FROM jurusans";
+$stmt = $pdo->prepare($sql);
+$stmt->execute();
+$jurusans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+
+$admin_data = fetchAdminData($pdo, $_SESSION['user_id']);
+
+// Date and Time Information
+date_default_timezone_set('Asia/Makassar');
 $days = ['Sunday' => 'Minggu', 'Monday' => 'Senin', 'Tuesday' => 'Selasa', 'Wednesday' => 'Rabu', 'Thursday' => 'Kamis', 'Friday' => 'Jumat', 'Saturday' => 'Sabtu'];
 $months = ['January' => 'Januari', 'February' => 'Februari', 'March' => 'Maret', 'April' => 'April', 'May' => 'Mei', 'June' => 'Juni', 'July' => 'Juli', 'August' => 'Agustus', 'September' => 'September', 'October' => 'Oktober', 'November' => 'November', 'December' => 'Desember'];
 
@@ -31,13 +72,8 @@ $day = $days[date('l')];
 $date = date('d');
 $month = $months[date('F')];
 $year = date('Y');
-$currentDate = "$day, $date $month $year";
-
-// Fetch departments from the jurusans table
-$sql = "SELECT id, nama_jurusan FROM jurusans";
-$stmt = $pdo->prepare($sql);
-$stmt->execute();
-$jurusans = $stmt->fetchAll(PDO::FETCH_ASSOC);
+$time = date('H:i:s');
+$currentDate = "$day, $date $month $year, $time WITA";
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -52,8 +88,33 @@ $jurusans = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="../app/dist/css/adminlte.light.min.css" media="screen">
     <!-- Google Font: Source Sans Pro -->
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    <!-- ApexCharts CSS -->
-    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+    <style>
+    .nav-sidebar .nav-link.active {
+            background-color: #343a40 !important;
+        }
+        .verified-card, .date-card {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        .verified-card {
+            background-color: #28a745;
+            color: #fff;
+        }
+        .date-card {
+            background-color: #17a2b8;
+            color: #fff;
+        }
+        .verified-card i, .date-card i {
+            font-size: 25px;
+            margin-right: 10px;
+        }
+        .verified-card h5, .date-card h5 {
+            margin: 0;
+        }
+    </style>
 </head>
 
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -84,83 +145,89 @@ $jurusans = $stmt->fetchAll(PDO::FETCH_ASSOC);
             <section class="content">
                 <div class="container-fluid">
                     <!-- Welcome Card -->
-                    <div class="row">
-                        <div class="col-lg-6 col-12">
-                            <div class="card bg-primary">
-                                <div class="card-body">
-                                    <h5>Selamat Datang, Admin</h5>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-12">
-                            <div class="card bg-info">
-                                <div class="card-body">
-                                    <h5>Hari ini: <?php echo $currentDate; ?></h5>
-                                </div>
-                            </div>
+                       <div class="row">
+                    <div class="col-lg-8 col-12">
+                        <div class="verified-card">
+                            <i class="fas fa-user"></i>
+                            <h6>Selamat Datang, <?php echo htmlspecialchars($admin_data['nama_admin']); ?></h6>
                         </div>
                     </div>
-
-                    <!-- Small boxes (Stat box) -->
-                    <div class="row">
+                    <div class="col-lg-4 col-12">
+                        <div class="date-card">
+                            <i class="fas fa-calendar-alt"></i>
+                            <h6>Hari ini: <?php echo $currentDate; ?></h6>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
                         <div class="col-lg-3 col-6">
                             <!-- small box -->
                             <div class="small-box bg-info">
                                 <div class="inner">
-                                    <h3><?php echo $counts['mhs']; ?></h3>
-                                    <p>Jumlah Mahasiswa</p>
+                                    <h3><?php echo $mahasiswa_counts['Mahasiswa Aktif']; ?></h3>
+                                    <p>Jumlah Mahasiswa Aktif</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="ion ion-person"></i>
+                                    <i class="fas fa-user-graduate"></i>
                                 </div>
-                                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
                         <!-- ./col -->
                         <div class="col-lg-3 col-6">
                             <!-- small box -->
-                            <div class="small-box bg-success">
+                            <div class="small-box bg-secondary">
                                 <div class="inner">
-                                    <h3><?php echo $counts['cdc']; ?></h3>
-                                    <p>Jumlah CDC</p>
+                                    <h3><?php echo $mahasiswa_counts['Alumni']; ?></h3>
+                                    <p>Jumlah Alumni</p>
                                 </div>
                                 <div class="icon">
-                                    <i class="ion ion-person"></i>
+                                    <i class="fas fa-user-graduate"></i>
                                 </div>
-                                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
                             </div>
                         </div>
-                        <!-- ./col -->
-                        <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            <div class="small-box bg-warning">
-                                <div class="inner">
-                                    <h3><?php echo $counts['perusahaan']; ?></h3>
-                                    <p>Jumlah Perusahaan</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="ion ion-person"></i>
-                                </div>
-                                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
-                        <!-- ./col -->
-                        <div class="col-lg-3 col-6">
-                            <!-- small box -->
-                            <div class="small-box bg-danger">
-                                <div class="inner">
-                                    <h3><?php echo $counts['admin']; ?></h3>
-                                    <p>Jumlah Admin</p>
-                                </div>
-                                <div class="icon">
-                                    <i class="ion ion-person"></i>
-                                </div>
-                                <a href="#" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
-                            </div>
-                        </div>
-                        <!-- ./col -->
-                    </div>
-                    <!-- /.row -->
+ 
+    <!-- ./col -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3><?php echo $counts['cdc']; ?></h3>
+                <p>Jumlah CDC</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-users""></i>
+            </div>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3><?php echo $counts['perusahaan']; ?></h3>
+                <p>Jumlah Perusahaan</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-building"></i>
+            </div>
+        </div>
+    </div>
+    <!-- ./col -->
+    <div class="col-lg-3 col-6">
+        <!-- small box -->
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3><?php echo $counts['admin']; ?></h3>
+                <p>Jumlah Admin</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+        </div>
+    </div>
+    <!-- ./col -->
+</div>
+
 
                     <!-- Chart Row -->
                     <div class="row">
@@ -283,9 +350,11 @@ $jurusans = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <!-- Include external JS file -->
+    <script src="script_admin.js"></script>
     <script src="../app/plugins/jquery/jquery.min.js"></script>
     <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../app/dist/js/adminlte.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 </body>
 
 </html>

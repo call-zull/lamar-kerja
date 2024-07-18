@@ -5,7 +5,7 @@ use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\SMTP;
 
-require '../vendor/autoload.php'; // Pastikan ini benar jika ada lokasi atau nama file yang berbeda
+require '../vendor/autoload.php'; 
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     if (isset($_POST['email']) && !empty($_POST['email'])) {
@@ -16,14 +16,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([$email]);
         $result = $stmt->fetch();
 
-        // Pencarian email di tabel cdcs jika tidak ditemukan di tabel mahasiswas
         if (!$result) {
             $stmt = $pdo->prepare('SELECT user_id FROM cdcs WHERE email_cdc = ?');
             $stmt->execute([$email]);
             $result = $stmt->fetch();
         }
 
-        // Pencarian email di tabel perusahaans jika tidak ditemukan di tabel cdcs
         if (!$result) {
             $stmt = $pdo->prepare('SELECT user_id FROM perusahaans WHERE email_perusahaan = ?');
             $stmt->execute([$email]);
@@ -33,7 +31,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         // Jika email ditemukan
         if ($result) {
             $user_id = $result['user_id'];
-            $token = bin2hex(random_bytes(50)); // Buat token pemulihan
+            $token = bin2hex(random_bytes(50)); // Token pemulihan
             $stmt = $pdo->prepare('UPDATE users SET reset_token = ?, reset_token_expiry = DATE_ADD(NOW(), INTERVAL 1 HOUR) WHERE id = ?');
             $stmt->execute([$token, $user_id]);
 
@@ -45,8 +43,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $mail->isSMTP();
                 $mail->Host = 'smtp.gmail.com'; // Ganti dengan SMTP server yang benar
                 $mail->SMTPAuth = true;
-                $mail->Username = 'anandanailafadlula28@gmail.com'; // Ganti dengan email Anda
-                $mail->Password = 'Bismillahduniadanakhiratsukses@@'; // Ganti dengan password email Anda
+                $mail->Username = 'portofoliopoliban@gmail.com'; // Ganti dengan email Anda
+                $mail->Password = 'lyijsbshpqezslwf'; // Ganti dengan password email Anda
                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
                 $mail->Port = 587;
 
@@ -54,18 +52,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $mail->SMTPDebug = SMTP::DEBUG_SERVER; // Aktifkan debug mode
 
                 // Penerima dan pengirim
-                $mail->setFrom('anandanailafadlula28@gmail.com', 'No Reply'); // Sesuaikan pengirim
+                $mail->setFrom('portofoliopoliban@gmail.com', 'No Reply'); // Sesuaikan pengirim
                 $mail->addAddress($email);
 
                 // Konten email
                 $mail->isHTML(true);
                 $mail->Subject = "Password Reset Request";
-                $mail->Body    = "Klik link berikut untuk mereset password Anda: <a href='https://example.com/reset_password.php?token=" . $token . "'>Reset Password</a>";
+                $mail->Body    = "Klik link berikut untuk mereset password Anda: <a href='localhost/reset_password.php?token=" . $token . "'>Reset Password</a>";
 
                 if (!$mail->send()) {
                     throw new Exception("Email could not be sent. Mailer Error: " . $mail->ErrorInfo);
                 }
-                $_SESSION['message'] = "Email pemulihan telah dikirim!";
+                
+                // Notifikasi berhasil
+                $_SESSION['success'] = "Email pemulihan telah dikirim ke $email!";
             } catch (Exception $e) {
                 // Debugging error PHPMailer
                 error_log("PHPMailer Error: " . $mail->ErrorInfo);

@@ -36,11 +36,15 @@
                 <p class="login-box-msg">Lupa Password</p>
                 <?php
                 session_start();
-                if (isset($_SESSION['error'])) {
+                if (isset($_SESSION['success'])) {
+                    echo '<div class="alert alert-success">' . $_SESSION['success'] . '</div>';
+                    unset($_SESSION['success']); // Hapus pesan setelah ditampilkan
+                } elseif (isset($_SESSION['error'])) {
                     echo '<div class="alert alert-danger">' . $_SESSION['error'] . '</div>';
-                    unset($_SESSION['error']);
+                    unset($_SESSION['error']); // Hapus pesan setelah ditampilkan
                 }
                 ?>
+            
                 <form action="process_lupa_password.php" method="post">
                     <div class="input-group mb-3">
                         <input type="email" class="form-control" placeholder="Masukan Email" name="email" required>

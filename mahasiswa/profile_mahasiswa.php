@@ -353,6 +353,7 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
+    <script src="script_mhs.js"></script>
     <script src="../app/plugins/jquery/jquery.min.js"></script>
     <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

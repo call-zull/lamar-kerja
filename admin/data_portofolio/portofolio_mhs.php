@@ -17,6 +17,12 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute();
     $students = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Fetch prodi data for the filter dropdown
+    $sql = "SELECT id, nama_prodi FROM prodis";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute();
+    $prodis = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
     die();
@@ -138,6 +144,17 @@ try {
                                     </h3>
                                 </div>
                                 <div class="card-body">
+                                    <!-- Dropdown filter for prodi -->
+                                    <div class="row mb-3">
+                                        <div class="col-md-4">
+                                            <select id="prodiFilter" class="form-control">
+                                                <option value="">Filter by Prodi</option>
+                                                <?php foreach ($prodis as $prodi): ?>
+                                                    <option value="<?= htmlspecialchars($prodi['nama_prodi']) ?>"><?= htmlspecialchars($prodi['nama_prodi']) ?></option>
+                                                <?php endforeach; ?>
+                                            </select>
+                                        </div>
+                                    </div>
                                     <div class="table-responsive">
                                         <table id="mahasiswaTable" class="table table-bordered table-striped">
                                             <thead>
@@ -286,7 +303,7 @@ try {
     </div>
 
     <!-- Scripts -->
-     <script src="../script_admin.js"></script>
+    <script src="../script_admin.js"></script>
     <script src="../../app/plugins/jquery/jquery.min.js"></script>
     <script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="../../app/plugins/datatables/jquery.dataTables.min.js"></script>
@@ -296,7 +313,12 @@ try {
     <script src="../../app/dist/js/adminlte.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#mahasiswaTable').DataTable();
+            var table = $('#mahasiswaTable').DataTable();
+
+            $('#prodiFilter').on('change', function() {
+                var selectedProdi = $(this).val();
+                table.columns(4).search(selectedProdi).draw();
+            });
 
             $('#sertifikasiModal').on('show.bs.modal', function (event) {
                 var button = $(event.relatedTarget);
