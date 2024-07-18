@@ -265,7 +265,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                             <li><a class="dropdown-item" href="../teknik_mesin/sarjana_terapan_teknologi_rekayasa_otomotif.php">D4 Sarjana Terapan Teknologi Rekayasa Otomotif</a></li>
                             <li><a class="dropdown-item" href="../teknik_mesin/diploma_alat_berat.php">D3 Alat Berat</a></li>
                             <li><a class="dropdown-item" href="../teknik_mesin/diploma_teknik_mesin.php">D3 Teknik Mesin</a></li>
-                            <li><a class="dropdown-item" href="../teknik_mesin/ddua_fast_track_tata_operasi_dan_pemeliharaan_prediktif.php">D2 Fast Track Tata Operasi dan Pemeliharaan Prediktif</a></li>
+                            <li><a class="dropdown-item" href="../teknik_mesin/ddua_fast_track_tata_operasi_dan_pemeliharaan_prediktif.php">D2 Fast Track Tata Operasi dan Pemeliharaan Prediktif Alat Berat</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -448,7 +448,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                                     </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
                                 </div>
                             </div>
                         </div>
@@ -472,7 +472,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                 <!-- Content will be loaded here via JavaScript -->
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
             </div>
         </div>
     </div>

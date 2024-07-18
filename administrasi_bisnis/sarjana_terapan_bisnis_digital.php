@@ -242,6 +242,9 @@ $portfolios = getStudentPortfolios($pdo, $search);
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="../index.php">Beranda</a>
+                    </li>
                     <li class="nav-item dropdown">
                         <a class="nav-link dropdown-toggle" href="#" idteknikSipilDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                             Teknik Sipil dan Kebumian
@@ -262,7 +265,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                             <li><a class="dropdown-item" href="../teknik_mesin/sarjana_terapan_teknologi_rekayasa_otomotif.php">D4 Sarjana Terapan Teknologi Rekayasa Otomotif</a></li>
                             <li><a class="dropdown-item" href="../teknik_mesin/diploma_alat_berat.php">D3 Alat Berat</a></li>
                             <li><a class="dropdown-item" href="../teknik_mesin/diploma_teknik_mesin.php">D3 Teknik Mesin</a></li>
-                            <li><a class="dropdown-item" href="../teknik_mesin/ddua_fast_track_tata_operasi_dan_pemeliharaan_prediktif.php">D2 Fast Track Tata Operasi dan Pemeliharaan Prediktif</a></li>
+                            <li><a class="dropdown-item" href="../teknik_mesin/ddua_fast_track_tata_operasi_dan_pemeliharaan_prediktif.php">D2 Fast Track Tata Operasi dan Pemeliharaan Prediktif Alat Berat</a></li>
                         </ul>
                     </li>
                     <li class="nav-item dropdown">
@@ -342,7 +345,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
         </div>
 
         <!-- Search Form -->
-        <form method="GET" action="sarjana_terapan_teknik_bangunan_rawa.php" class="mb-4">
+        <form method="GET" action="sarjana_terapan_bisnis_digital.php" class="mb-4">
             <div class="row g-3">
                 <div class="col-md-10">
                     <input type="text" name="search" class="form-control" placeholder="Cari berdasarkan keahlian atau judul sertifikasi, lomba, pelatihan, proyek" value="<?= htmlspecialchars($search) ?>">
