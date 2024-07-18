@@ -10,7 +10,7 @@ include '../includes/db.php';
 // Fetch student data based on user ID
 function fetchStudentData($pdo, $user_id) {
     try {
-        $sql = "SELECT nama_mahasiswa, nim, status FROM mahasiswas WHERE user_id = :user_id";
+        $sql = "SELECT id, nama_mahasiswa, nim, status FROM mahasiswas WHERE user_id = :user_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $user_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -70,7 +70,12 @@ function fetchStudentStatistics($pdo, $mahasiswa_id) {
 
 $user_id = $_SESSION['user_id'];
 $student_data = fetchStudentData($pdo, $user_id);
-$statistics = fetchStudentStatistics($pdo, $student_data['id']);
+if ($student_data) {
+    $mahasiswa_id = $student_data['id'];
+    $statistics = fetchStudentStatistics($pdo, $mahasiswa_id);
+} else {
+    $statistics = [];
+}
 
 // Date and Time Information
 date_default_timezone_set('Asia/Makassar');
@@ -98,8 +103,47 @@ $currentDate = "$day, $date $month $year, $time WITA";
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <style>
         .nav-sidebar .nav-link.active {
-            background-color: #343a40 !important;
+            background-color: #4a4a4a !important;
         }
+
+        .verified-card {
+            background-color: #1e90ff; /* DodgerBlue */
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .verified-card i {
+            font-size: 25px;
+            margin-right: 10px;
+        }
+
+        .verified-card h6 {
+            margin: 0;
+        }
+
+        .date-card {
+            background-color: #20b2aa; /* LightSeaGreen */
+            color: #fff;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+
+        .date-card i {
+            font-size: 25px;
+            margin-right: 10px;
+        }
+
+        .date-card h6 {
+            margin: 0;
+        }
+
     </style>
 </head>
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
@@ -129,12 +173,12 @@ $currentDate = "$day, $date $month $year, $time WITA";
         <!-- Main content -->
         <section class="content">
             <div class="container-fluid">
-                <!-- Welcome Card -->
+               <!-- Welcome Card -->
                 <div class="row">
                     <div class="col-lg-8 col-12">
                         <div class="verified-card bg-primary">
                             <i class="fas fa-user"></i>
-                            <h6>Selamat Datang, <?php echo htmlspecialchars($student_data['nama_mahasiswa']); ?> - <?php echo htmlspecialchars($student_data['nim']); ?></h6>
+                            <h6>Selamat Datang, <?php echo htmlspecialchars($student_data['nama_mahasiswa']); ?> - <?php echo htmlspecialchars($student_data['nim']); ?> - <?php echo htmlspecialchars($student_data['status']); ?> </h6>
                         </div>
                     </div>
                     <div class="col-lg-4 col-12">
@@ -144,87 +188,76 @@ $currentDate = "$day, $date $month $year, $time WITA";
                         </div>
                     </div>
                 </div>
+               <!-- Status and Statistics -->
+<div class="row">
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-primary">
+            <div class="inner">
+                <h3><?php echo htmlspecialchars($statistics['sent_applications']); ?></h3>
+                <p>Lamaran Terkirim</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-paper-plane"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-warning">
+            <div class="inner">
+                <h3><?php echo htmlspecialchars($statistics['accepted_applications']); ?></h3>
+                <p>Lamaran Diterima</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-check"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-secondary">
+            <div class="inner">
+                <h3><?php echo htmlspecialchars($statistics['certificates']); ?></h3>
+                <p>Jumlah Sertifikat</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-file-alt"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-info">
+            <div class="inner">
+                <h3><?php echo htmlspecialchars($statistics['trainings']); ?></h3>
+                <p>Pelatihan</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-ribbon"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-danger">
+            <div class="inner">
+                <h3><?php echo htmlspecialchars($statistics['competitions']); ?></h3>
+                <p>Lomba</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-trophy"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-3 col-6">
+        <div class="small-box bg-success">
+            <div class="inner">
+                <h3><?php echo htmlspecialchars($statistics['projects']); ?></h3>
+                <p>Proyek</p>
+            </div>
+            <div class="icon">
+                <i class="fas fa-briefcase"></i>
+            </div>
+        </div>
+    </div>
+</div>
 
-                <!-- Status and Statistics -->
-                <div class="row">
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-success">
-                            <div class="inner">
-                                <h3><?php echo htmlspecialchars($student_data['status']); ?></h3>
-                                <p>Status Mahasiswa</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-university"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-primary">
-                            <div class="inner">
-                                <h3><?php echo htmlspecialchars($statistics['sent_applications']); ?></h3>
-                                <p>Lamaran Terkirim</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-paper-airplane"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-warning">
-                            <div class="inner">
-                                <h3><?php echo htmlspecialchars($statistics['accepted_applications']); ?></h3>
-                                <p>Lamaran Diterima</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-checkmark"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-secondary">
-                            <div class="inner">
-                                <h3><?php echo htmlspecialchars($statistics['certificates']); ?></h3>
-                                <p>Jumlah Sertifikat</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-document"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-info">
-                            <div class="inner">
-                                <h3><?php echo htmlspecialchars($statistics['trainings']); ?></h3>
-                                <p>Pelatihan</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-ribbon-a"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-danger">
-                            <div class="inner">
-                                <h3><?php echo htmlspecialchars($statistics['competitions']); ?></h3>
-                                <p>Lomba</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-trophy"></i>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-lg-3 col-6">
-                        <div class="small-box bg-success">
-                            <div class="inner">
-                                <h3><?php echo htmlspecialchars($statistics['projects']); ?></h3>
-                                <p>Proyek</p>
-                            </div>
-                            <div class="icon">
-                                <i class="ion ion-ios-briefcase"></i>
-                            </div>
-                        </div>
-                    </div>
-                </div>
                 <!-- /.row -->
             </div><!-- /.container-fluid -->
         </section>
@@ -234,6 +267,7 @@ $currentDate = "$day, $date $month $year, $time WITA";
 
 </div>
 
+<script src="script_mhs.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>

@@ -259,26 +259,12 @@ $currentDate = "$day, $date $month $year, $time WITA";
 <!-- ./wrapper -->
 
 <!-- Include external JS file -->
+<script src="script_perusahaan.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Dark Mode Toggle
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    darkModeToggle.addEventListener('click', function () {
-        document.body.classList.add('dark-mode');
-        document.body.classList.remove('light-mode');
-    });
-
-    // Light Mode Toggle
-    const lightModeToggle = document.getElementById('light-mode-toggle');
-    lightModeToggle.addEventListener('click', function () {
-        document.body.classList.remove('dark-mode');
-        document.body.classList.add('light-mode');
-    });
-
-    // Chart.js - Lowongan Chart
     var ctx1 = document.getElementById('lowongan-chart-canvas').getContext('2d');
     var lowonganChart = new Chart(ctx1, {
         type: 'pie',

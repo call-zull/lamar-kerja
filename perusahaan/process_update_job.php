@@ -1,4 +1,5 @@
 <?php
+session_start();
 include '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -19,8 +20,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             ':nama_pekerjaan' => $nama_pekerjaan,
             ':posisi' => $posisi,
             ':kualifikasi' => $kualifikasi,
-            ':prodi' => $prodi,
-            ':keahlian' => $keahlian,
+            ':prodi' => json_encode($prodi), // Encode as JSON
+            ':keahlian' => json_encode($keahlian), // Encode as JSON
             ':batas_waktu' => $batas_waktu, 
             ':id' => $id
         ]);
@@ -32,6 +33,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Error: " . $e->getMessage();
     }
 }
-?>
-
 ?>

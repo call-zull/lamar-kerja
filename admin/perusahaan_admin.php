@@ -156,8 +156,8 @@ $jobs = fetchJobs($pdo, $search);
                                         </p>
                                         <p class="card-text"><strong>Tanggal Posting:</strong> <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
                                         <p class="card-text"><strong>Batas Waktu:</strong> <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
-                                        <button class='btn btn-primary btn-sm read-more' onclick="toggleReadMore(this)">Read more</button>
-                                        <button class='btn btn-secondary btn-sm' data-toggle='modal' data-target='#modalDetailPerusahaan' data-perusahaan-id="<?php echo $row['perusahaan_id']; ?>">Detail Perusahaan</button>
+                                        <button class='btn btn-primary btn-sm read-more' onclick="toggleReadMore(this)">Selengkapnya</button>
+                                        <button class='btn btn-secondary btn-sm' onclick="fetchCompanyDetails(<?php echo $row['perusahaan_id']; ?>)">Detail Perusahaan</button>
                                         <div class="read-more-content">
                                             <p class="card-text"><strong>Kualifikasi Lengkap:</strong> <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
                                         </div>
@@ -172,5 +172,73 @@ $jobs = fetchJobs($pdo, $search);
             </div>
         </section>
     </div>
+
+    <!-- Modal for company details -->
+    <div class="modal fade" id="modalDetailPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalDetailPerusahaanLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetailPerusahaanLabel">Detail Perusahaan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <!-- Company details will be populated here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<script src="../app/plugins/jquery/jquery.min.js"></script>
+<script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+<script src="../app/dist/js/adminlte.min.js"></script>
+<script>
+    function fetchCompanyDetails(perusahaanId) {
+        $.ajax({
+            url: 'get_perusahaan_detail.php',
+            method: 'GET',
+            data: { user_id: perusahaanId },
+            dataType: 'json',
+            success: function(data) {
+                if (data.error) {
+                    alert(data.error);
+                } else {
+                    var modalBody = `
+                        <p><strong>Nama Perusahaan:</strong> ${data.nama_perusahaan}</p>
+                        <p><strong>Jenis Perusahaan:</strong> ${data.nama_jenis}</p>
+                        <p><strong>Alamat:</strong> ${data.alamat_perusahaan}</p>
+                        <p><strong>Email:</strong> ${data.email_perusahaan}</p>
+                        <p><strong>Tahun Didirikan:</strong> ${data.tahun_didirikan}</p>
+                        <p><strong>Pimpinan Perusahaan:</strong> ${data.pimpinan_perusahaan}</p>
+                        <p><strong>Deskripsi:</strong> ${data.deskripsi_perusahaan}</p>
+                        <p><strong>No Telp:</strong> ${data.no_telp}</p>
+                        <p><strong>Profile Image:</strong><br><img src="${data.profile_image}" alt="Profile Image" style="max-width:100%;height:auto;"></p>
+                    `;
+                    $('#modalDetailPerusahaan .modal-body').html(modalBody);
+                    $('#modalDetailPerusahaan').modal('show');
+                }
+            },
+            error: function() {
+                alert('Gagal mengambil detail perusahaan');
+            }
+        });
+    }
+
+    function toggleReadMore(button) {
+        var content = button.nextElementSibling;
+        if (content.style.display === 'none' || content.style.display === '') {
+            content.style.display = 'block';
+            button.innerText = 'Lebih sedikit';
+        } else {
+            content.style.display = 'none';
+            button.innerText = 'Selengkapnya';
+        }
+    }
+</script>
+</body>
+</html>

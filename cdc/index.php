@@ -176,24 +176,12 @@ $chart_data = fetchChartData($pdo);
         </div><!-- /.content-wrapper -->
     </div>
 
+<script src="script_cdc.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Dark Mode Toggle
-    const darkModeToggle = document.getElementById('dark-mode-toggle');
-    darkModeToggle.addEventListener('click', function () {
-        document.body.classList.add('dark-mode');
-        document.body.classList.remove('light-mode');
-    });
-
-    // Light Mode Toggle
-    const lightModeToggle = document.getElementById('light-mode-toggle');
-    lightModeToggle.addEventListener('click', function () {
-        document.body.classList.remove('dark-mode');
-        document.body.classList.add('light-mode');
-    });
 
     // Chart.js - Applications Chart
     var ctx = document.getElementById('applicationsChart').getContext('2d');
