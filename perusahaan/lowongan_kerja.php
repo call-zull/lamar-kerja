@@ -140,6 +140,8 @@ $jobs = fetchJobs($pdo);
             </div>
         </div>
 
+        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur, quae quasi nobis deserunt officia facilis modi aperiam tenetur odio, sunt cum illum vel vero sit omnis, excepturi iusto ipsum quia.
+
         <section class="content">
             <div class="container-fluid">
                 <div class="card">
