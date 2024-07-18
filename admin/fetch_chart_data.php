@@ -1,35 +1,46 @@
 <?php
 include '../includes/db.php';
 
-$jurusanId = isset($_GET['jurusan_id']) ? (int)$_GET['jurusan_id'] : 0;
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 
-// Initialize data arrays
-$data = [
-    'lomba' => [],
-    'pelatihan' => [],
-    'sertifikasi' => [],
-    'proyek' => [],
-    'categories' => []
-];
+header('Content-Type: application/json');
 
-if ($jurusanId > 0) {
-    // Fetch data counts grouped by date for the selected jurusan
-    $tables = ['lomba', 'pelatihan', 'sertifikasi', 'proyek'];
-    foreach ($tables as $table) {
-        $sql = "SELECT DATE(created_at) as date, COUNT(*) as count FROM $table WHERE jurusan_id = :jurusan_id GROUP BY DATE(created_at)";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(['jurusan_id' => $jurusanId]);
-        $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+try {
+    $jurusan_id = isset($_GET['jurusan_id']) ? $_GET['jurusan_id'] : 0;
 
-        foreach ($results as $result) {
-            $date = $result['date'];
-            $count = $result['count'];
-            $data[$table][] = $count;
-            if (!in_array($date, $data['categories'])) {
-                $data['categories'][] = $date;
+    $data = [
+        'lomba' => [],
+        'pelatihan' => [],
+        'sertifikasi' => [],
+        'proyek' => []
+    ];
+
+    if ($jurusan_id > 0) {
+        $tables = ['lomba', 'pelatihan', 'sertifikasi', 'proyek'];
+        
+        foreach ($tables as $table) {
+            $sql = "SELECT COUNT(*) as count, DATE(created_at) as date FROM $table
+                    INNER JOIN mahasiswas ON $table.mahasiswa_id = mahasiswas.id
+                    WHERE mahasiswas.jurusan_id = :jurusan_id
+                    GROUP BY DATE(created_at)
+                    ORDER BY DATE(created_at)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute(['jurusan_id' => $jurusan_id]);
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            foreach ($results as $row) {
+                $data[$table][] = [
+                    'date' => $row['date'],
+                    'count' => (int) $row['count']
+                ];
             }
         }
     }
-}
 
-echo json_encode($data);
+    echo json_encode($data);
+} catch (Exception $e) {
+    echo json_encode(['error' => $e->getMessage()]);
+}
+?>
