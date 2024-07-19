@@ -67,6 +67,9 @@
                 <p class="mb-1">
                     <a href="lupa_password.php">Lupa password?</a>
                 </p>
+                <p class="mb-1">
+                    <a href="register.php">Belum punya akun? Silahkan daftar</a>
+                </p>
             </div>
         </div>
     </div>

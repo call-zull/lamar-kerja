@@ -1,6 +1,6 @@
 <?php
 $host = 'localhost';
-$db = 'dbportofolio';
+$db = 'db_portofolio';
 $user = 'root';
 $pass = '';
 
