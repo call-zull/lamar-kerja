@@ -12,6 +12,7 @@ if (isset($_SESSION['success_message'])) {
     $success_message = $_SESSION['success_message'];
     unset($_SESSION['success_message']); // Clear notification after displaying
 }
+
 // Fungsi untuk mengambil semua lowongan pekerjaan dari database
 function fetchJobs($pdo) {
     try {
@@ -23,18 +24,21 @@ function fetchJobs($pdo) {
         return false;
     }
 }
-// Fungsi untuk mengambil portofolio mahasiswa berdasarkan id
-function fetchPortfolios($pdo, $id_user) {
+
+// Fungsi untuk mengambil semua prodi dari database
+function fetchProdi($pdo) {
     try {
-        $sql = "SELECT * FROM portofolio WHERE id_user = :id_user";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(['id_user' => $id_user]);
+        $sql = "SELECT id, nama_prodi FROM prodis";
+        $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
-        echo "Error fetching portfolios: " . $e->getMessage();
+        echo "Error fetching prodi: " . $e->getMessage();
         return false;
     }
 }
+
+// Mengambil semua prodi
+$prodiList = fetchProdi($pdo);
 
 // Mengambil semua lowongan pekerjaan
 $jobs = fetchJobs($pdo);
@@ -52,8 +56,9 @@ $jobs = fetchJobs($pdo);
     <link rel="stylesheet" href="../app/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <link rel="stylesheet" href="../app/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify@4.9.7/dist/tagify.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
     <style>
+        /* Custom CSS */
         .nav-sidebar .nav-link.active {
             background-color: #343a40 !important; 
         }
@@ -139,9 +144,6 @@ $jobs = fetchJobs($pdo);
                 <?php endif; ?>
             </div>
         </div>
-
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Pariatur, quae quasi nobis deserunt officia facilis modi aperiam tenetur odio, sunt cum illum vel vero sit omnis, excepturi iusto ipsum quia.
-
         <section class="content">
             <div class="container-fluid">
                 <div class="card">
@@ -208,10 +210,11 @@ $jobs = fetchJobs($pdo);
                                                         data-id='" . $row['id'] . "' 
                                                         data-nama='" . htmlspecialchars($row['nama_pekerjaan']) . "' 
                                                         data-posisi='" . htmlspecialchars($row['posisi']) . "'
-                                                        data-kualifikasi='" . htmlspecialchars($row['kualifikasi']) . "'>Edit</button>
+                                                        data-kualifikasi='" . htmlspecialchars($row['kualifikasi']) . "'
+                                                        data-prodi='" . htmlspecialchars(json_encode($prodi)) . "'
+                                                        data-keahlian='" . htmlspecialchars(json_encode($keahlian)) . "'>Edit</button>
                                                     <button class='btn btn-sm btn-danger deleteBtn' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
                                                     <button class='btn btn-sm btn-info lihatPelamarBtn' data-toggle='modal' data-target='#modalPelamar' data-id='" . $row['id'] . "'>Lihat Pelamar</button>
-                                                    
                                                 </td>";
                                             echo "</tr>";
                                             $no++;
@@ -351,47 +354,45 @@ $jobs = fetchJobs($pdo);
         </div>
     </div>
 
-<!-- Modal Lihat Pelamar -->
-<div class="modal fade" id="modalPelamar" tabindex="-1" aria-labelledby="modalPelamarLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalPelamarLabel">Daftar Pelamar</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div style="overflow-x:auto;">
-                    <table class="table table-bordered">
-                      
-                        <tbody id="pelamarTableBody">
-                            <!-- Data pelamar akan dimuat di sini melalui AJAX -->
-                        </tbody>
-                    </table>
+    <!-- Modal Lihat Pelamar -->
+    <div class="modal fade" id="modalPelamar" tabindex="-1" aria-labelledby="modalPelamarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPelamarLabel">Daftar Pelamar</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div style="overflow-x:auto;">
+                        <table class="table table-bordered">
+                            <tbody id="pelamarTableBody">
+                                <!-- Data pelamar akan dimuat di sini melalui AJAX -->
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<!-- Modal Portofolio -->
-<div class="modal fade" id="modalPortofolio" tabindex="-1" aria-labelledby="modalPortofolioLabel" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalPortofolioLabel">Portofolio Mahasiswa</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <div id="portofolioContent"></div>
+    <!-- Modal Portofolio -->
+    <div class="modal fade" id="modalPortofolio" tabindex="-1" aria-labelledby="modalPortofolioLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalPortofolioLabel">Portofolio Mahasiswa</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="portofolioContent"></div>
+                </div>
             </div>
         </div>
     </div>
-</div>
-
 
 </div>
 
@@ -501,12 +502,19 @@ $jobs = fetchJobs($pdo);
         var nama = button.data('nama');
         var posisi = button.data('posisi');
         var kualifikasi = button.data('kualifikasi');
+        var prodi = JSON.parse(button.data('prodi'));
+        var keahlian = JSON.parse(button.data('keahlian'));
+
+        var prodiValues = prodi.map(item => item.value).join(', ');
+        var keahlianValues = keahlian.map(item => item.value).join(', ');
 
         var modal = $(this);
         modal.find('#edit_id').val(id);
         modal.find('#edit_nama_pekerjaan').val(nama);
         modal.find('#edit_posisi').val(posisi);
         modal.find('#edit_kualifikasi').val(kualifikasi);
+        modal.find('#edit_prodi').val(prodiValues);
+        modal.find('#edit_keahlian').val(keahlianValues);
     });
 
     $('#modalHapus').on('show.bs.modal', function (event) {
@@ -518,126 +526,126 @@ $jobs = fetchJobs($pdo);
     });
 
     $('#modalPelamar').on('show.bs.modal', function (event) {
-    var button = $(event.relatedTarget);
-    var id = button.data('id');
-    
-    $.ajax({
-        url: 'fetch_applicants.php',
-        method: 'GET',
-        data: { lowongan_id: id },
-        success: function(response) {
-            $('#pelamarTableBody').html(response);
+        var button = $(event.relatedTarget);
+        var id = button.data('id');
+        
+        $.ajax({
+            url: 'fetch_applicants.php',
+            method: 'GET',
+            data: { lowongan_id: id },
+            success: function(response) {
+                $('#pelamarTableBody').html(response);
 
-            // Bind the click event to the dynamically added buttons
-            $('.btn-terima').on('click', function () {
-                var id_pelamar = $(this).data('id-pelamar');
-                $.ajax({
-                    url: 'terima_pelamar.php',
-                    method: 'POST',
-                    data: { id_pelamar: id_pelamar },
-                    success: function(response) {
-                        var result = JSON.parse(response);
-                        if (result.success) {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar diterima.</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-success').fadeOut();
-                            }, 2000);
-                            fetchApplicants(id);
-                        } else {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-danger').fadeOut();
-                            }, 2000);
+                // Bind the click event to the dynamically added buttons
+                $('.btn-terima').on('click', function () {
+                    var id_pelamar = $(this).data('id-pelamar');
+                    $.ajax({
+                        url: 'terima_pelamar.php',
+                        method: 'POST',
+                        data: { id_pelamar: id_pelamar },
+                        success: function(response) {
+                            var result = JSON.parse(response);
+                            if (result.success) {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar diterima.</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-success').fadeOut();
+                                }, 2000);
+                                fetchApplicants(id);
+                            } else {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-danger').fadeOut();
+                                }, 2000);
+                            }
                         }
-                    }
+                    });
                 });
-            });
 
-            $('.btn-tolak').on('click', function () {
-                var id_pelamar = $(this).data('id-pelamar');
-                $.ajax({
-                    url: 'tolak_pelamar.php',
-                    method: 'POST',
-                    data: { id_pelamar: id_pelamar },
-                    success: function(response) {
-                        var result = JSON.parse(response);
-                        if (result.success) {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar ditolak.</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-success').fadeOut();
-                            }, 2000);
-                            fetchApplicants(id);
-                        } else {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-danger').fadeOut();
-                            }, 2000);
+                $('.btn-tolak').on('click', function () {
+                    var id_pelamar = $(this).data('id-pelamar');
+                    $.ajax({
+                        url: 'tolak_pelamar.php',
+                        method: 'POST',
+                        data: { id_pelamar: id_pelamar },
+                        success: function(response) {
+                            var result = JSON.parse(response);
+                            if (result.success) {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar ditolak.</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-success').fadeOut();
+                                }, 2000);
+                                fetchApplicants(id);
+                            } else {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-danger').fadeOut();
+                                }, 2000);
+                            }
                         }
-                    }
+                    });
                 });
-            });
-        }
+            }
+        });
     });
-});
-function fetchApplicants(id) {
-    $.ajax({
-        url: 'fetch_applicants.php',
-        method: 'GET',
-        data: { lowongan_id: id },
-        success: function(response) {
-            $('#pelamarTableBody').html(response);
-            // Bind the click event again for newly loaded content
-            $('.btn-terima').on('click', function () {
-                var id_pelamar = $(this).data('id-pelamar');
-                $.ajax({
-                    url: 'terima_pelamar.php',
-                    method: 'POST',
-                    data: { id_pelamar: id_pelamar },
-                    success: function(response) {
-                        var result = JSON.parse(response);
-                        if (result.success) {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar diterima.</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-success').fadeOut();
-                            }, 2000);
-                            fetchApplicants(id);
-                        } else {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-danger').fadeOut();
-                            }, 2000);
-                        }
-                    }
-                });
-            });
 
-            $('.btn-tolak').on('click', function () {
-                var id_pelamar = $(this).data('id-pelamar');
-                $.ajax({
-                    url: 'tolak_pelamar.php',
-                    method: 'POST',
-                    data: { id_pelamar: id_pelamar },
-                    success: function(response) {
-                        var result = JSON.parse(response);
-                        if (result.success) {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar ditolak.</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-success').fadeOut();
-                            }, 2000);
-                            fetchApplicants(id);
-                        } else {
-                            $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
-                            setTimeout(function() {
-                                $('#modalPelamar .alert-danger').fadeOut();
-                            }, 2000);
+    function fetchApplicants(id) {
+        $.ajax({
+            url: 'fetch_applicants.php',
+            method: 'GET',
+            data: { lowongan_id: id },
+            success: function(response) {
+                $('#pelamarTableBody').html(response);
+                // Bind the click event again for newly loaded content
+                $('.btn-terima').on('click', function () {
+                    var id_pelamar = $(this).data('id-pelamar');
+                    $.ajax({
+                        url: 'terima_pelamar.php',
+                        method: 'POST',
+                        data: { id_pelamar: id_pelamar },
+                        success: function(response) {
+                            var result = JSON.parse(response);
+                            if (result.success) {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar diterima.</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-success').fadeOut();
+                                }, 2000);
+                                fetchApplicants(id);
+                            } else {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-danger').fadeOut();
+                                }, 2000);
+                            }
                         }
-                    }
+                    });
                 });
-            });
-        }
-    });
-}
 
+                $('.btn-tolak').on('click', function () {
+                    var id_pelamar = $(this).data('id-pelamar');
+                    $.ajax({
+                        url: 'tolak_pelamar.php',
+                        method: 'POST',
+                        data: { id_pelamar: id_pelamar },
+                        success: function(response) {
+                            var result = JSON.parse(response);
+                            if (result.success) {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-success">Pelamar ditolak.</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-success').fadeOut();
+                                }, 2000);
+                                fetchApplicants(id);
+                            } else {
+                                $('#modalPelamar .modal-body').prepend('<div class="alert alert-danger">' + result.message + '</div>');
+                                setTimeout(function() {
+                                    $('#modalPelamar .alert-danger').fadeOut();
+                                }, 2000);
+                            }
+                        }
+                    });
+                });
+            }
+        });
+    }
 
     $('#modalPortofolio').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
@@ -684,7 +692,6 @@ function fetchApplicants(id) {
         });
     });
 
-    
 </script>
 </body>
 </html>

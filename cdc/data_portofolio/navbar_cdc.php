@@ -58,12 +58,12 @@
                     </a>
                 </li>
                 <!-- Lowker -->
-                <!-- <li class="nav-item">
-                    <a href="../perusahaan_admin.php" class="nav-link">
+                <li class="nav-item">
+                    <a href="../mhs_perusahaan.php" class="nav-link">
                         <i class="nav-icon fas fa-building"></i>
-                        <p>Lowker</p>
+                        <p>Data Kerja</p>
                     </a>
-                </li> -->
+                </li>
                 <!-- Logout -->
                 <li class="nav-item">
                     <a href="../../auth/logout.php" class="nav-link">
