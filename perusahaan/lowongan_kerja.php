@@ -333,7 +333,7 @@ $jobs = fetchJobs($pdo);
         </div>
     </div>
 
-    <!-- Modal Hapus -->
+    <!-- Modal untuk Hapus -->
     <div class="modal fade" id="modalHapus" tabindex="-1" aria-labelledby="modalHapusLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
