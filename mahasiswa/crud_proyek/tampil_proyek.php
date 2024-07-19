@@ -28,7 +28,7 @@ $proyek = $stmt->fetchAll(PDO::FETCH_ASSOC);
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tampil Data Proyek</title>
-    <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="../../assets/bootstrap/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="../../app/plugins/fontawesome-free/css/all.min.css">
     <link rel="stylesheet" href="../../app/plugins/datatables-buttons/css/buttons.bootstrap4.min.css">
     <link rel="stylesheet" href="../../app/dist/css/adminlte.min.css">
@@ -302,7 +302,7 @@ $proyek = $stmt->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
 <script src="script_mhs.js"></script>
-<script src="../app/dist/js/adminlte.min.js"></script>
+<script src="../../app/dist/js/adminlte.min.js"></script>
 <script src="../../app/plugins/jquery/jquery.min.js"></script>
 <script src="../../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../../app/plugins/datatables/jquery.dataTables.min.js"></script>

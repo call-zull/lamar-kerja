@@ -12,11 +12,12 @@ include '../includes/db.php';
 
 // Fetch student profile information
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT m.id, m.nim, m.nama_mahasiswa, m.prodi_id, m.jurusan_id, p.nama_prodi, j.nama_jurusan, m.tahun_masuk, m.status, m.jk, m.alamat, m.email, m.no_telp, m.profile_image, m.keahlian
+$sql = "SELECT m.id, m.nim, m.nama_mahasiswa, m.prodi_id, m.jurusan_id, p.nama_prodi, j.nama_jurusan, m.tahun_masuk, m.status, m.jk, m.alamat, m.email, m.no_telp, m.profile_image, m.keahlian, m.ipk
         FROM mahasiswas m
         LEFT JOIN prodis p ON m.prodi_id = p.id
         LEFT JOIN jurusans j ON m.jurusan_id = j.id
         WHERE m.user_id = ?";
+
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$user_id]);
 
@@ -186,6 +187,9 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
                                         </button>
                                         <button type="button" class="btn btn-secondary" id="add-keahlian-btn">
                                             <i class="fas fa-plus"></i> Tambah Keahlian
+                                        </button>
+                                        <button type="button" class="btn btn-warning" id="add-ipk-btn">
+                                            <i class="fas fa-plus"></i> Tambah Ipk
                                         </button>
                                         <button type="button" class="btn btn-info" id="change-photo-btn" data-toggle="modal" data-target="#changePhotoModal">
                                             <i class="fas fa-camera"></i> Ubah Foto

@@ -79,6 +79,32 @@
                         </li>
                     </ul>
                 </li>
+                <li class="nav-item has-treeview menu-open">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-file-alt"></i>
+                                <p>Dokumen Akademik <i class="right fas fa-angle-left"></i></p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="../kartu_hasil_studi.php" class="nav-link">
+                                        <i class="fas fa-file-upload nav-icon"></i>
+                                        <p>Kartu Hasil Studi</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../ijazah_transkrip.php" class="nav-link">
+                                        <i class="fas fa-file-upload nav-icon"></i>
+                                        <p>Ijazah/Transkrip</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="../resume.php" class="nav-link">
+                                        <i class="fas fa-file-upload nav-icon"></i>
+                                        <p>Resume</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
                 <li class="nav-item">
                     <a href="../cari_kerja.php" class="nav-link">
                         <i class="nav-icon fas fa-briefcase"></i>
