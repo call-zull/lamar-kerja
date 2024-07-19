@@ -214,7 +214,8 @@ $jobs = fetchJobs($pdo);
                                                         data-posisi='" . htmlspecialchars($row['posisi']) . "'
                                                         data-kualifikasi='" . htmlspecialchars($row['kualifikasi']) . "'
                                                         data-prodi='" . htmlspecialchars(json_encode($prodi)) . "'
-                                                        data-keahlian='" . htmlspecialchars(json_encode($keahlian)) . "'>Edit</button>
+                                                        data-keahlian='" . htmlspecialchars(json_encode($keahlian)) . "'
+                                                        data-waktu='" . htmlspecialchars($row['batas_waktu']) . "'>Edit</button>
                                                     <button class='btn btn-sm btn-danger deleteBtn' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
                                                     <button class='btn btn-sm btn-info lihatPelamarBtn' data-toggle='modal' data-target='#modalPelamar' data-id='" . $row['id'] . "'>Lihat Pelamar</button>
                                                 </td>";
@@ -418,7 +419,7 @@ $jobs = fetchJobs($pdo);
 <script src="../app/plugins/datatables-buttons/js/buttons.print.min.js"></script>
 <script src="../app/plugins/datatables-buttons/js/buttons.colVis.min.js"></script>
 <script>
-    $('#lowonganTable').DataTable();
+    // $('#lowonganTable').DataTable();
 
     var keahlianInput = document.querySelector('#keahlian');
     var tagifyKeahlian = new Tagify(keahlianInput, {
@@ -498,14 +499,31 @@ $jobs = fetchJobs($pdo);
         tagifyEditProdi.addEmptyTag();
     });
 
+    $('#modalTambah').on('show.bs.modal', function (event) {
+    // You may need to adjust how you fetch data for adding a new entry
+    var modal = $(this);
+    modal.find('#nama_pekerjaan').val('');
+    modal.find('#posisi').val('');
+    modal.find('#kualifikasi').val('');
+    modal.find('#prodi').val('');
+    modal.find('#keahlian').val('');
+});
+
     $('#modalEdit').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
-        var id = button.data('id');
-        var nama = button.data('nama');
-        var posisi = button.data('posisi');
-        var kualifikasi = button.data('kualifikasi');
-        var prodi = JSON.parse(button.data('prodi'));
-        var keahlian = JSON.parse(button.data('keahlian'));
+        var id = button[0].dataset.id;
+        var nama = button[0].dataset.nama;
+        var posisi = button[0].dataset.posisi;
+        var kualifikasi = button[0].dataset.kualifikasi;
+        var waktu = button[0].dataset.waktu;
+
+        // Access prodi and keahlian as JSON strings directly from dataset
+        var prodiJson = button[0].dataset.prodi;
+        var keahlianJson = button[0].dataset.keahlian;
+
+        // Parse JSON strings into JavaScript objects
+        var prodi = JSON.parse(prodiJson);
+        var keahlian = JSON.parse(keahlianJson);
 
         var prodiValues = prodi.map(item => item.value).join(', ');
         var keahlianValues = keahlian.map(item => item.value).join(', ');
@@ -517,6 +535,7 @@ $jobs = fetchJobs($pdo);
         modal.find('#edit_kualifikasi').val(kualifikasi);
         modal.find('#edit_prodi').val(prodiValues);
         modal.find('#edit_keahlian').val(keahlianValues);
+        modal.find('#edit_batas_waktu').val(waktu);
     });
 
     $('#modalHapus').on('show.bs.modal', function (event) {
