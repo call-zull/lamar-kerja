@@ -100,7 +100,7 @@
                                 <li class="nav-item">
                                     <a href="resume.php" class="nav-link">
                                         <i class="fas fa-file-upload nav-icon"></i>
-                                        <p>Resume</p>
+                                        <p>Resume(CV)</p>
                                     </a>
                                 </li>
                             </ul>

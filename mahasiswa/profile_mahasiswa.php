@@ -12,7 +12,8 @@ include '../includes/db.php';
 
 // Fetch student profile information
 $user_id = $_SESSION['user_id'];
-$sql = "SELECT m.id, m.nim, m.nama_mahasiswa, m.prodi_id, m.jurusan_id, p.nama_prodi, j.nama_jurusan, m.tahun_masuk, m.status, m.jk, m.alamat, m.email, m.no_telp, m.profile_image, m.keahlian, m.ipk
+$sql = "SELECT m.id, m.nim, m.nama_mahasiswa, m.prodi_id, m.jurusan_id, p.nama_prodi, j.nama_jurusan, m.tahun_masuk, m.status, m.jk, m.alamat, m.email, m.no_telp, m.profile_image, m.keahlian,
+               m.ipk_semester_1, m.ipk_semester_2, m.ipk_semester_3, m.ipk_semester_4, m.ipk_semester_5, m.ipk_semester_6, m.ipk_semester_7, m.ipk_semester_8
         FROM mahasiswas m
         LEFT JOIN prodis p ON m.prodi_id = p.id
         LEFT JOIN jurusans j ON m.jurusan_id = j.id
@@ -26,6 +27,28 @@ $profile = $stmt->fetch(PDO::FETCH_ASSOC);
 if (!$profile) {
     die("Data mahasiswa tidak ditemukan.");
 }
+
+// Calculate cumulative IPK
+$ipk_values = [
+    $profile['ipk_semester_1'],
+    $profile['ipk_semester_2'],
+    $profile['ipk_semester_3'],
+    $profile['ipk_semester_4'],
+    $profile['ipk_semester_5'],
+    $profile['ipk_semester_6'],
+    $profile['ipk_semester_7'],
+    $profile['ipk_semester_8']
+];
+
+$ipk_total = 0;
+$ipk_count = 0;
+foreach ($ipk_values as $ipk) {
+    if ($ipk !== null) {
+        $ipk_total += $ipk;
+        $ipk_count++;
+    }
+}
+$cumulative_ipk = $ipk_count > 0 ? round($ipk_total / $ipk_count, 2) : 0;
 
 // Fetch all jurusan and prodi options for dropdowns
 $sql_jurusans = "SELECT * FROM jurusans";
@@ -82,12 +105,12 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
 
         .profile-header h1 {
             margin: 0;
-            font-size: 24px;
+            font-size: 22px;
         }
 
         .profile-header h2 {
             margin: 0;
-            font-size: 16px;
+            font-size: 18px;
             color: #666;
         }
 
@@ -116,12 +139,14 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
 
         .keahlian-container {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
             margin-left: auto;
         }
 
         .keahlian-container .btn {
             margin-left: 10px;
+            margin-bottom: 10px;
         }
 
         .keahlian-item {
@@ -175,23 +200,24 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
                                         <img src="../assets/images/profile_default.png" class="img-fluid profile-img" alt="Default Image">
                                     <?php endif; ?>
                                     <div>
+                                        <h2>IPK: <?= $cumulative_ipk ?></h2>
                                         <h1><?= htmlspecialchars($profile['nama_mahasiswa']) ?></h1>
                                         <h2><?= htmlspecialchars($profile['nama_prodi']) ?>, <?= htmlspecialchars($profile['nama_jurusan']) ?></h2>
                                     </div>
-                                    <div class="keahlian-container">
-                                        <button type="button" class="btn btn-primary" id="edit-profile-btn">
+                                    <div class="keahlian-container d-flex flex-wrap">
+                                        <button type="button" class="btn btn-primary ml-2" id="edit-profile-btn">
                                             <i class="fas fa-edit"></i> Edit Informasi
                                         </button>
-                                        <button type="button" class="btn btn-success d-none" id="save-profile-btn">
+                                        <button type="button" class="btn btn-success d-none ml-2" id="save-profile-btn">
                                             <i class="fas fa-save"></i> Simpan Perubahan
                                         </button>
-                                        <button type="button" class="btn btn-secondary" id="add-keahlian-btn">
+                                        <button type="button" class="btn btn-secondary ml-2" id="add-keahlian-btn">
                                             <i class="fas fa-plus"></i> Tambah Keahlian
                                         </button>
-                                        <button type="button" class="btn btn-warning" id="add-ipk-btn">
-                                            <i class="fas fa-plus"></i> Tambah Ipk
+                                        <button type="button" class="btn btn-warning ml-2" id="add-ipk-btn">
+                                            <i class="fas fa-plus"></i> Tambah IPK
                                         </button>
-                                        <button type="button" class="btn btn-info" id="change-photo-btn" data-toggle="modal" data-target="#changePhotoModal">
+                                        <button type="button" class="btn btn-info ml-2" id="change-photo-btn" data-toggle="modal" data-target="#changePhotoModal">
                                             <i class="fas fa-camera"></i> Ubah Foto
                                         </button>
                                     </div>
@@ -357,7 +383,46 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
         </div>
     </div>
 
-    <script src="script_mhs.js"></script>
+    <!-- IPK -->
+ 
+<div class="modal fade" id="addIpkModal" tabindex="-1" role="dialog" aria-labelledby="addIpkModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <form id="add-ipk-form">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="addIpkModalLabel">Tambah IPK</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div id="ipk-notification" class="alert alert-success d-none" role="alert"></div> <!-- Notifikasi -->
+                    <p>*Inputkan berdasarkan nilai Indeks Prestasi terakhir Anda</p>
+                    <?php for ($i = 1; $i <= 8; $i++) : ?>
+                        <div class="form-group row">
+                            <label for="ipk_semester_<?= $i ?>" class="col-sm-4 col-form-label">IPK Semester <?= $i ?></label>
+                            <div class="col-sm-4">
+                                <input type="number" step="0.01" min="0" max="4" class="form-control" id="ipk_semester_<?= $i ?>" name="ipk_semester_<?= $i ?>" value="<?= htmlspecialchars($profile["ipk_semester_$i"]) ?>">
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-primary btn-sm save-ipk" data-semester="<?= $i ?>">Simpan</button>
+                            </div>
+                            <div class="col-sm-2">
+                                <button type="button" class="btn btn-danger btn-sm delete-ipk" data-semester="<?= $i ?>">Hapus</button>
+                            </div>
+                        </div>
+                    <?php endfor; ?>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+
     <script src="../app/plugins/jquery/jquery.min.js"></script>
     <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
@@ -366,6 +431,7 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
         const editProfileBtn = document.getElementById('edit-profile-btn');
         const saveProfileBtn = document.getElementById('save-profile-btn');
         const addKeahlianBtn = document.getElementById('add-keahlian-btn');
+        const addIpkBtn = document.getElementById('add-ipk-btn');
         const formElements = document.querySelectorAll('.profile-input');
         const statusElement = document.getElementById('status');
         const jkElement = document.getElementById('jk');
@@ -397,6 +463,10 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
             $('#addKeahlianModal').modal('show');
         });
 
+        addIpkBtn.addEventListener('click', function() {
+            $('#addIpkModal').modal('show');
+        });
+
         document.getElementById('add-keahlian-form').addEventListener('submit', function(e) {
             e.preventDefault();
             const newKeahlian = document.getElementById('new-keahlian').value;
@@ -415,6 +485,97 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
 
             $('#addKeahlianModal').modal('hide');
         });
+
+        document.querySelectorAll('.save-ipk').forEach(button => {
+    button.addEventListener('click', function() {
+        const semester = this.getAttribute('data-semester');
+        const ipkValue = document.getElementById('ipk_semester_' + semester).value;
+        saveIpk(semester, ipkValue);
+    });
+});
+
+document.querySelectorAll('.delete-ipk').forEach(button => {
+    button.addEventListener('click', function() {
+        const semester = this.getAttribute('data-semester');
+        deleteIpk(semester);
+    });
+});
+
+function saveIpk(semester, value) {
+    $.ajax({
+        type: 'POST',
+        url: 'update_ipk.php',
+        data: { semester: semester, value: value },
+        success: function(response) {
+            console.log(response);
+            calculateIpk();
+            showNotification('IPK semester ' + semester + ' berhasil disimpan.');
+        }
+    });
+}
+
+function deleteIpk(semester) {
+    $.ajax({
+        type: 'POST',
+        url: 'delete_ipk.php',
+        data: { semester: semester },
+        success: function(response) {
+            console.log(response);
+            document.getElementById('ipk_semester_' + semester).value = '';
+            calculateIpk();
+            showNotification('IPK semester ' + semester + ' berhasil dihapus.');
+        }
+    });
+}
+
+function showNotification(message) {
+    const notification = document.getElementById('ipk-notification');
+    notification.innerText = message;
+    notification.classList.remove('d-none');
+
+    setTimeout(() => {
+        notification.classList.add('d-none');
+    }, 3000);
+}
+
+function calculateIpk() {
+    let total = 0;
+    let count = 0;
+    for (let i = 1; i <= 8; i++) {
+        const value = parseFloat(document.getElementById('ipk_semester_' + i).value);
+        if (!isNaN(value) && value > 0) {
+            total += value;
+            count++;
+        }
+    }
+    const ipk = (count > 0) ? (total / count).toFixed(2) : 0;
+    document.getElementById('cumulative-ipk').innerText = 'IPK: ' + ipk;
+
+    // Save IPK to the database
+    $.ajax({
+        type: 'POST',
+        url: 'update_ipk_overall.php',
+        data: { ipk: ipk },
+        success: function(response) {
+            console.log(response);
+        }
+    });
+}
+
+
+
+
+        function showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'alert alert-success';
+            notification.role = 'alert';
+            notification.innerText = message;
+            document.body.appendChild(notification);
+
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
 
         keahlianList.addEventListener('click', function(e) {
             if (e.target.classList.contains('remove-keahlian-btn') || e.target.parentElement.classList.contains('remove-keahlian-btn')) {
@@ -457,6 +618,7 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
                 }
             });
         }
-</script>
+    </script>
 </body>
+
 </html>

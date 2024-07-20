@@ -100,7 +100,6 @@ $application_statuses = fetchAcceptedOrRejectedApplications($pdo, $user_id);
         </section>
     </div>
 </div>
-<script src="script_mhs.js"></script>
 <script src="../app/plugins/jquery/jquery.min.js"></script>
 <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
 <script src="../app/dist/js/adminlte.min.js"></script>

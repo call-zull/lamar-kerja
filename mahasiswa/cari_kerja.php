@@ -10,19 +10,7 @@ include '../includes/db.php';
 
 function fetchMahasiswaDetails($pdo, $user_id) {
     try {
-        $sql = "SELECT prodi_id, keahlian FROM mahasiswas WHERE user_id = :user_id";
-        $stmt = $pdo->prepare($sql);
-        $stmt->execute(['user_id' => $user_id]);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Error: " . $e->getMessage());
-        return false;
-    }
-}
-
-function fetchCompanyDetails($pdo, $user_id) {
-    try {
-        $sql = "SELECT * FROM perusahaans WHERE user_id = :user_id";
+        $sql = "SELECT prodi_id, keahlian, ijazah, resume, khs_semester_1, khs_semester_2, khs_semester_3, khs_semester_4, khs_semester_5, khs_semester_6, khs_semester_7, khs_semester_8, ipk_semester_1, ipk_semester_2, ipk_semester_3, ipk_semester_4, ipk_semester_5, ipk_semester_6, ipk_semester_7, ipk_semester_8 FROM mahasiswas WHERE user_id = :user_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $user_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -83,6 +71,14 @@ if ($mahasiswa) {
     $jobs = fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search);
 } else {
     $jobs = fetchJobs($pdo, $search);
+}
+
+// Determine the number of valid semesters based on IPK
+$valid_semesters = 0;
+for ($i = 1; $i <= 8; $i++) {
+    if (!empty($mahasiswa['ipk_semester_' . $i])) {
+        $valid_semesters = $i;
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -165,10 +161,20 @@ if ($mahasiswa) {
                     <?php if ($jobs): ?>
                         <?php foreach ($jobs as $row): ?>
                             <?php
+                            // Decode JSON data
+                            $prodi = json_decode($row['prodi'], true);
+                            $keahlian = json_decode($row['keahlian'], true);
+
                             // Cek apakah batas waktu sudah terlewati
                             $batas_waktu = new DateTime($row['batas_waktu']);
                             $current_date = new DateTime();
                             $is_expired = $current_date > $batas_waktu;
+
+                            // Check if the student has already applied for the job
+                            $sql = "SELECT COUNT(*) FROM lamaran_mahasiswas WHERE lowongan_id = :lowongan_id AND mahasiswa_id = :mahasiswa_id AND status = 'Pending'";
+                            $stmt = $pdo->prepare($sql);
+                            $stmt->execute(['lowongan_id' => $row['id'], 'mahasiswa_id' => $user_id]);
+                            $has_applied = $stmt->fetchColumn() > 0;
                             ?>
                             <div class="col-lg-3 col-md-4 col-sm-6 col-12">
                                 <div class="card">
@@ -176,12 +182,24 @@ if ($mahasiswa) {
                                         <h5 class="card-title"><?php echo htmlspecialchars($row['nama_pekerjaan']); ?></h5>
                                         <p class="card-text"><strong>Posisi:</strong> <?php echo htmlspecialchars($row['posisi']); ?></p>
                                         <p class="card-text"><strong>Kualifikasi:</strong> <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
+                                        <p class="card-text"><strong>Program Studi:</strong> 
+                                            <?php foreach ($prodi as $p) {
+                                                echo htmlspecialchars($p['value']) . '<br>';
+                                            } ?>
+                                        </p>
+                                        <p class="card-text"><strong>Keahlian:</strong> 
+                                            <?php foreach ($keahlian as $k) {
+                                                echo htmlspecialchars($k['value']) . '<br>';
+                                            } ?>
+                                        </p>
                                         <p class="card-text"><strong>Tanggal Posting:</strong> <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
                                         <p class="card-text"><strong>Batas Waktu:</strong> <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
-                                        <button class='btn btn-<?php echo $is_expired ? 'secondary' : 'success'; ?> btn-sm' data-toggle='modal' data-target='#modalLamar' 
+                                        <button class='btn btn-<?php echo $has_applied ? 'secondary' : ($is_expired ? 'secondary' : 'success'); ?> btn-sm' data-toggle='modal' data-target='#modalLamar' 
                                             data-id="<?php echo $row['id']; ?>"
                                             data-mahasiswa="<?php echo $user_id; ?>"
-                                            <?php echo $is_expired ? 'disabled' : ''; ?>>Lamar</button>
+                                            <?php echo $is_expired ? 'disabled' : ($has_applied ? 'disabled' : ''); ?>>
+                                            <?php echo $has_applied ? 'Menunggu Balasan' : 'Lamar'; ?>
+                                        </button>
                                         <button class='btn btn-primary btn-sm' data-toggle='modal' data-target='#modalDetailPerusahaan' data-perusahaan-id="<?php echo $row['perusahaan_id']; ?>">Detail Perusahaan</button>
                                     </div>
                                 </div>
@@ -213,6 +231,16 @@ if ($mahasiswa) {
                         <label for="pesan">Pesan</label>
                         <textarea class="form-control" name="pesan" id="pesan" rows="5" required></textarea>
                     </div>
+                    <div class="form-group">
+                        <button type="button" class="btn btn-secondary" id="btnTranskipIjazah" onclick="insertTranskipIjazah()">Masukkan Transkip/Ijazah</button>
+                        <button type="button" class="btn btn-secondary" id="btnCV" onclick="insertCV()">Masukkan CV</button>
+                        <?php for ($i = 1; $i <= $valid_semesters; $i++): ?>
+                            <button type="button" class="btn btn-secondary khs-btn" id="btnKHS<?= $i ?>" onclick="insertKHS(<?= $i ?>)">Masukkan KHS Semester <?= $i ?></button>
+                        <?php endfor; ?>
+                    </div>
+                    <input type="hidden" name="transkip_ijazah" id="transkip_ijazah">
+                    <input type="hidden" name="cv" id="cv">
+                    <input type="hidden" name="khs" id="khs">
                     <button type="submit" class="btn btn-primary">Kirim Lamaran</button>
                 </form>
             </div>
@@ -255,12 +283,21 @@ if ($mahasiswa) {
         var modal = $(this);
         modal.find('#lowongan_id').val(id);
         modal.find('#mahasiswa_id').val(mahasiswa);
+
+        // Reset button colors
+        $('#btnTranskipIjazah').removeClass('btn-success').addClass('btn-secondary');
+        $('#btnCV').removeClass('btn-success').addClass('btn-secondary');
+        $('.khs-btn').removeClass('btn-success').addClass('btn-secondary');
+
+        // Reset hidden inputs
+        $('#transkip_ijazah').val('');
+        $('#cv').val('');
+        $('#khs').val('');
     });
 
     $('#modalDetailPerusahaan').on('show.bs.modal', function (event) {
         var button = $(event.relatedTarget);
         var perusahaanId = button.data('perusahaan-id');
-        console.log("Perusahaan ID: " + perusahaanId); // Debugging log
 
         var modal = $(this);
 
@@ -270,7 +307,6 @@ if ($mahasiswa) {
             data: { user_id: perusahaanId },
             success: function(response) {
                 var details = JSON.parse(response);
-                console.log(details); // Debugging log
                 if (details.error) {
                     modal.find('#detailNamaPerusahaan').text("Data tidak ditemukan");
                     modal.find('#detailAlamatPerusahaan').text("");
@@ -292,11 +328,63 @@ if ($mahasiswa) {
                 }
             },
             error: function(xhr, status, error) {
-                console.error("Error: " + error); // Debugging log
+                console.error("Error: " + error);
             }
         });
-
     });
+
+    function insertTranskipIjazah() {
+        var transkipIjazah = "<?php echo $mahasiswa['ijazah']; ?>";
+        document.getElementById('transkip_ijazah').value = transkipIjazah;
+        document.getElementById('btnTranskipIjazah').classList.remove('btn-secondary');
+        document.getElementById('btnTranskipIjazah').classList.add('btn-success');
+        alert("Transkip/Ijazah ditambahkan: " + transkipIjazah);
+    }
+
+    function insertCV() {
+        var cv = "<?php echo $mahasiswa['resume']; ?>";
+        document.getElementById('cv').value = cv;
+        document.getElementById('btnCV').classList.remove('btn-secondary');
+        document.getElementById('btnCV').classList.add('btn-success');
+        alert("CV ditambahkan: " + cv);
+    }
+
+    function insertKHS(semester) {
+        var khs = "";
+        switch (semester) {
+            case 1:
+                khs = "<?php echo $mahasiswa['khs_semester_1']; ?>";
+                break;
+            case 2:
+                khs = "<?php echo $mahasiswa['khs_semester_2']; ?>";
+                break;
+            case 3:
+                khs = "<?php echo $mahasiswa['khs_semester_3']; ?>";
+                break;
+            case 4:
+                khs = "<?php echo $mahasiswa['khs_semester_4']; ?>";
+                break;
+            case 5:
+                khs = "<?php echo $mahasiswa['khs_semester_5']; ?>";
+                break;
+            case 6:
+                khs = "<?php echo $mahasiswa['khs_semester_6']; ?>";
+                break;
+            case 7:
+                khs = "<?php echo $mahasiswa['khs_semester_7']; ?>";
+                break;
+            case 8:
+                khs = "<?php echo $mahasiswa['khs_semester_8']; ?>";
+                break;
+            default:
+                alert("Semester tidak valid");
+                return;
+        }
+        document.getElementById('khs').value = khs;
+        document.getElementById('btnKHS' + semester).classList.remove('btn-secondary');
+        document.getElementById('btnKHS' + semester).classList.add('btn-success');
+        alert("KHS Semester " + semester + " ditambahkan: " + khs);
+    }
 </script>
 </body>
 </html>
