@@ -11,9 +11,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'perusahaan') {
 function fetchLamaranMahasiswas($pdo) {
     try {
         $sql = "
-            SELECT lm.id AS lamaran_id, lm.lowongan_id, lm.pesan, lm.status AS status_lamaran, m.id AS mahasiswa_id, m.nama_mahasiswa, m.nim, m.prodi_id, m.jurusan_id, m.jk, m.alamat, m.no_telp, m.tahun_masuk, m.status AS status_mahasiswa, m.email, m.keahlian, lm.salary
+            SELECT lm.id AS lamaran_id, lm.lowongan_id, lm.pesan, lm.status AS status_lamaran, m.id AS mahasiswa_id, m.nama_mahasiswa, m.nim, m.jurusan_id, m.jk, m.alamat, m.no_telp, m.tahun_masuk, m.status AS status_mahasiswa, m.email, m.keahlian, lm.salary, l.nama_pekerjaan
             FROM lamaran_mahasiswas lm
             JOIN mahasiswas m ON lm.mahasiswa_id = m.id
+            JOIN lowongan_kerja l ON lm.lowongan_id = l.id
         ";
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -84,10 +85,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lamaran_id'], $_POST[
             display: inline-block;
         }
         .status-terima {
-            background-color: green;
+            background-color: #ffc107;
         }
         .status-ditolak {
-            background-color: red;
+            background-color: #dc3545;
+        }
+        .status-pending {
+            background-color:  #28a745;
+            color: black;
         }
         .modal-content .form-group {
             margin-bottom: 1rem;
@@ -122,6 +127,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lamaran_id'], $_POST[
                 <div class="card">
                     <div class="card-header">
                         <h3 class="card-title"><i class="fas fa-list"></i> Daftar Lamaran Mahasiswa</h3>
+                        <div class="card-tools">
+                            <select id="statusFilter" class="form-control">
+                                <option value="">Semua Status</option>
+                                <option value="Diterima">Diterima</option>
+                                <option value="Ditolak">Ditolak</option>
+                                <option value="Pending">Pending</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="card-body">
                         <div class="table-responsive">
@@ -131,18 +144,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lamaran_id'], $_POST[
                                         <th>No</th>
                                         <th>Nama Mahasiswa</th>
                                         <th>NIM</th>
-                                        <th>Prodi</th>
-                                        <th>Jurusan</th>
                                         <th>Jenis Kelamin</th>
-                                        <th>Alamat</th>
                                         <th>No Telepon</th>
-                                        <th>Tahun Masuk</th>
-                                        <th>Status Mahasiswa</th>
                                         <th>Email</th>
                                         <th>Keahlian</th>
+                                        <th>Nama Lowongan</th>
                                         <th>Status Lamaran</th>
                                         <th>Pesan</th>
                                         <th>Salary</th>
+                                        <th>Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -150,20 +160,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lamaran_id'], $_POST[
                                     if ($lamaranMahasiswas) {
                                         $no = 1;
                                         foreach ($lamaranMahasiswas as $row) {
-                                            $statusClass = $row['status_lamaran'] == 'Diterima' ? 'status-terima' : ($row['status_lamaran'] == 'Ditolak' ? 'status-ditolak' : '');
+                                            $statusClass = strtolower($row['status_lamaran']) == 'diterima' ? 'status-terima' : (strtolower($row['status_lamaran']) == 'ditolak' ? 'status-ditolak' : 'status-pending');
                                             echo "<tr>";
                                             echo "<td>" . $no . "</td>";
                                             echo "<td>" . htmlspecialchars($row['nama_mahasiswa']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['nim']) . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['prodi_id']) . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['jurusan_id']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['jk']) . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['alamat']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['no_telp']) . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['tahun_masuk']) . "</td>";
-                                            echo "<td>" . htmlspecialchars($row['status_mahasiswa']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['email']) . "</td>";
                                             echo "<td>" . htmlspecialchars($row['keahlian']) . "</td>";
+                                            echo "<td>" . htmlspecialchars($row['nama_pekerjaan']) . "</td>";
                                             echo "<td><span class='status-label {$statusClass}'>" . htmlspecialchars($row['status_lamaran']) . "</span></td>";
                                             echo "<td>" . htmlspecialchars($row['pesan']) . "</td>";
                                             echo "<td>";
@@ -173,11 +179,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lamaran_id'], $_POST[
                                                 echo "<button class='btn btn-primary btn-sm' onclick='showSalaryModal(" . $row['lamaran_id'] . ")'>Masukkan Salary</button>";
                                             }
                                             echo "</td>";
+                                            echo "<td><button class='btn btn-info btn-sm' onclick=\"window.location.href='lihat_pelamar.php?lowongan_id=" . $row['lowongan_id'] . "&mahasiswa_id=" . $row['mahasiswa_id'] . "'\">Lihat Portofolio</button></td>";
                                             echo "</tr>";
                                             $no++;
                                         }
                                     } else {
-                                        echo "<tr><td colspan='15'>Tidak ada data</td></tr>";
+                                        echo "<tr><td colspan='12'>Tidak ada data</td></tr>";
                                     }
                                     ?>
                                 </tbody>
@@ -243,7 +250,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['lamaran_id'], $_POST[
     }
 
     $(document).ready(function() {
-        $('#mahasiswaTable').DataTable();
+        var table = $('#mahasiswaTable').DataTable();
+
+        $('#statusFilter').on('change', function() {
+            var status = $(this).val();
+            if (status) {
+                table.column(8).search(status).draw();
+            } else {
+                table.column(8).search('').draw();
+            }
+        });
     });
 </script>
 </body>

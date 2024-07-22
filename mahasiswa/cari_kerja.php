@@ -158,7 +158,7 @@ for ($i = 1; $i <= 8; $i++) {
                     </div>
                 </div>
                 <div class="row">
-                    <?php if ($jobs): ?>
+                    <?php if (!empty($jobs)): ?>
                         <?php foreach ($jobs as $row): ?>
                             <?php
                             // Decode JSON data
@@ -194,12 +194,15 @@ for ($i = 1; $i <= 8; $i++) {
                                         </p>
                                         <p class="card-text"><strong>Tanggal Posting:</strong> <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
                                         <p class="card-text"><strong>Batas Waktu:</strong> <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
-                                        <button class='btn btn-<?php echo $has_applied ? 'secondary' : ($is_expired ? 'secondary' : 'success'); ?> btn-sm' data-toggle='modal' data-target='#modalLamar' 
-                                            data-id="<?php echo $row['id']; ?>"
-                                            data-mahasiswa="<?php echo $user_id; ?>"
-                                            <?php echo $is_expired ? 'disabled' : ($has_applied ? 'disabled' : ''); ?>>
-                                            <?php echo $has_applied ? 'Menunggu Balasan' : 'Lamar'; ?>
-                                        </button>
+                                        <?php if ($is_expired): ?>
+                                            <button class='btn btn-secondary btn-sm' disabled>Lamaran Expired</button>
+                                        <?php elseif ($has_applied): ?>
+                                            <button class='btn btn-secondary btn-sm' disabled>Menunggu Balasan</button>
+                                        <?php else: ?>
+                                            <button class='btn btn-success btn-sm' data-toggle='modal' data-target='#modalLamar' 
+                                                data-id="<?php echo $row['id']; ?>"
+                                                data-mahasiswa="<?php echo $user_id; ?>">Lamar</button>
+                                        <?php endif; ?>
                                         <button class='btn btn-primary btn-sm' data-toggle='modal' data-target='#modalDetailPerusahaan' data-perusahaan-id="<?php echo $row['perusahaan_id']; ?>">Detail Perusahaan</button>
                                     </div>
                                 </div>
@@ -214,6 +217,7 @@ for ($i = 1; $i <= 8; $i++) {
     </div>
 </div>
 
+<!-- Form modal for applying to job -->
 <div class="modal fade" id="modalLamar" tabindex="-1" aria-labelledby="modalLamarLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -247,6 +251,7 @@ for ($i = 1; $i <= 8; $i++) {
         </div>
     </div>
 </div>
+
 
 <div class="modal fade" id="modalDetailPerusahaan" tabindex="-1" aria-labelledby="modalDetailPerusahaanLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

@@ -224,6 +224,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
             height: 200px;
             border: 0;
         }
+        
     </style>
 </head>
 <body>
@@ -319,12 +320,12 @@ $portfolios = getStudentPortfolios($pdo, $search);
                 <div class="carousel-item active">
                     <img src="assets/images/poliban_1.jpeg" class="d-block mx-auto w-50" alt="..." style="max-height: 200px;">
                 </div>
-                <div class="carousel-item">
+                <!-- <div class="carousel-item">
                     <img src="assets/images/poliban_4.png" class="d-block mx-auto w-50" alt="..." style="max-height: 200px;">
                 </div>
                 <div class="carousel-item">
                     <img src="assets/images/poliban_3.jpg" class="d-block mx-auto w-50" alt="..." style="max-height: 200px;">
-                </div>
+                </div> -->
             </div>
             <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
                 <span class="carousel-control-prev-icon" aria-hidden="true"></span>

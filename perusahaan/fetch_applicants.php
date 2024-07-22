@@ -4,77 +4,38 @@ include '../includes/db.php';
 if (isset($_GET['lowongan_id'])) {
     $lowongan_id = $_GET['lowongan_id'];
 
-    try {
-        // Prepare the SQL statement with placeholders
-        $sql = "SELECT lamaran_mahasiswas.*, 
-                       mahasiswas.nama_mahasiswa, 
-                       mahasiswas.email, 
-                       mahasiswas.no_telp, 
-                       mahasiswas.profile_image, 
-                       mahasiswas.status, 
-                       mahasiswas.tahun_masuk, 
-                       prodis.nama_prodi
-                FROM lamaran_mahasiswas
-                LEFT JOIN mahasiswas ON lamaran_mahasiswas.mahasiswa_id = mahasiswas.id
-                LEFT JOIN prodis ON mahasiswas.prodi_id = prodis.id 
-                WHERE lamaran_mahasiswas.lowongan_id = :lowongan_id";
-        
-        // Prepare the statement
-        $stmt = $pdo->prepare($sql);
-        
-        // Execute the statement with the parameter
-        $stmt->execute(['lowongan_id' => $lowongan_id]);
-        
-        // Fetch all results
-        $applicants = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $sql = "SELECT lm.mahasiswa_id, m.nama_mahasiswa, m.email, m.no_telp, p.nama_prodi, lm.status, lm.pesan
+            FROM lamaran_mahasiswas lm
+            JOIN mahasiswas m ON lm.mahasiswa_id = m.id
+            JOIN prodis p ON m.prodi_id = p.id
+            WHERE lm.lowongan_id = :lowongan_id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute(['lowongan_id' => $lowongan_id]);
 
-        echo "<div style='overflow-x:auto;'><table class='table table-bordered'>
-                <thead>
-                    <tr>
-                        <th>No</th>
-                        <th>Nama Pelamar</th>
-                        <th>Email</th>
-                        <th>No Telepon</th>
-                        <th>Program Studi</th>
-                        <th>Status</th>
-                        <th>Tahun Masuk</th>
-                        <th>Pesan</th>
-                        <th>Profile Image</th>
-                        <th>Aksi</th>
-                    </tr>
-                </thead>
-                <tbody>";
+    $pelamar = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+    if ($pelamar) {
         $no = 1;
-        foreach ($applicants as $applicant) {
-            $profileImage = htmlspecialchars($applicant['profile_image']);
-            $profileImagePath = "../path/to/profile/images/" . ($profileImage ? $profileImage : "default.png");
-
-            echo "<tr>
-                    <td>" . htmlspecialchars($no) . "</td>
-                    <td>" . htmlspecialchars($applicant['nama_mahasiswa']) . "</td>
-                    <td>" . htmlspecialchars($applicant['email']) . "</td>
-                    <td>" . htmlspecialchars($applicant['no_telp']) . "</td>
-                    <td>" . htmlspecialchars($applicant['nama_prodi']) . "</td>
-                    <td>" . htmlspecialchars($applicant['status']) . "</td>
-                    <td>" . htmlspecialchars($applicant['tahun_masuk']) . "</td>
-                    <td>" . htmlspecialchars($applicant['pesan']) . "</td>
-                    <td><img src='" . $profileImagePath . "' width='50' height='50' alt='Profile Image'></td>
-                    <td>
-                        <button class='btn btn-sm btn-info btn-lihat-portofolio' data-mahasiswa-id='" . htmlspecialchars($applicant['mahasiswa_id']) . "' data-toggle='modal' data-target='#modalPortofolio'>Lihat Portofolio</button>
-                        <button class='btn btn-sm btn-success btn-terima' data-id-pelamar='" . htmlspecialchars($applicant['id']) . "'>Terima</button>
-                        <button class='btn btn-sm btn-danger btn-tolak' data-id-pelamar='" . htmlspecialchars($applicant['id']) . "'>Tolak</button>
-                    </td>
-                </tr>";
-            $no++;
+        foreach ($pelamar as $row) {
+            // Only show pelamar who are not accepted or rejected
+            if ($row['status'] != 'diterima' && $row['status'] != 'ditolak') {
+                echo "<tr>";
+                echo "<td>" . $no . "</td>";
+                echo "<td>" . htmlspecialchars($row['nama_mahasiswa']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['email']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['no_telp']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['nama_prodi']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['status']) . "</td>";
+                echo "<td>" . htmlspecialchars($row['pesan']) . "</td>";
+                echo "<td>
+                        <button class='btn btn-sm btn-info' onclick=\"window.location.href='lihat_pelamar.php?lowongan_id={$lowongan_id}&mahasiswa_id={$row['mahasiswa_id']}'\">Lihat Portofolio</button>
+                    </td>";
+                echo "</tr>";
+                $no++;
+            }
         }
-
-        echo "</tbody></table></div>";
-
-    } catch (PDOException $e) {
-        echo "Error fetching applicants: " . htmlspecialchars($e->getMessage());
+    } else {
+        echo "<tr><td colspan='8'>Belum ada pelamar untuk lowongan ini.</td></tr>";
     }
-} else {
-    echo "<p>Invalid request.</p>";
 }
 ?>

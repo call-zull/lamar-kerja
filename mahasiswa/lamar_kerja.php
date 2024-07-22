@@ -6,28 +6,33 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     // Retrieve POST data
     $lowongan_id = $_POST['lowongan_id'];
     $pesan = $_POST['pesan'];
-    $transkip_ijazah = $_POST['transkip_ijazah'];
-    $cv = $_POST['cv'];
+    $ijazah = $_POST['transkip_ijazah'];
+    $resume = $_POST['cv'];
     $khs = $_POST['khs'];
     $status = 'Pending';
+    $salary = NULL;
 
-    // Retrieve mahasiswa_id from session
+    // Retrieve user_id from session
     if (isset($_SESSION['user_id'])) {
-        $mahasiswa_id = $_SESSION['user_id'];
+        $user_id = $_SESSION['user_id'];
     } else {
-        echo "Error: No mahasiswa_id found in session.";
+        $_SESSION['error_message'] = "No user_id found in session.";
+        header('Location: cari_kerja.php');
         exit();
     }
 
-    // Check if mahasiswa_id exists in the mahasiswas table
-    $checkSql = "SELECT COUNT(*) FROM mahasiswas WHERE user_id = :mahasiswa_id";
-    $checkStmt = $pdo->prepare($checkSql);
-    $checkStmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);
-    $checkStmt->execute();
-    $count = $checkStmt->fetchColumn();
+    // Get mahasiswa_id using user_id
+    $getMahasiswaIdSql = "SELECT id FROM mahasiswas WHERE user_id = :user_id";
+    $getMahasiswaIdStmt = $pdo->prepare($getMahasiswaIdSql);
+    $getMahasiswaIdStmt->bindParam(':user_id', $user_id, PDO::PARAM_INT);
+    $getMahasiswaIdStmt->execute();
+    $mahasiswa = $getMahasiswaIdStmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($count == 0) {
-        echo "Error: mahasiswa_id $mahasiswa_id does not exist in the mahasiswas table.";
+    if ($mahasiswa) {
+        $mahasiswa_id = $mahasiswa['id'];
+    } else {
+        $_SESSION['error_message'] = "Mahasiswa with user_id $user_id not found.";
+        header('Location: cari_kerja.php');
         exit();
     }
 
@@ -46,17 +51,40 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     }
 
     // Prepare and bind
-    $sql = "INSERT INTO lamaran_mahasiswas (lowongan_id, mahasiswa_id, pesan, status, transkip_ijazah, cv, khs) VALUES (:lowongan_id, :mahasiswa_id, :pesan, :status, :transkip_ijazah, :cv, :khs)";
+    $sql = "INSERT INTO lamaran_mahasiswas 
+    (lowongan_id, mahasiswa_id, pesan, status, salary, ijazah, resume, khs_semester_1, khs_semester_2, khs_semester_3, khs_semester_4, khs_semester_5, khs_semester_6, khs_semester_7, khs_semester_8) 
+    VALUES 
+    (:lowongan_id, :mahasiswa_id, :pesan, :status, :salary, :ijazah, :resume, :khs_semester_1, :khs_semester_2, :khs_semester_3, :khs_semester_4, :khs_semester_5, :khs_semester_6, :khs_semester_7, :khs_semester_8)";
+
     $stmt = $pdo->prepare($sql);
+
+    // Split the KHS values into respective semesters
+    $khs_values = explode(',', $khs);
+    $khs_semester_1 = isset($khs_values[0]) ? $khs_values[0] : null;
+    $khs_semester_2 = isset($khs_values[1]) ? $khs_values[1] : null;
+    $khs_semester_3 = isset($khs_values[2]) ? $khs_values[2] : null;
+    $khs_semester_4 = isset($khs_values[3]) ? $khs_values[3] : null;
+    $khs_semester_5 = isset($khs_values[4]) ? $khs_values[4] : null;
+    $khs_semester_6 = isset($khs_values[5]) ? $khs_values[5] : null;
+    $khs_semester_7 = isset($khs_values[6]) ? $khs_values[6] : null;
+    $khs_semester_8 = isset($khs_values[7]) ? $khs_values[7] : null;
 
     // Bind parameters
     $stmt->bindParam(':lowongan_id', $lowongan_id, PDO::PARAM_INT);
     $stmt->bindParam(':mahasiswa_id', $mahasiswa_id, PDO::PARAM_INT);
     $stmt->bindParam(':pesan', $pesan, PDO::PARAM_STR);
     $stmt->bindParam(':status', $status, PDO::PARAM_STR);
-    $stmt->bindParam(':transkip_ijazah', $transkip_ijazah, PDO::PARAM_STR);
-    $stmt->bindParam(':cv', $cv, PDO::PARAM_STR);
-    $stmt->bindParam(':khs', $khs, PDO::PARAM_STR);
+    $stmt->bindParam(':salary', $salary, PDO::PARAM_STR);
+    $stmt->bindParam(':ijazah', $ijazah, PDO::PARAM_STR);
+    $stmt->bindParam(':resume', $resume, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_1', $khs_semester_1, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_2', $khs_semester_2, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_3', $khs_semester_3, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_4', $khs_semester_4, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_5', $khs_semester_5, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_6', $khs_semester_6, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_7', $khs_semester_7, PDO::PARAM_STR);
+    $stmt->bindParam(':khs_semester_8', $khs_semester_8, PDO::PARAM_STR);
 
     // Execute the statement
     try {

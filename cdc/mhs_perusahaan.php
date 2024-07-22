@@ -12,12 +12,13 @@ include '../includes/db.php';
 function fetchStudentsAndJobs($pdo) {
     try {
         $sql = "SELECT m.id, m.nim, m.nama_mahasiswa, j.nama_jurusan AS jurusan, p.nama_prodi AS prodi, m.status, m.tahun_masuk, 
-                       lm.status as job_status, l.nama_pekerjaan, lm.salary
+                       lm.status AS lamaran_status, l.nama_pekerjaan, pr.nama_perusahaan, lm.salary
                 FROM mahasiswas m
                 JOIN prodis p ON m.prodi_id = p.id
                 JOIN jurusans j ON m.jurusan_id = j.id
-                LEFT JOIN lamaran_mahasiswas lm ON m.id = lm.mahasiswa_id AND lm.status = 'Diterima'
-                LEFT JOIN lowongan_kerja l ON lm.lowongan_id = l.id";
+                LEFT JOIN lamaran_mahasiswas lm ON m.id = lm.mahasiswa_id
+                LEFT JOIN lowongan_kerja l ON lm.lowongan_id = l.id
+                LEFT JOIN perusahaans pr ON l.perusahaan_id = pr.id";
         $stmt = $pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     } catch (PDOException $e) {
@@ -91,6 +92,25 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
                                         <i class="fas fa-trophy"></i>
                                         Data Mahasiswa dan Pekerjaan
                                     </h3>
+                                    <div class="card-tools">
+                                        <div class="input-group input-group-sm">
+                                            <select id="statusFilter" class="form-control">
+                                                <option value="">Semua Status</option>
+                                                <option value="diterima">Diterima</option>
+                                                <option value="ditolak">Ditolak</option>
+                                            </select>
+                                            <select id="prodiFilter" class="form-control">
+                                                <option value="">Semua Prodi</option>
+                                                <?php
+                                                $sql = "SELECT id, nama_prodi FROM prodis";
+                                                $stmt = $pdo->query($sql);
+                                                while ($prodi = $stmt->fetch(PDO::FETCH_ASSOC)) {
+                                                    echo "<option value='{$prodi['nama_prodi']}'>{$prodi['nama_prodi']}</option>";
+                                                }
+                                                ?>
+                                            </select>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="card-body">
                                     <div class="table-responsive">
@@ -104,7 +124,9 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
                                                     <th>Prodi</th>
                                                     <th>Status</th>
                                                     <th>Tahun Masuk</th>
-                                                    <th>Pekerjaan</th>
+                                                    <th>Nama Lowongan</th>
+                                                    <th>Nama Perusahaan</th>
+                                                    <th>Status Lamaran</th>
                                                     <th>Gaji</th>
                                                     <th>Aksi</th>
                                                 </tr>
@@ -119,11 +141,15 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
                                                         <td><?= htmlspecialchars($student['prodi']) ?></td>
                                                         <td><?= htmlspecialchars($student['status']) ?></td>
                                                         <td><?= htmlspecialchars($student['tahun_masuk']) ?></td>
+                                                        <td><?= htmlspecialchars($student['nama_pekerjaan'] ?? 'N/A') ?></td>
+                                                        <td><?= htmlspecialchars($student['nama_perusahaan'] ?? 'N/A') ?></td>
                                                         <td>
-                                                            <?php if ($student['job_status'] == 'Diterima'): ?>
-                                                                <span class="badge badge-success">Diterima</span> - <?= htmlspecialchars($student['nama_pekerjaan']) ?>
+                                                            <?php if (strtolower($student['lamaran_status']) === 'diterima'): ?>
+                                                                <span class="badge badge-success">Diterima</span>
+                                                            <?php elseif (strtolower($student['lamaran_status']) === 'ditolak'): ?>
+                                                                <span class="badge badge-danger">Ditolak</span>
                                                             <?php else: ?>
-                                                                Belum diterima
+                                                                <span class="badge badge-secondary">Belum ada status</span>
                                                             <?php endif; ?>
                                                         </td>
                                                         <td><?= htmlspecialchars($student['salary'] ?? 'N/A') ?></td>
@@ -156,7 +182,17 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
     <script src="../app/dist/js/adminlte.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('#mahasiswaTable').DataTable();
+            var table = $('#mahasiswaTable').DataTable();
+
+            $('#statusFilter').on('change', function() {
+                var status = $(this).val();
+                table.column(9).search(status).draw();
+            });
+
+            $('#prodiFilter').on('change', function() {
+                var prodi = $(this).val();
+                table.column(4).search(prodi).draw();
+            });
         });
 
         function cetakPDF(mahasiswaId) {

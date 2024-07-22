@@ -47,7 +47,7 @@ function fetchStatistics($pdo, $company_id) {
         $rejected_count = $stmt->fetch(PDO::FETCH_ASSOC)['rejected_count'];
 
         // Calculate percentage
-        $total_applicants = $accepted_count + $rejected_count;
+        $total_applicants = $applicant_count;
         $accepted_percentage = ($total_applicants > 0) ? round(($accepted_count / $total_applicants) * 100) : 0;
         $rejected_percentage = ($total_applicants > 0) ? round(($rejected_count / $total_applicants) * 100) : 0;
 
@@ -289,7 +289,7 @@ $currentDate = "$day, $date $month $year, $time WITA";
             labels: ['Pelamar Diterima', 'Pelamar Ditolak'],
             datasets: [{
                 data: [<?php echo $statistics['accepted_count']; ?>, <?php echo $statistics['rejected_count']; ?>],
-                backgroundColor: ['#ffc107', '#dc3545']
+                backgroundColor: ['#28a745', '#dc3545']
             }]
         },
         options: {
