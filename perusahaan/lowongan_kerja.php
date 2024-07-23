@@ -10,7 +10,7 @@ include '../includes/db.php';
 $success_message = '';
 if (isset($_SESSION['success_message'])) {
     $success_message = $_SESSION['success_message'];
-    unset($_SESSION['success_message']); // Clear notification after displaying
+    unset($_SESSION['success_message']);
 }
 
 // Fungsi untuk mengambil semua lowongan pekerjaan dari database
@@ -61,89 +61,89 @@ $jobs = fetchJobs($pdo);
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
     <style>
-        /* Custom CSS */
-        .nav-sidebar .nav-link.active {
-            background-color: #343a40 !important;
-        }
+    /* Custom CSS */
+    .nav-sidebar .nav-link.active {
+        background-color: #343a40 !important;
+    }
 
-        .content-wrapper {
-            margin-top: 20px;
-        }
+    .content-wrapper {
+        margin-top: 20px;
+    }
 
-        .table-responsive {
-            overflow-y: auto;
-            max-height: 400px;
-        }
+    .table-responsive {
+        overflow-y: auto;
+        max-height: 400px;
+    }
 
-        .table-responsive thead {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-            background-color: #343a40;
-        }
+    .table-responsive thead {
+        position: sticky;
+        top: 0;
+        z-index: 1;
+        background-color: #343a40;
+    }
 
-        .table-responsive thead th {
-            color: #ffffff;
-            border-color: #454d55;
-        }
+    .table-responsive thead th {
+        color: #ffffff;
+        border-color: #454d55;
+    }
 
-        .table-responsive tbody tr:hover {
-            background-color: #f2f2f2;
-        }
+    .table-responsive tbody tr:hover {
+        background-color: #f2f2f2;
+    }
 
-        .tagify_tag_removeBtn {
-            color: #fff;
-            margin-left: 5px;
-        }
+    .tagify_tag_removeBtn {
+        color: #fff;
+        margin-left: 5px;
+    }
 
-        .input-group .form-control {
-            border-right: 0;
-        }
+    .input-group .form-control {
+        border-right: 0;
+    }
 
-        .input-group-append .btn {
-            border-left: 0;
-        }
+    .input-group-append .btn {
+        border-left: 0;
+    }
 
-        .tag-input {
-            min-height: 38px;
-            display: flex;
-            flex-wrap: wrap;
-        }
+    .tag-input {
+        min-height: 38px;
+        display: flex;
+        flex-wrap: wrap;
+    }
 
-        .tag-input-wrapper {
-            position: relative;
-            width: 100%;
-        }
+    .tag-input-wrapper {
+        position: relative;
+        width: 100%;
+    }
 
-        .tag-input {
-            min-height: 38px;
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            border: 1px solid #ced4da;
-            padding: 6px;
-            border-radius: 0.25rem;
-            background-color: #fff;
-            overflow: hidden;
-        }
+    .tag-input {
+        min-height: 38px;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        border: 1px solid #ced4da;
+        padding: 6px;
+        border-radius: 0.25rem;
+        background-color: #fff;
+        overflow: hidden;
+    }
 
-        .tagify__tag {
-            margin: 2px;
-        }
+    .tagify__tag {
+        margin: 2px;
+    }
 
-        textarea {
-            min-height: 80px;
-            width: 100%;
-        }
+    textarea {
+        min-height: 80px;
+        width: 100%;
+    }
 
-        /* CSS tambahan untuk memastikan modal mencakup panjang tabel */
-        .modal-lg {
-            max-width: 90%;
-        }
+    /* CSS tambahan untuk memastikan modal mencakup panjang tabel */
+    .modal-lg {
+        max-width: 90%;
+    }
 
-        .modal-body {
-            overflow-x: auto;
-        }
+    .modal-body {
+        overflow-x: auto;
+    }
     </style>
 </head>
 
@@ -152,17 +152,17 @@ $jobs = fetchJobs($pdo);
         <?php include 'navbar_perusahaan.php'; ?>
 
         <div class="content-wrapper">
-        <div class="content-header">
-            <div class="container-fluid">
-                <?php if (!empty($success_message)) : ?>
+            <div class="content-header">
+                <div class="container-fluid">
+                    <?php if (!empty($success_message)): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?php echo $success_message; ?>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                <?php endif; ?>
-                <?php if (!empty($_SESSION['error_message'])) : ?>
+                    <?php endif; ?>
+                    <?php if (!empty($_SESSION['error_message'])): ?>
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         <?php echo $_SESSION['error_message']; ?>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
@@ -170,9 +170,10 @@ $jobs = fetchJobs($pdo);
                         </button>
                     </div>
                     <?php unset($_SESSION['error_message']); // Clear error message after displaying ?>
-                <?php endif; ?>
+                    <?php endif; ?>
+                </div>
             </div>
-        </div><Fig></Fig>
+            <Fig></Fig>
 
             <section class="content">
                 <div class="container-fluid">
@@ -180,7 +181,8 @@ $jobs = fetchJobs($pdo);
                         <div class="card-header">
                             <h3 class="card-title"><i class="fas fa-briefcase"></i> Lowongan Pekerjaan</h3>
                             <div class="card-tools">
-                                <button class="btn btn-primary add-button" data-toggle="modal" data-target="#modalTambah">
+                                <button class="btn btn-primary add-button" data-toggle="modal"
+                                    data-target="#modalTambah">
                                     <i class="fas fa-plus-circle"></i> Tambah
                                 </button>
                             </div>
@@ -206,45 +208,45 @@ $jobs = fetchJobs($pdo);
                                         </tr>
                                     </thead>
                                     <tbody>
-    <?php
-    if ($jobs) {
-        $no = 1;
-        foreach ($jobs as $row) {
-            echo "<tr>";
-            echo "<td>" . $no . "</td>";
-            echo "<td>" . htmlspecialchars($row['nama_pekerjaan']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['posisi']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['kualifikasi']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['jobdesk']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['range_gajih']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['jenis_kerja']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['sistem_kerja']) . "</td>";
+                                        <?php
+                                        if ($jobs) {
+                                            $no = 1;
+                                            foreach ($jobs as $row) {
+                                                echo "<tr>";
+                                                echo "<td>" . $no . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['nama_pekerjaan']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['posisi']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['kualifikasi']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['jobdesk']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['range_gajih']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['jenis_kerja']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['sistem_kerja']) . "</td>";
 
-            // Decode JSON prodi dan keahlian
-            $prodi = !empty($row['prodi']) ? json_decode($row['prodi'], true) : [];
-            $keahlian = !empty($row['keahlian']) ? json_decode($row['keahlian'], true) : [];
+                                                // Decode JSON prodi dan keahlian
+                                                $prodi = !empty($row['prodi']) ? json_decode($row['prodi'], true) : [];
+                                                $keahlian = !empty($row['keahlian']) ? json_decode($row['keahlian'], true) : [];
 
-            if (is_array($prodi)) {
-                $prodi_list = array_map(function ($item) {
-                    return $item['value'];
-                }, $prodi);
-                echo "<td>" . htmlspecialchars(implode(', ', $prodi_list)) . "</td>";
-            } else {
-                echo "<td>-</td>"; // Tampilkan tanda "-" jika tidak ada data
-            }
+                                                if (is_array($prodi)) {
+                                                    $prodi_list = array_map(function ($item) {
+                                                        return $item['value'];
+                                                    }, $prodi);
+                                                    echo "<td>" . htmlspecialchars(implode(', ', $prodi_list)) . "</td>";
+                                                } else {
+                                                    echo "<td>-</td>"; // Tampilkan tanda "-" jika tidak ada data
+                                                }
 
-            if (is_array($keahlian)) {
-                $keahlian_list = array_map(function ($item) {
-                    return $item['value'];
-                }, $keahlian);
-                echo "<td>" . htmlspecialchars(implode(', ', $keahlian_list)) . "</td>";
-            } else {
-                echo "<td>-</td>"; // Tampilkan tanda "-" jika tidak ada data
-            }
-            
-            echo "<td>" . htmlspecialchars($row['batas_waktu']) . "</td>";
-            echo "<td>" . htmlspecialchars($row['tanggal_posting']) . "</td>";
-            echo "<td>
+                                                if (is_array($keahlian)) {
+                                                    $keahlian_list = array_map(function ($item) {
+                                                        return $item['value'];
+                                                    }, $keahlian);
+                                                    echo "<td>" . htmlspecialchars(implode(', ', $keahlian_list)) . "</td>";
+                                                } else {
+                                                    echo "<td>-</td>"; // Tampilkan tanda "-" jika tidak ada data
+                                                }
+
+                                                echo "<td>" . htmlspecialchars($row['batas_waktu']) . "</td>";
+                                                echo "<td>" . htmlspecialchars($row['tanggal_posting']) . "</td>";
+                                                echo "<td>
                 <button class='btn btn-sm btn-warning editBtn' data-toggle='modal' data-target='#modalEdit' 
                     data-id='" . $row['id'] . "' 
                     data-nama='" . htmlspecialchars($row['nama_pekerjaan']) . "' 
@@ -260,14 +262,14 @@ $jobs = fetchJobs($pdo);
                 <button class='btn btn-sm btn-danger deleteBtn' data-toggle='modal' data-target='#modalHapus' data-id='" . $row['id'] . "'>Hapus</button>
                 <button class='btn btn-sm btn-info lihatPelamarBtn' data-toggle='modal' data-target='#modalPelamar' data-id='" . $row['id'] . "'>Lihat Pelamar</button>
             </td>";
-            echo "</tr>";
-            $no++;
-        }
-    } else {
-        echo "<tr><td colspan='13'>Tidak ada data</td></tr>";
-    }
-    ?>
-</tbody>
+                                                echo "</tr>";
+                                                $no++;
+                                            }
+                                        } else {
+                                            echo "<tr><td colspan='13'>Tidak ada data</td></tr>";
+                                        }
+                                        ?>
+                                    </tbody>
 
                                 </table>
                             </div>
@@ -291,7 +293,8 @@ $jobs = fetchJobs($pdo);
                         <div class="modal-body">
                             <div class="form-group">
                                 <label for="nama_pekerjaan">Nama Pekerjaan</label>
-                                <input type="text" class="form-control" id="nama_pekerjaan" name="nama_pekerjaan" required>
+                                <input type="text" class="form-control" id="nama_pekerjaan" name="nama_pekerjaan"
+                                    required>
                             </div>
                             <div class="form-group">
                                 <label for="posisi">Posisi</label>
@@ -299,7 +302,8 @@ $jobs = fetchJobs($pdo);
                             </div>
                             <div class="form-group">
                                 <label for="kualifikasi">Kualifikasi</label>
-                                <textarea class="form-control" id="kualifikasi" name="kualifikasi" rows="3" required></textarea>
+                                <textarea class="form-control" id="kualifikasi" name="kualifikasi" rows="3"
+                                    required></textarea>
                             </div>
                             <div class="form-group">
                                 <label for="jobdesk">Jobdesk</label>
@@ -334,7 +338,8 @@ $jobs = fetchJobs($pdo);
                                 <div class="input-group">
                                     <input type="text" class="form-control" id="keahlian" name="keahlian" required>
                                     <div class="input-group-append">
-                                        <button class="btn btn-outline-secondary" type="button" id="addTagButton">+</button>
+                                        <button class="btn btn-outline-secondary" type="button"
+                                            id="addTagButton">+</button>
                                     </div>
                                 </div>
                             </div>
@@ -352,76 +357,82 @@ $jobs = fetchJobs($pdo);
             </div>
         </div>
 
-<!-- Modal Edit -->
-<div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <form action="process_update_job.php" method="post">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalEditLabel">Edit Lowongan Pekerjaan</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
+        <!-- Modal Edit -->
+        <div class="modal fade" id="modalEdit" tabindex="-1" aria-labelledby="modalEditLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <form action="process_update_job.php" method="post">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="modalEditLabel">Edit Lowongan Pekerjaan</h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div class="modal-body">
+                            <input type="hidden" id="edit_id" name="edit_id">
+                            <div class="form-group">
+                                <label for="edit_nama_pekerjaan">Nama Pekerjaan</label>
+                                <input type="text" class="form-control" id="edit_nama_pekerjaan"
+                                    name="edit_nama_pekerjaan" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_posisi">Posisi</label>
+                                <input type="text" class="form-control" id="edit_posisi" name="edit_posisi" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_kualifikasi">Kualifikasi</label>
+                                <textarea class="form-control" id="edit_kualifikasi" name="edit_kualifikasi" rows="3"
+                                    required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_jobdesk">Jobdesk</label>
+                                <textarea class="form-control" id="edit_jobdesk" name="edit_jobdesk" rows="3"
+                                    required></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_range_gajih">Range Gaji</label>
+                                <input type="text" class="form-control" id="edit_range_gajih" name="edit_range_gajih"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_jenis_kerja">Jenis Kerja</label>
+                                <select class="form-control" id="edit_jenis_kerja" name="edit_jenis_kerja" required>
+                                    <option value="full-time">Full-time</option>
+                                    <option value="part-time">Part-time</option>
+                                    <option value="freelance">Freelance</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_sistem_kerja">Sistem Kerja</label>
+                                <select class="form-control" id="edit_sistem_kerja" name="edit_sistem_kerja" required>
+                                    <option value="Work From Home">Work From Home</option>
+                                    <option value="Work From Anywhere">Work From Anywhere</option>
+                                    <option value="Office">Office</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_prodi">Prodi</label>
+                                <input type="text" class="form-control" id="edit_prodi" name="edit_prodi" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_keahlian">Keahlian</label>
+                                <input type="text" class="form-control" id="edit_keahlian" name="edit_keahlian"
+                                    required>
+                            </div>
+                            <div class="form-group">
+                                <label for="edit_batas_waktu">Batas Waktu</label>
+                                <input type="date" class="form-control" id="edit_batas_waktu" name="edit_batas_waktu"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary">Save changes</button>
+                        </div>
+                    </form>
                 </div>
-                <div class="modal-body">
-                    <input type="hidden" id="edit_id" name="edit_id">
-                    <div class="form-group">
-                        <label for="edit_nama_pekerjaan">Nama Pekerjaan</label>
-                        <input type="text" class="form-control" id="edit_nama_pekerjaan" name="edit_nama_pekerjaan" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_posisi">Posisi</label>
-                        <input type="text" class="form-control" id="edit_posisi" name="edit_posisi" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_kualifikasi">Kualifikasi</label>
-                        <textarea class="form-control" id="edit_kualifikasi" name="edit_kualifikasi" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_jobdesk">Jobdesk</label>
-                        <textarea class="form-control" id="edit_jobdesk" name="edit_jobdesk" rows="3" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_range_gajih">Range Gaji</label>
-                        <input type="text" class="form-control" id="edit_range_gajih" name="edit_range_gajih" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_jenis_kerja">Jenis Kerja</label>
-                        <select class="form-control" id="edit_jenis_kerja" name="edit_jenis_kerja" required>
-                            <option value="full-time">Full-time</option>
-                            <option value="part-time">Part-time</option>
-                            <option value="freelance">Freelance</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_sistem_kerja">Sistem Kerja</label>
-                        <select class="form-control" id="edit_sistem_kerja" name="edit_sistem_kerja" required>
-                            <option value="Work From Home">Work From Home</option>
-                            <option value="Work From Anywhere">Work From Anywhere</option>
-                            <option value="Office">Office</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_prodi">Prodi</label>
-                        <input type="text" class="form-control" id="edit_prodi" name="edit_prodi" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_keahlian">Keahlian</label>
-                        <input type="text" class="form-control" id="edit_keahlian" name="edit_keahlian" required>
-                    </div>
-                    <div class="form-group">
-                        <label for="edit_batas_waktu">Batas Waktu</label>
-                        <input type="date" class="form-control" id="edit_batas_waktu" name="edit_batas_waktu" required>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Simpan Perubahan</button>
-                </div>
-            </form>
+            </div>
         </div>
-    </div>
-</div>
 
 
         <!-- Modal untuk Hapus -->
@@ -477,7 +488,7 @@ $jobs = fetchJobs($pdo);
                                     <!-- Data pelamar akan dimuat di sini melalui AJAX -->
                                 </tbody>
                             </table>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -529,6 +540,37 @@ $jobs = fetchJobs($pdo);
             closeOnSelect: false
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const modalEdit = document.getElementById('modalEdit');
+        modalEdit.addEventListener('show.bs.modal', function(event) {
+            const button = event.relatedTarget;
+            const id = button.getAttribute('data-bs-id');
+            const namaPekerjaan = button.getAttribute('data-bs-nama_pekerjaan');
+            const posisi = button.getAttribute('data-bs-posisi');
+            const kualifikasi = button.getAttribute('data-bs-kualifikasi');
+            const jobdesk = button.getAttribute('data-bs-jobdesk');
+            const rangeGajih = button.getAttribute('data-bs-range_gajih');
+            const jenisKerja = button.getAttribute('data-bs-jenis_kerja');
+            const sistemKerja = button.getAttribute('data-bs-sistem_kerja');
+            const prodi = button.getAttribute('data-bs-prodi');
+            const keahlian = button.getAttribute('data-bs-keahlian');
+            const batasWaktu = button.getAttribute('data-bs-batas_waktu');
+
+            document.getElementById('edit_id').value = id;
+            document.getElementById('edit_nama_pekerjaan').value = namaPekerjaan;
+            document.getElementById('edit_posisi').value = posisi;
+            document.getElementById('edit_kualifikasi').value = kualifikasi;
+            document.getElementById('edit_jobdesk').value = jobdesk;
+            document.getElementById('edit_range_gajih').value = rangeGajih;
+            document.getElementById('edit_jenis_kerja').value = jenisKerja;
+            document.getElementById('edit_sistem_kerja').value = sistemKerja;
+            document.getElementById('edit_prodi').value = prodi;
+            document.getElementById('edit_keahlian').value = keahlian;
+            document.getElementById('edit_batas_waktu').value = batasWaktu;
+        });
+    });
+
 
     $('#editAddTagButton').on('click', function() {
         tagifyEditKeahlian.addEmptyTag();
@@ -619,8 +661,14 @@ $jobs = fetchJobs($pdo);
         var keahlian = JSON.parse(keahlianJson);
 
         // Convert back to tagify format
-        var prodiValues = prodi.map(item => ({ id: item.id, value: item.value }));
-        var keahlianValues = keahlian.map(item => ({ id: item.id, value: item.value }));
+        var prodiValues = prodi.map(item => ({
+            id: item.id,
+            value: item.value
+        }));
+        var keahlianValues = keahlian.map(item => ({
+            id: item.id,
+            value: item.value
+        }));
 
         var modal = $(this);
         modal.find('#edit_id').val(id);
@@ -661,7 +709,7 @@ $jobs = fetchJobs($pdo);
             }
         });
     });
-</script>
+    </script>
 
 </body>
 
