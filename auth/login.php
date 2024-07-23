@@ -21,7 +21,7 @@
             padding: 20px; /* Tambahkan padding */
         }
         .logo {
-            width: 80px; /* Ubah ukuran logo sesuai kebutuhan */
+            width: 150px; /* Ubah ukuran logo sesuai kebutuhan */
         }
     </style>
 </head>
@@ -30,7 +30,7 @@
         <div class="card card-outline card-primary">
             <div class="card-header text-center">
                 <a href="../app/index.html" class="h4"><b>SI</b>Portofolio</a>
-                <p><img src="../assets/images/logo_poliban.png" alt="POLIBAN Logo" class="logo"></p>
+                <p><img src="../assets/logo_si_bg.png" alt="POLIBAN Logo" class="logo"></p>
             </div>
             <div class="card-body">
                 <p class="login-box-msg">Login ke akun Anda</p>

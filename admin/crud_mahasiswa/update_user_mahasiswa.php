@@ -26,7 +26,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt->execute([
             ':nim' => $nim,
             ':nama_mahasiswa' => $nama_mahasiswa,
-            ':jurusan' => $jurusan,
+            ':nama_jurusan' => $nama_jurusan,
             ':prodi' => $prodi,
             ':tahun_masuk' => $tahun_masuk,
             ':status' => $status,

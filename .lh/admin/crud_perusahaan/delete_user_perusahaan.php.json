@@ -1,0 +1,22 @@
+{
+    "sourceFile": "admin/crud_perusahaan/delete_user_perusahaan.php",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1721719700141,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1721719714690,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -13,23 +13,18 @@\n \r\n     try {\r\n         $pdo->beginTransaction();\r\n \r\n-        // Hapus entri di lowongan_kerja yang terkait dengan perusahaan\r\n-        $sql_delete_lowongan = \"DELETE FROM lowongan_kerja WHERE perusahaan_id = :perusahaan_id\";\r\n-        $stmt_delete_lowongan = $pdo->prepare($sql_delete_lowongan);\r\n-        $stmt_delete_lowongan->execute([':perusahaan_id' => $perusahaan_id]);\r\n+        // Delete perusahaan record\r\n+        $sql = \"DELETE FROM perusahaans WHERE id = :perusahaan_id\";\r\n+        $stmt = $pdo->prepare($sql);\r\n+        $stmt->execute([':perusahaan_id' => $perusahaan_id]);\r\n \r\n-        // Hapus perusahaan\r\n-        $sql_delete_perusahaan = \"DELETE FROM perusahaans WHERE id = :perusahaan_id\";\r\n-        $stmt_delete_perusahaan = $pdo->prepare($sql_delete_perusahaan);\r\n-        $stmt_delete_perusahaan->execute([':perusahaan_id' => $perusahaan_id]);\r\n+        // Delete user record\r\n+        $sql_user = \"DELETE FROM users WHERE id = :user_id\";\r\n+        $stmt_user = $pdo->prepare($sql_user);\r\n+        $stmt_user->execute([':user_id' => $user_id]);\r\n \r\n-        // Hapus user\r\n-        $sql_delete_user = \"DELETE FROM users WHERE id = :user_id\";\r\n-        $stmt_delete_user = $pdo->prepare($sql_delete_user);\r\n-        $stmt_delete_user->execute([':user_id' => $user_id]);\r\n-\r\n         $pdo->commit();\r\n \r\n         $_SESSION['success_message'] = \"Akun perusahaan berhasil dihapus.\";\r\n         header('Location: tampil_user_perusahaan.php');\r\n"
+                }
+            ],
+            "date": 1721719700141,
+            "name": "Commit-0",
+            "content": "<?php\r\nsession_start();\r\ninclude '../../includes/db.php';\r\n\r\nif (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {\r\n    header('Location: ../../auth/login.php');\r\n    exit;\r\n}\r\n\r\nif ($_SERVER['REQUEST_METHOD'] == 'POST') {\r\n    $perusahaan_id = $_POST['perusahaan_id'];\r\n    $user_id = $_POST['user_id'];\r\n\r\n    try {\r\n        $pdo->beginTransaction();\r\n\r\n        // Hapus entri di lowongan_kerja yang terkait dengan perusahaan\r\n        $sql_delete_lowongan = \"DELETE FROM lowongan_kerja WHERE perusahaan_id = :perusahaan_id\";\r\n        $stmt_delete_lowongan = $pdo->prepare($sql_delete_lowongan);\r\n        $stmt_delete_lowongan->execute([':perusahaan_id' => $perusahaan_id]);\r\n\r\n        // Hapus perusahaan\r\n        $sql_delete_perusahaan = \"DELETE FROM perusahaans WHERE id = :perusahaan_id\";\r\n        $stmt_delete_perusahaan = $pdo->prepare($sql_delete_perusahaan);\r\n        $stmt_delete_perusahaan->execute([':perusahaan_id' => $perusahaan_id]);\r\n\r\n        // Hapus user\r\n        $sql_delete_user = \"DELETE FROM users WHERE id = :user_id\";\r\n        $stmt_delete_user = $pdo->prepare($sql_delete_user);\r\n        $stmt_delete_user->execute([':user_id' => $user_id]);\r\n\r\n        $pdo->commit();\r\n\r\n        $_SESSION['success_message'] = \"Akun perusahaan berhasil dihapus.\";\r\n        header('Location: tampil_user_perusahaan.php');\r\n        exit;\r\n    } catch (PDOException $e) {\r\n        $pdo->rollBack();\r\n        echo \"Error: \" . $e->getMessage();\r\n    }\r\n} else {\r\n    header('Location: tampil_user_perusahaan.php');\r\n    exit;\r\n}\r\n?>"
+        }
+    ]
+}

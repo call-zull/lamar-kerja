@@ -231,7 +231,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
     <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
         <div class="container-fluid">
             <a class="navbar-brand" href="https://www.poliban.ac.id/">
-                <img src="assets/images/logo_poliban.png" alt="Poliban Logo" width="30" height="30" class="d-inline-block align-top">
+                <img src="assets/logo_si_bg.png" alt="Poliban Logo" width="46" height="43" class="d-inline-block align-top">
                 SI Portofolio
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">

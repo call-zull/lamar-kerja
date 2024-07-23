@@ -1,0 +1,18 @@
+{
+    "sourceFile": "mahasiswa/update_skills.php",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1721695942319,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1721695942319,
+            "name": "Commit-0",
+            "content": "<?php\r\nsession_start();\r\n\r\nif (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {\r\n    header('Location: ../auth/login.php');\r\n    exit;\r\n}\r\n\r\ninclude '../includes/db.php';\r\n\r\n$user_id = $_SESSION['user_id'];\r\n$new_skills = $_POST['keahlian'] ?? '';\r\n\r\n$sql = \"UPDATE mahasiswas SET keahlian = ? WHERE user_id = ?\";\r\n$stmt = $pdo->prepare($sql);\r\nif ($stmt->execute([$new_skills, $user_id])) {\r\n    echo json_encode(['status' => 'success']);\r\n    echo \"<script>alert('Skills updated successfully'); window.location.href = 'previous_page.php';</script>\";\r\n} else {\r\n    echo json_encode(['status' => 'error']);\r\n    echo \"<script>alert('Error updating skills'); window.location.href = 'previous_page.php';</script>\";\r\n}\r\n?>\r\n\r\n?>"
+        }
+    ]
+}

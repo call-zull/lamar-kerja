@@ -1,0 +1,22 @@
+{
+    "sourceFile": "mahasiswa/update_photo.php",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1721695889170,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1721695894223,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -59,7 +59,6 @@\n     }\r\n } else {\r\n     echo \"<script>alert('No file uploaded or invalid request.'); window.location.href = 'previous_page.php';</script>\";\r\n }\r\n-?>\r\n \r\n ?>\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1721695889170,
+            "name": "Commit-0",
+            "content": "<?php\r\nsession_start();\r\n\r\n// Cek apakah pengguna login sebagai mahasiswa\r\nif (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {\r\n    header('Location: ../auth/login.php');\r\n    exit;\r\n}\r\n\r\n// Sertakan koneksi database\r\ninclude '../includes/db.php';\r\n\r\n// Cek apakah ada file yang diunggah\r\nif ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['profile_image'])) {\r\n    $user_id = $_SESSION['user_id'];\r\n    $target_dir = \"../assets/mahasiswa/profile/\";\r\n    $target_file = $target_dir . basename($_FILES[\"profile_image\"][\"name\"]);\r\n    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));\r\n    $uploadOk = 1;\r\n\r\n    // Cek apakah file adalah gambar\r\n    $check = getimagesize($_FILES[\"profile_image\"][\"tmp_name\"]);\r\n    if ($check !== false) {\r\n        $uploadOk = 1;\r\n    } else {\r\n        echo \"<script>alert('File is not an image.'); window.location.href = 'previous_page.php';</script>\";\r\n        $uploadOk = 0;\r\n    }\r\n\r\n    // Cek ukuran file\r\n    if ($_FILES[\"profile_image\"][\"size\"] > 500000) {\r\n        echo \"<script>alert('Sorry, your file is too large.'); window.location.href = 'previous_page.php';</script>\";\r\n        $uploadOk = 0;\r\n    }\r\n\r\n    // Izinkan format file tertentu\r\n    if ($imageFileType != \"jpg\" && $imageFileType != \"png\" && $imageFileType != \"jpeg\" && $imageFileType != \"gif\") {\r\n        echo \"<script>alert('Sorry, only JPG, JPEG, PNG & GIF files are allowed.'); window.location.href = 'previous_page.php';</script>\";\r\n        $uploadOk = 0;\r\n    }\r\n\r\n    // Cek apakah uploadOk disetel ke 0 oleh kesalahan\r\n    if ($uploadOk == 0) {\r\n        echo \"<script>alert('Sorry, your file was not uploaded.'); window.location.href = 'previous_page.php';</script>\";\r\n    } else {\r\n        // Coba unggah file\r\n        if (move_uploaded_file($_FILES[\"profile_image\"][\"tmp_name\"], $target_file)) {\r\n            // Update gambar profil di database\r\n            $sql = \"UPDATE mahasiswas SET profile_image = ? WHERE user_id = ?\";\r\n            $stmt = $pdo->prepare($sql);\r\n            if ($stmt->execute([basename($_FILES[\"profile_image\"][\"name\"]), $user_id])) {\r\n                echo \"<script>alert('Profile image updated successfully'); window.location.href = 'profile_mahasiswa.php';</script>\";\r\n            } else {\r\n                echo \"<script>alert('Sorry, there was an error updating your profile image.'); window.location.href = 'previous_page.php';</script>\";\r\n            }\r\n        } else {\r\n            echo \"<script>alert('Sorry, there was an error uploading your file.'); window.location.href = 'previous_page.php';</script>\";\r\n        }\r\n    }\r\n} else {\r\n    echo \"<script>alert('No file uploaded or invalid request.'); window.location.href = 'previous_page.php';</script>\";\r\n}\r\n?>\r\n\r\n?>"
+        }
+    ]
+}

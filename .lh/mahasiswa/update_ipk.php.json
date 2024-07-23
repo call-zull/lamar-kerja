@@ -1,0 +1,22 @@
+{
+    "sourceFile": "mahasiswa/update_ipk.php",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1721695868940,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1721696071779,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -25,8 +25,8 @@\n $sql = \"UPDATE mahasiswas SET ipk_semester_$semester = ? WHERE user_id = ?\";\r\n $stmt = $pdo->prepare($sql);\r\n $stmt->execute([$value, $user_id]);\r\n \r\n-echo \"<script>alert('IPK updated successfully'); window.location.href = 'previous_page.php';</script>\";\r\n+echo \"<script>alert('IPK updated successfully');</script>\";\r\n ?>\r\n \r\n ?>\n\\ No newline at end of file\n"
+                }
+            ],
+            "date": 1721695868940,
+            "name": "Commit-0",
+            "content": "<?php\r\nsession_start();\r\n\r\n// Memastikan pengguna login sebagai mahasiswa\r\nif (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {\r\n    header('Location: ../auth/login.php');\r\n    exit;\r\n}\r\n\r\n// Sertakan koneksi database\r\ninclude '../includes/db.php';\r\n\r\n// Ambil data POST\r\n$semester = $_POST['semester'];\r\n$value = $_POST['value'];\r\n\r\n// Validasi semester\r\nif ($semester < 1 || $semester > 8) {\r\n    echo \"<script>alert('Invalid semester'); window.location.href = 'previous_page.php';</script>\";\r\n    exit;\r\n}\r\n\r\n// Update nilai IPK\r\n$user_id = $_SESSION['user_id'];\r\n$sql = \"UPDATE mahasiswas SET ipk_semester_$semester = ? WHERE user_id = ?\";\r\n$stmt = $pdo->prepare($sql);\r\n$stmt->execute([$value, $user_id]);\r\n\r\necho \"<script>alert('IPK updated successfully'); window.location.href = 'previous_page.php';</script>\";\r\n?>\r\n\r\n?>"
+        }
+    ]
+}

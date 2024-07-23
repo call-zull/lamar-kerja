@@ -1,0 +1,18 @@
+{
+    "sourceFile": "mahasiswa/delete_ipk.php",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1721695963623,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1721695963623,
+            "name": "Commit-0",
+            "content": "<?php\r\nsession_start();\r\n\r\n// Memastikan pengguna login sebagai mahasiswa\r\nif (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {\r\n    header('Location: ../auth/login.php');\r\n    exit;\r\n}\r\n\r\n// Sertakan koneksi database\r\ninclude '../includes/db.php';\r\n\r\n// Ambil data POST\r\n$semester = $_POST['semester'];\r\n\r\n// Validasi semester\r\nif ($semester < 1 || $semester > 8) {\r\n    echo \"<script>alert('Invalid semester'); window.location.href = 'previous_page.php';</script>\";\r\n    exit;\r\n}\r\n\r\n// Update nilai IPK menjadi null\r\n$user_id = $_SESSION['user_id'];\r\n$sql = \"UPDATE mahasiswas SET ipk_semester_$semester = NULL WHERE user_id = ?\";\r\n$stmt = $pdo->prepare($sql);\r\n$stmt->execute([$user_id]);\r\n\r\necho \"<script>alert('IPK deleted successfully'); window.location.href = 'previous_page.php';</script>\";\r\n?>\r\n\r\n?>"
+        }
+    ]
+}

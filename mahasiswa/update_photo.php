@@ -1,16 +1,16 @@
 <?php
 session_start();
 
-// Check if user is logged in as mahasiswa
+// Cek apakah pengguna login sebagai mahasiswa
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
     header('Location: ../auth/login.php');
     exit;
 }
 
-// Include database connection
+// Sertakan koneksi database
 include '../includes/db.php';
 
-// Check if a file has been uploaded
+// Cek apakah ada file yang diunggah
 if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['profile_image'])) {
     $user_id = $_SESSION['user_id'];
     $target_dir = "../assets/mahasiswa/profile/";
@@ -18,46 +18,47 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_FILES['profile_image'])) {
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
     $uploadOk = 1;
 
-    // Check if file is an actual image
+    // Cek apakah file adalah gambar
     $check = getimagesize($_FILES["profile_image"]["tmp_name"]);
     if ($check !== false) {
         $uploadOk = 1;
     } else {
-        echo "File is not an image.";
+        echo "<script>alert('File is not an image.'); window.location.href = 'previous_page.php';</script>";
         $uploadOk = 0;
     }
 
-    // Check file size
+    // Cek ukuran file
     if ($_FILES["profile_image"]["size"] > 500000) {
-        echo "Sorry, your file is too large.";
+        echo "<script>alert('Sorry, your file is too large.'); window.location.href = 'previous_page.php';</script>";
         $uploadOk = 0;
     }
 
-    // Allow certain file formats
+    // Izinkan format file tertentu
     if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-        echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+        echo "<script>alert('Sorry, only JPG, JPEG, PNG & GIF files are allowed.'); window.location.href = 'previous_page.php';</script>";
         $uploadOk = 0;
     }
 
-    // Check if $uploadOk is set to 0 by an error
+    // Cek apakah uploadOk disetel ke 0 oleh kesalahan
     if ($uploadOk == 0) {
-        echo "Sorry, your file was not uploaded.";
+        echo "<script>alert('Sorry, your file was not uploaded.'); window.location.href = 'previous_page.php';</script>";
     } else {
-        // Try to upload file
+        // Coba unggah file
         if (move_uploaded_file($_FILES["profile_image"]["tmp_name"], $target_file)) {
-            // Update profile image in database
+            // Update gambar profil di database
             $sql = "UPDATE mahasiswas SET profile_image = ? WHERE user_id = ?";
             $stmt = $pdo->prepare($sql);
             if ($stmt->execute([basename($_FILES["profile_image"]["name"]), $user_id])) {
-                header('Location: profile_mahasiswa.php');
+                echo "<script>alert('Profile image updated successfully'); window.location.href = 'profile_mahasiswa.php';</script>";
             } else {
-                echo "Sorry, there was an error updating your profile image.";
+                echo "<script>alert('Sorry, there was an error updating your profile image.'); window.location.href = 'previous_page.php';</script>";
             }
         } else {
-            echo "Sorry, there was an error uploading your file.";
+            echo "<script>alert('Sorry, there was an error uploading your file.'); window.location.href = 'previous_page.php';</script>";
         }
     }
 } else {
-    echo "No file uploaded or invalid request.";
+    echo "<script>alert('No file uploaded or invalid request.'); window.location.href = 'previous_page.php';</script>";
 }
+
 ?>

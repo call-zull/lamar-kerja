@@ -1,13 +1,13 @@
 <?php
 session_start();
 
-// Check if user is authenticated as mahasiswa
+// Cek apakah pengguna terautentikasi sebagai mahasiswa
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
     header('Location: ../auth/login.php');
     exit;
 }
 
-// Include database connection
+// Sertakan koneksi database
 include '../includes/db.php';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -24,9 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $no_telp = $_POST['no_telp'];
     $keahlian = $_POST['keahlian'];
 
-
-
-    // Update mahasiswa profile data in database
+    // Update data profil mahasiswa di database
     try {
         $sql = "UPDATE mahasiswas 
                 SET nim = ?, nama_mahasiswa = ?, email = ?, prodi_id = ?, jurusan_id = ?, tahun_masuk = ?, status = ?, jk = ?, alamat = ?, no_telp = ?, keahlian = ?
@@ -34,12 +32,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $stmt = $pdo->prepare($sql);
         $stmt->execute([$nim, $nama_mahasiswa, $email, $prodi_id, $jurusan_id, $tahun_masuk, $status, $jk, $alamat, $no_telp, $keahlian, $mahasiswa_id]);
 
-        // Redirect to profile page after update
-        header('Location: profile_mahasiswa.php');
+        // Redirect ke halaman profil setelah update
+        echo "<script>alert('Profile updated successfully'); window.location.href = 'profile_mahasiswa.php';</script>";
         exit;
     } catch (PDOException $e) {
-        // Display the error message
-        echo "Error: " . $e->getMessage();
+        // Tampilkan pesan kesalahan
+        echo "<script>alert('Error: " . $e->getMessage() . "'); window.location.href = 'previous_page.php';</script>";
     }
 }
+?>
+
 ?>

@@ -1,0 +1,26 @@
+{
+    "sourceFile": "mahasiswa/update_profile.php",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 2,
+            "patches": [
+                {
+                    "date": 1721695921666,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1721721873606,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,9 +32,9 @@\n         $stmt = $pdo->prepare($sql);\r\n         $stmt->execute([$nim, $nama_mahasiswa, $email, $prodi_id, $jurusan_id, $tahun_masuk, $status, $jk, $alamat, $no_telp, $keahlian, $mahasiswa_id]);\r\n \r\n         // Redirect ke halaman profil setelah update\r\n-        echo \"<script>alert('Profile updated successfully'); window.location.href = 'profile_mahasiswa.php';</script>\";\r\n+        echo \"<script>alert('Profile updated successfully');</script>\";\r\n         exit;\r\n     } catch (PDOException $e) {\r\n         // Tampilkan pesan kesalahan\r\n         echo \"<script>alert('Error: \" . $e->getMessage() . \"'); window.location.href = 'previous_page.php';</script>\";\r\n"
+                },
+                {
+                    "date": 1721721891340,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -32,9 +32,9 @@\n         $stmt = $pdo->prepare($sql);\r\n         $stmt->execute([$nim, $nama_mahasiswa, $email, $prodi_id, $jurusan_id, $tahun_masuk, $status, $jk, $alamat, $no_telp, $keahlian, $mahasiswa_id]);\r\n \r\n         // Redirect ke halaman profil setelah update\r\n-        echo \"<script>alert('Profile updated successfully');</script>\";\r\n+        echo \"<script>alert('Profile updated successfully'); window.location.href = 'profile_mahasiswa.php';</script>\";\r\n         exit;\r\n     } catch (PDOException $e) {\r\n         // Tampilkan pesan kesalahan\r\n         echo \"<script>alert('Error: \" . $e->getMessage() . \"'); window.location.href = 'previous_page.php';</script>\";\r\n"
+                }
+            ],
+            "date": 1721695921666,
+            "name": "Commit-0",
+            "content": "<?php\r\nsession_start();\r\n\r\n// Cek apakah pengguna terautentikasi sebagai mahasiswa\r\nif (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {\r\n    header('Location: ../auth/login.php');\r\n    exit;\r\n}\r\n\r\n// Sertakan koneksi database\r\ninclude '../includes/db.php';\r\n\r\nif ($_SERVER['REQUEST_METHOD'] == 'POST') {\r\n    $mahasiswa_id = $_POST['id'];\r\n    $nim = $_POST['nim'];\r\n    $nama_mahasiswa = $_POST['nama_mahasiswa'];\r\n    $email = $_POST['email'];\r\n    $prodi_id = $_POST['prodi_id'];\r\n    $jurusan_id = $_POST['jurusan_id'];\r\n    $tahun_masuk = $_POST['tahun_masuk'];\r\n    $status = $_POST['status'];\r\n    $jk = $_POST['jk'];\r\n    $alamat = $_POST['alamat'];\r\n    $no_telp = $_POST['no_telp'];\r\n    $keahlian = $_POST['keahlian'];\r\n\r\n    // Update data profil mahasiswa di database\r\n    try {\r\n        $sql = \"UPDATE mahasiswas \r\n                SET nim = ?, nama_mahasiswa = ?, email = ?, prodi_id = ?, jurusan_id = ?, tahun_masuk = ?, status = ?, jk = ?, alamat = ?, no_telp = ?, keahlian = ?\r\n                WHERE id = ?\";\r\n        $stmt = $pdo->prepare($sql);\r\n        $stmt->execute([$nim, $nama_mahasiswa, $email, $prodi_id, $jurusan_id, $tahun_masuk, $status, $jk, $alamat, $no_telp, $keahlian, $mahasiswa_id]);\r\n\r\n        // Redirect ke halaman profil setelah update\r\n        echo \"<script>alert('Profile updated successfully'); window.location.href = 'profile_mahasiswa.php';</script>\";\r\n        exit;\r\n    } catch (PDOException $e) {\r\n        // Tampilkan pesan kesalahan\r\n        echo \"<script>alert('Error: \" . $e->getMessage() . \"'); window.location.href = 'previous_page.php';</script>\";\r\n    }\r\n}\r\n?>\r\n\r\n?>"
+        }
+    ]
+}

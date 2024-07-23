@@ -1,29 +1,31 @@
 <?php
 session_start();
 
-// Ensure the user is logged in as a student
+// Memastikan pengguna login sebagai mahasiswa
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
     header('Location: ../auth/login.php');
     exit;
 }
 
-// Include database connection
+// Sertakan koneksi database
 include '../includes/db.php';
 
-// Get POST data
+// Ambil data POST
 $semester = $_POST['semester'];
 
-// Validate semester
+// Validasi semester
 if ($semester < 1 || $semester > 8) {
-    echo "Invalid semester";
+    echo "<script>alert('Invalid semester'); window.location.href = 'previous_page.php';</script>";
     exit;
 }
 
-// Update IPK value to null
+// Update nilai IPK menjadi null
 $user_id = $_SESSION['user_id'];
 $sql = "UPDATE mahasiswas SET ipk_semester_$semester = NULL WHERE user_id = ?";
 $stmt = $pdo->prepare($sql);
 $stmt->execute([$user_id]);
 
-echo "IPK deleted successfully";
+echo "<script>alert('IPK deleted successfully'); window.location.href = 'previous_page.php';</script>";
+?>
+
 ?>
