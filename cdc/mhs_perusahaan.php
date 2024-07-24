@@ -32,6 +32,7 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -44,23 +45,27 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
     <link rel="stylesheet" href="../app/plugins/datatables-bs4/css/dataTables.bootstrap4.min.css">
     <link rel="stylesheet" href="../app/plugins/datatables-responsive/css/responsive.bootstrap4.min.css">
     <style>
-        .nav-sidebar .nav-link.active {
-            background-color: #343a40 !important;
-        }
-        .content-wrapper {
-            padding: 20px !important;
-        }
-        .content-header {
-            padding: 20px 0 !important;
-        }
-        .table-responsive {
-            display: block;
-            width: 100%;
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-        }
+    .nav-sidebar .nav-link.active {
+        background-color: #343a40 !important;
+    }
+
+    .content-wrapper {
+        padding: 20px !important;
+    }
+
+    .content-header {
+        padding: 20px 0 !important;
+    }
+
+    .table-responsive {
+        display: block;
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
     </style>
 </head>
+
 <body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
     <div class="wrapper">
         <!-- Navbar inclusion -->
@@ -135,30 +140,33 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
                                                 <?php foreach ($students_and_jobs as $index => $student): ?>
                                                     <tr>
                                                         <td><?= $index + 1 ?></td>
-                                                        <td><?= htmlspecialchars($student['nim']) ?></td>
-                                                        <td><?= htmlspecialchars($student['nama_mahasiswa']) ?></td>
-                                                        <td><?= htmlspecialchars($student['jurusan']) ?></td>
-                                                        <td><?= htmlspecialchars($student['prodi']) ?></td>
-                                                        <td><?= htmlspecialchars($student['status']) ?></td>
-                                                        <td><?= htmlspecialchars($student['tahun_masuk']) ?></td>
-                                                        <td><?= htmlspecialchars($student['nama_pekerjaan'] ?? 'N/A') ?></td>
-                                                        <td><?= htmlspecialchars($student['nama_perusahaan'] ?? 'N/A') ?></td>
-                                                        <td>
-                                                            <?php if (strtolower($student['lamaran_status']) === 'diterima'): ?>
-                                                                <span class="badge badge-success">Diterima</span>
-                                                            <?php elseif (strtolower($student['lamaran_status']) === 'ditolak'): ?>
-                                                                <span class="badge badge-danger">Ditolak</span>
-                                                            <?php else: ?>
-                                                                <span class="badge badge-secondary">Belum ada status</span>
-                                                            <?php endif; ?>
+                                                    <td><?= htmlspecialchars($student['nim']) ?></td>
+                                                    <td><?= htmlspecialchars($student['nama_mahasiswa']) ?></td>
+                                                    <td><?= htmlspecialchars($student['jurusan']) ?></td>
+                                                    <td><?= htmlspecialchars($student['prodi']) ?></td>
+                                                    <td><?= htmlspecialchars($student['status']) ?></td>
+                                                    <td><?= htmlspecialchars($student['tahun_masuk']) ?></td>
+                                                    <td><?= htmlspecialchars($student['nama_pekerjaan'] ?? 'N/A') ?>
+                                                    </td>
+                                                    <td><?= htmlspecialchars($student['nama_perusahaan'] ?? 'N/A') ?>
+                                                    </td>
+                                                    <td>
+                                                        <?php if (strtolower($student['lamaran_status']) === 'diterima'): ?>
+                                                            <span class="badge badge-success">Diterima</span>
+                                                        <?php elseif (strtolower($student['lamaran_status']) === 'ditolak'): ?>
+                                                            <span class="badge badge-danger">Ditolak</span>
+                                                        <?php else: ?>
+                                                            <span class="badge badge-secondary">Belum ada status</span>
+                                                        <?php endif; ?>
+                                                    </td>
+                                                    <td><?= htmlspecialchars($student['salary'] ?? 'N/A') ?></td>
+                                                    <td>
+                                                        <button type="button" class="btn btn-secondary btn-sm"
+                                                            onclick="cetakPDF(<?= $student['id'] ?>)">
+                                                            <i class="fas fa-print"></i> Cetak
+                                                        </button>
                                                         </td>
-                                                        <td><?= htmlspecialchars($student['salary'] ?? 'N/A') ?></td>
-                                                        <td>
-                                                            <button type="button" class="btn btn-secondary btn-sm" onclick="cetakPDF(<?= $student['id'] ?>)">
-                                                                <i class="fas fa-print"></i> Cetak
-                                                            </button>
-                                                        </td>
-                                                    </tr>
+                                                        </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
                                         </table>
@@ -181,23 +189,24 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
     <script src="../app/plugins/datatables-responsive/js/responsive.bootstrap4.min.js"></script>
     <script src="../app/dist/js/adminlte.min.js"></script>
     <script>
-        $(document).ready(function() {
-            var table = $('#mahasiswaTable').DataTable();
+    $(document).ready(function() {
+        var table = $('#mahasiswaTable').DataTable();
 
-            $('#statusFilter').on('change', function() {
-                var status = $(this).val();
-                table.column(9).search(status).draw();
-            });
-
-            $('#prodiFilter').on('change', function() {
-                var prodi = $(this).val();
-                table.column(4).search(prodi).draw();
-            });
+        $('#statusFilter').on('change', function() {
+            var status = $(this).val();
+            table.column(9).search(status).draw();
         });
 
-        function cetakPDF(mahasiswaId) {
-            window.location.href = 'cetak_pdf.php?id=' + mahasiswaId;
-        }
+        $('#prodiFilter').on('change', function() {
+            var prodi = $(this).val();
+            table.column(4).search(prodi).draw();
+        });
+    });
+
+    function cetakPDF(mahasiswaId) {
+        window.location.href = 'cetak_pdf.php?id=' + mahasiswaId;
+    }
     </script>
 </body>
+
 </html>
