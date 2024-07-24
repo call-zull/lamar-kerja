@@ -487,11 +487,11 @@ $prodis = $stmt_prodis->fetchAll(PDO::FETCH_ASSOC);
         });
 
         document.querySelectorAll('.save-ipk').forEach(button => {
-    button.addEventListener('click', function() {
-        const semester = this.getAttribute('data-semester');
-        const ipkValue = document.getElementById('ipk_semester_' + semester).value;
-        saveIpk(semester, ipkValue);
-    });
+        button.addEventListener('click', function() {
+            const semester = this.getAttribute('data-semester');
+            const ipkValue = document.getElementById('ipk_semester_' + semester).value;
+            saveIpk(semester, ipkValue);
+        });
 });
 
 document.querySelectorAll('.delete-ipk').forEach(button => {
@@ -507,9 +507,8 @@ function saveIpk(semester, value) {
         url: 'update_ipk.php',
         data: { semester: semester, value: value },
         success: function(response) {
-            console.log(response);
             calculateIpk();
-            showNotification('IPK semester ' + semester + ' berhasil disimpan.');
+            showNotification(`IPK semester ${semester} berhasil disimpan.`);
         }
     });
 }
@@ -520,7 +519,6 @@ function deleteIpk(semester) {
         url: 'delete_ipk.php',
         data: { semester: semester },
         success: function(response) {
-            console.log(response);
             document.getElementById('ipk_semester_' + semester).value = '';
             calculateIpk();
             showNotification('IPK semester ' + semester + ' berhasil dihapus.');
@@ -532,10 +530,11 @@ function showNotification(message) {
     const notification = document.getElementById('ipk-notification');
     notification.innerText = message;
     notification.classList.remove('d-none');
-
+    notification.classList.add('d-block');
     setTimeout(() => {
+        notification.classList.remove('d-block');
         notification.classList.add('d-none');
-    }, 3000);
+    }, 1500);
 }
 
 function calculateIpk() {
@@ -549,7 +548,7 @@ function calculateIpk() {
         }
     }
     const ipk = (count > 0) ? (total / count).toFixed(2) : 0;
-    document.getElementById('cumulative-ipk').innerText = 'IPK: ' + ipk;
+    // document.getElementById('cumulative-ipk').innerText = `IPK: ${ipk}`;
 
     // Save IPK to the database
     $.ajax({
@@ -565,17 +564,18 @@ function calculateIpk() {
 
 
 
-        function showNotification(message) {
-            const notification = document.createElement('div');
-            notification.className = 'alert alert-success';
-            notification.role = 'alert';
-            notification.innerText = message;
-            document.body.appendChild(notification);
+        // function showNotification(message) {
+        //     const notification = document.createElement('div');
+        //     notification.className = 'alert alert-success';
+        //     notification.role = 'alert';
+        //     notification.innerText = message;
+        //     document.body.appendChild(notification);
 
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
+        //     setTimeout(() => {
+        //         console.log('testing')
+        //         notification.remove();
+        //     }, 3000);
+        // }
 
         keahlianList.addEventListener('click', function(e) {
             if (e.target.classList.contains('remove-keahlian-btn') || e.target.parentElement.classList.contains('remove-keahlian-btn')) {
