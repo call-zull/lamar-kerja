@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || ($_SESSION['role'] !== 'cdc')) {
 // Include database connection file
 include '../includes/db.php';
 
-// Fetch detailed student data and their accepted job positions
+
 function fetchStudentsAndJobs($pdo) {
     try {
         $sql = "SELECT m.id, m.nim, m.nama_mahasiswa, j.nama_jurusan AS jurusan, p.nama_prodi AS prodi, m.status, m.tahun_masuk, 
@@ -152,11 +152,11 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
                                                     </td>
                                                     <td>
                                                         <?php if (strtolower($student['lamaran_status']) === 'diterima'): ?>
-                                                            <span class="badge badge-success">Diterima</span>
+                                                        <span class="badge badge-success">Diterima</span>
                                                         <?php elseif (strtolower($student['lamaran_status']) === 'ditolak'): ?>
-                                                            <span class="badge badge-danger">Ditolak</span>
+                                                        <span class="badge badge-danger">Ditolak</span>
                                                         <?php else: ?>
-                                                            <span class="badge badge-secondary">Belum ada status</span>
+                                                        <span class="badge badge-secondary">Belum ada status</span>
                                                         <?php endif; ?>
                                                     </td>
                                                     <td><?= htmlspecialchars($student['salary'] ?? 'N/A') ?></td>
@@ -165,8 +165,8 @@ $students_and_jobs = fetchStudentsAndJobs($pdo);
                                                             onclick="cetakPDF(<?= $student['id'] ?>)">
                                                             <i class="fas fa-print"></i> Cetak
                                                         </button>
-                                                        </td>
-                                                        </tr>
+                                                    </td>
+                                                </tr>
                                                 <?php endforeach; ?>
                                             </tbody>
                                         </table>

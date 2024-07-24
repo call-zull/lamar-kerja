@@ -8,6 +8,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
 $user_id = $_SESSION['user_id'];
 include '../includes/db.php';
 
+
+function fetchAllJobs($pdo)
+{
+    try {
+        $sql = "SELECT * FROM lowongan_kerja";
+        $stmt = $pdo->query($sql);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        error_log("Error: " . $e->getMessage());
+        return false;
+    }
+}
+
+
 function fetchMahasiswaDetails($pdo, $user_id) {
     try {
         $sql = "SELECT prodi_id, keahlian, ijazah, resume, khs_semester_1, khs_semester_2, khs_semester_3, khs_semester_4, khs_semester_5, khs_semester_6, khs_semester_7, khs_semester_8, ipk_semester_1, ipk_semester_2, ipk_semester_3, ipk_semester_4, ipk_semester_5, ipk_semester_6, ipk_semester_7, ipk_semester_8 FROM mahasiswas WHERE user_id = :user_id";
@@ -70,8 +84,12 @@ if ($mahasiswa) {
     $keahlian = $mahasiswa['keahlian'];
     $jobs = fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search);
 } else {
-    $jobs = fetchJobs($pdo, $search);
+    $jobs = fetchAllJobs($pdo); // Update function call to fetchAllJobs
 }
+
+var_dump($jobs);
+die;
+
 
 // Determine the number of valid semesters based on IPK
 $valid_semesters = 0;
@@ -83,6 +101,7 @@ for ($i = 1; $i <= 8; $i++) {
 ?>
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -93,74 +112,82 @@ for ($i = 1; $i <= 8; $i++) {
     <link rel="stylesheet" href="../app/dist/css/adminlte.light.min.css" media="screen">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <style>
-        .nav-sidebar .nav-link.active {
-            background-color: #343a40 !important;
-        }
-        .content-wrapper {
-            padding: 20px !important;
-        }
-        .content-header {
-            padding: 20px 0 !important;
-        }
-        .card {
-            transition: transform 0.2s;
-            margin-bottom: 20px;
-        }
-        .card:hover {
-            transform: scale(1.05);
-        }
-        .search-bar {
-            margin-bottom: 20px;
-        }
+    .nav-sidebar .nav-link.active {
+        background-color: #343a40 !important;
+    }
+
+    .content-wrapper {
+        padding: 20px !important;
+    }
+
+    .content-header {
+        padding: 20px 0 !important;
+    }
+
+    .card {
+        transition: transform 0.2s;
+        margin-bottom: 20px;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+    }
     </style>
 </head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
-<div class="wrapper">
-    <?php include 'navbar_mhs.php'; ?>
 
-    <div class="content-wrapper">
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">Cari Lowongan yang Sesuai</h1>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Cari Kerja</li>
-                        </ol>
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <div class="wrapper">
+        <?php include 'navbar_mhs.php'; ?>
+
+        <div class="content-wrapper">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0">Cari Lowongan yang Sesuai</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item active">Cari Kerja</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <section class="content">
-            <div class="container-fluid">
-                <?php if (isset($_SESSION['success_message'])): ?>
+            <section class="content">
+                <div class="container-fluid">
+                    <?php if (isset($_SESSION['success_message'])): ?>
                     <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <?php echo $_SESSION['success_message']; unset($_SESSION['success_message']); ?>
                         <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
                     </div>
-                <?php endif; ?>
-                <div class="row search-bar">
-                    <div class="col-md-12">
-                        <form method="POST" action="cari_kerja.php">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="search" placeholder="Search" value="<?php echo htmlspecialchars($search); ?>">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+                    <?php endif; ?>
+                    <div class="row search-bar">
+                        <div class="col-md-12">
+                            <form method="POST" action="cari_kerja.php">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="search" placeholder="Search"
+                                        value="<?php echo htmlspecialchars($search); ?>">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="submit"><i
+                                                class="fas fa-search"></i></button>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <?php if (!empty($jobs)): ?>
+                    <div class="row">
+                        <?php if (!empty($jobs)): ?>
                         <?php foreach ($jobs as $row): ?>
-                            <?php
+                        <?php
                             // Decode JSON data
                             $prodi = json_decode($row['prodi'], true);
                             $keahlian = json_decode($row['keahlian'], true);
@@ -176,111 +203,120 @@ for ($i = 1; $i <= 8; $i++) {
                             $stmt->execute(['lowongan_id' => $row['id'], 'mahasiswa_id' => $user_id]);
                             $has_applied = $stmt->fetchColumn() > 0;
                             ?>
-                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><?php echo htmlspecialchars($row['nama_pekerjaan']); ?></h5>
-                                        <p class="card-text"><strong>Posisi:</strong> <?php echo htmlspecialchars($row['posisi']); ?></p>
-                                        <p class="card-text"><strong>Kualifikasi:</strong> <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
-                                        <p class="card-text"><strong>Program Studi:</strong> 
-                                            <?php foreach ($prodi as $p) {
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo htmlspecialchars($row['nama_pekerjaan']); ?></h5>
+                                    <p class="card-text"><strong>Posisi:</strong>
+                                        <?php echo htmlspecialchars($row['posisi']); ?></p>
+                                    <p class="card-text"><strong>Kualifikasi:</strong>
+                                        <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
+                                    <p class="card-text"><strong>Program Studi:</strong>
+                                        <?php foreach ($prodi as $p) {
                                                 echo htmlspecialchars($p['value']) . '<br>';
                                             } ?>
-                                        </p>
-                                        <p class="card-text"><strong>Keahlian:</strong> 
-                                            <?php foreach ($keahlian as $k) {
+                                            </p>
+                                            <p class="card-text"><strong>Keahlian:</strong>
+                                        <?php foreach ($keahlian as $k) {
                                                 echo htmlspecialchars($k['value']) . '<br>';
                                             } ?>
-                                        </p>
-                                        <p class="card-text"><strong>Tanggal Posting:</strong> <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
-                                        <p class="card-text"><strong>Batas Waktu:</strong> <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
-                                        <?php if ($is_expired): ?>
-                                            <button class='btn btn-secondary btn-sm' disabled>Lamaran Expired</button>
-                                        <?php elseif ($has_applied): ?>
-                                            <button class='btn btn-secondary btn-sm' disabled>Menunggu Balasan</button>
-                                        <?php else: ?>
-                                            <button class='btn btn-success btn-sm' data-toggle='modal' data-target='#modalLamar' 
-                                                data-id="<?php echo $row['id']; ?>"
-                                                data-mahasiswa="<?php echo $user_id; ?>">Lamar</button>
-                                        <?php endif; ?>
-                                        <button class='btn btn-primary btn-sm' data-toggle='modal' data-target='#modalDetailPerusahaan' data-perusahaan-id="<?php echo $row['perusahaan_id']; ?>">Detail Perusahaan</button>
+                                    </p>
+                                    <p class="card-text"><strong>Tanggal Posting:</strong>
+                                        <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
+                                    <p class="card-text"><strong>Batas Waktu:</strong>
+                                        <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
+                                    <?php if ($is_expired): ?>
+                                        <button class='btn btn-secondary btn-sm' disabled>Lamaran Expired</button>
+                                    <?php elseif ($has_applied): ?>
+                                        <button class='btn btn-secondary btn-sm' disabled>Menunggu Balasan</button>
+                                    <?php else: ?>
+                                        <button class='btn btn-success btn-sm' data-toggle='modal' data-target='#modalLamar' data-id="<?php echo $row['id']; ?>"
+                                            data-mahasiswa="<?php echo $user_id; ?>">Lamar</button>
+                                    <?php endif; ?>
+                                            <button class='btn btn-primary btn-sm' data-toggle='modal' data-target='#modalDetailPerusahaan'
+                                                data-perusahaan-id="<?php echo $row['perusahaan_id']; ?>">Detail
+                                        Perusahaan</button>
                                     </div>
-                                </div>
-                            </div>
+                                    </div>
+                                    </div>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                        <?php else: ?>
                         <p>Tidak ada data</p>
-                    <?php endif; ?>
+                        <?php endif; ?>
+                        </div>
+                        </div>
+                        </section>
+                        </div>
+                        </div>
+
+    <!-- Form modal for applying to job -->
+    <div class="modal fade" id="modalLamar" tabindex="-1" aria-labelledby="modalLamarLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLamarLabel">Lamar Pekerjaan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="formLamar" method="POST" action="lamar_kerja.php">
+                        <input type="hidden" name="lowongan_id" id="lowongan_id">
+                        <input type="hidden" name="mahasiswa_id" id="mahasiswa_id">
+                        <div class="form-group">
+                            <label for="pesan">Pesan</label>
+                            <textarea class="form-control" name="pesan" id="pesan" rows="5" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <button type="button" class="btn btn-secondary" id="btnTranskipIjazah"
+                                onclick="insertTranskipIjazah()">Masukkan Transkip/Ijazah</button>
+                            <button type="button" class="btn btn-secondary" id="btnCV" onclick="insertCV()">Masukkan
+                                CV</button>
+                            <?php for ($i = 1; $i <= $valid_semesters; $i++): ?>
+                                <button type="button" class="btn btn-secondary khs-btn" id="btnKHS<?= $i ?>" onclick="insertKHS(<?= $i ?>)">Masukkan KHS
+                                Semester <?= $i ?></button>
+                            <?php endfor; ?>
+                            </div>
+                            <input type="hidden" name="transkip_ijazah" id="transkip_ijazah">
+                            <input type="hidden" name="cv" id="cv">
+                            <input type="hidden" name="khs" id="khs">
+                            <button type="submit" class="btn btn-primary">Kirim Lamaran</button>
+                            </form>
+                            </div>
+                            </div>
+                            </div>
+                            </div>
+
+
+    <div class="modal fade" id="modalDetailPerusahaan" tabindex="-1" aria-labelledby="modalDetailPerusahaanLabel"
+        aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalDetailPerusahaanLabel">Detail Perusahaan</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p><strong>Nama Perusahaan:</strong> <span id="detailNamaPerusahaan"></span></p>
+                    <p><strong>Alamat Perusahaan:</strong> <span id="detailAlamatPerusahaan"></span></p>
+                    <p><strong>Email Perusahaan:</strong> <span id="detailEmailPerusahaan"></span></p>
+                    <p><strong>Jenis Perusahaan:</strong> <span id="detailJenisPerusahaan"></span></p>
+                    <p><strong>Tahun Didirikan:</strong> <span id="detailTahunDidirikan"></span></p>
+                    <p><strong>Pimpinan Perusahaan:</strong> <span id="detailPimpinanPerusahaan"></span></p>
+                    <p><strong>Deskripsi Perusahaan:</strong> <span id="detailDeskripsiPerusahaan"></span></p>
+                    <p><strong>No Telp:</strong> <span id="detailNoTelp"></span></p>
                 </div>
             </div>
-        </section>
-    </div>
-</div>
-
-<!-- Form modal for applying to job -->
-<div class="modal fade" id="modalLamar" tabindex="-1" aria-labelledby="modalLamarLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalLamarLabel">Lamar Pekerjaan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <form id="formLamar" method="POST" action="lamar_kerja.php">
-                    <input type="hidden" name="lowongan_id" id="lowongan_id">
-                    <input type="hidden" name="mahasiswa_id" id="mahasiswa_id">
-                    <div class="form-group">
-                        <label for="pesan">Pesan</label>
-                        <textarea class="form-control" name="pesan" id="pesan" rows="5" required></textarea>
-                    </div>
-                    <div class="form-group">
-                        <button type="button" class="btn btn-secondary" id="btnTranskipIjazah" onclick="insertTranskipIjazah()">Masukkan Transkip/Ijazah</button>
-                        <button type="button" class="btn btn-secondary" id="btnCV" onclick="insertCV()">Masukkan CV</button>
-                        <?php for ($i = 1; $i <= $valid_semesters; $i++): ?>
-                            <button type="button" class="btn btn-secondary khs-btn" id="btnKHS<?= $i ?>" onclick="insertKHS(<?= $i ?>)">Masukkan KHS Semester <?= $i ?></button>
-                        <?php endfor; ?>
-                    </div>
-                    <input type="hidden" name="transkip_ijazah" id="transkip_ijazah">
-                    <input type="hidden" name="cv" id="cv">
-                    <input type="hidden" name="khs" id="khs">
-                    <button type="submit" class="btn btn-primary">Kirim Lamaran</button>
-                </form>
-            </div>
         </div>
     </div>
-</div>
 
-
-<div class="modal fade" id="modalDetailPerusahaan" tabindex="-1" aria-labelledby="modalDetailPerusahaanLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="modalDetailPerusahaanLabel">Detail Perusahaan</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p><strong>Nama Perusahaan:</strong> <span id="detailNamaPerusahaan"></span></p>
-                <p><strong>Alamat Perusahaan:</strong> <span id="detailAlamatPerusahaan"></span></p>
-                <p><strong>Email Perusahaan:</strong> <span id="detailEmailPerusahaan"></span></p>
-                <p><strong>Jenis Perusahaan:</strong> <span id="detailJenisPerusahaan"></span></p>
-                <p><strong>Tahun Didirikan:</strong> <span id="detailTahunDidirikan"></span></p>
-                <p><strong>Pimpinan Perusahaan:</strong> <span id="detailPimpinanPerusahaan"></span></p>
-                <p><strong>Deskripsi Perusahaan:</strong> <span id="detailDeskripsiPerusahaan"></span></p>
-                <p><strong>No Telp:</strong> <span id="detailNoTelp"></span></p>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script src="../app/plugins/jquery/jquery.min.js"></script>
-<script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../app/dist/js/adminlte.min.js"></script>
-<script>
-    $('#modalLamar').on('show.bs.modal', function (event) {
+    <script src="../app/plugins/jquery/jquery.min.js"></script>
+    <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../app/dist/js/adminlte.min.js"></script>
+    <script>
+    $('#modalLamar').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget);
         var id = button.data('id');
         var mahasiswa = button.data('mahasiswa');
@@ -300,7 +336,7 @@ for ($i = 1; $i <= 8; $i++) {
         $('#khs').val('');
     });
 
-    $('#modalDetailPerusahaan').on('show.bs.modal', function (event) {
+    $('#modalDetailPerusahaan').on('show.bs.modal', function(event) {
         var button = $(event.relatedTarget);
         var perusahaanId = button.data('perusahaan-id');
 
@@ -309,7 +345,9 @@ for ($i = 1; $i <= 8; $i++) {
         $.ajax({
             url: 'get_perusahaan_detail.php',
             method: 'GET',
-            data: { user_id: perusahaanId },
+            data: {
+                user_id: perusahaanId
+            },
             success: function(response) {
                 var details = JSON.parse(response);
                 if (details.error) {
@@ -325,7 +363,7 @@ for ($i = 1; $i <= 8; $i++) {
                     modal.find('#detailNamaPerusahaan').text(details.nama_perusahaan);
                     modal.find('#detailAlamatPerusahaan').text(details.alamat_perusahaan);
                     modal.find('#detailEmailPerusahaan').text(details.email_perusahaan);
-                    modal.find('#detailJenisPerusahaan').text(details.nama_jenis); 
+                    modal.find('#detailJenisPerusahaan').text(details.nama_jenis);
                     modal.find('#detailTahunDidirikan').text(details.tahun_didirikan);
                     modal.find('#detailPimpinanPerusahaan').text(details.pimpinan_perusahaan);
                     modal.find('#detailDeskripsiPerusahaan').text(details.deskripsi_perusahaan);
@@ -390,6 +428,7 @@ for ($i = 1; $i <= 8; $i++) {
         document.getElementById('btnKHS' + semester).classList.add('btn-success');
         alert("KHS Semester " + semester + " ditambahkan: " + khs);
     }
-</script>
+    </script>
 </body>
+
 </html>
