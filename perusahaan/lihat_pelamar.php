@@ -84,54 +84,54 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
     <style>
-    .content-wrapper {
-        margin-top: 20px;
-        background-color: #f4f6f9;
-        padding: 20px;
-    }
+        .content-wrapper {
+            margin-top: 20px;
+            background-color: #f4f6f9;
+            padding: 20px;
+        }
 
-    .card {
-        margin-bottom: 20px;
-    }
+        .card {
+            margin-bottom: 20px;
+        }
 
-    .card-body p {
-        margin: 0;
-        padding: 0;
-    }
+        .card-body p {
+            margin: 0;
+            padding: 0;
+        }
 
-    .btn-container {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-    }
+        .btn-container {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+        }
 
-    .table-responsive {
-        margin-top: 20px;
-    }
+        .table-responsive {
+            margin-top: 20px;
+        }
 
-    .table-responsive th,
-    .table-responsive td {
-        padding: 8px;
-    }
+        .table-responsive th,
+        .table-responsive td {
+            padding: 8px;
+        }
 
-    .status-container {
-        text-align: center;
-        padding: 10px;
-        color: #fff;
-        border-radius: 5px;
-    }
+        .status-container {
+            text-align: center;
+            padding: 10px;
+            color: #fff;
+            border-radius: 5px;
+        }
 
-    .status-diterima {
-        background-color: green;
-    }
+        .status-diterima {
+            background-color: green;
+        }
 
-    .status-ditolak {
-        background-color: red;
-    }
+        .status-ditolak {
+            background-color: red;
+        }
 
-    .sidebar-mini .main-sidebar {
-        margin-bottom: 0;
-    }
+        .sidebar-mini .main-sidebar {
+            margin-bottom: 0;
+        }
     </style>
 </head>
 
@@ -164,76 +164,76 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
                                 <div class="card-header">
                                     <h3 class="card-title">Detail Mahasiswa</h3>
                                     <div class="btn-container">
-                                        <?php if ($status_lamaran != 'diterima' && $status_lamaran != 'ditolak'): ?>
-                                        <button class="btn btn-success" id="terimaBtn">Terima</button>
-                                        <button class="btn btn-danger" id="tolakBtn">Tolak</button>
-                                        <button class="btn btn-primary" id="interviewBtn">Jadwalkan Interview</button>
+                                        <?php if ($status_lamaran != 'diterima' && $status_lamaran != 'ditolak') : ?>
+                                            <button class="btn btn-success" id="terimaBtn">Terima</button>
+                                            <button class="btn btn-danger" id="tolakBtn">Tolak</button>
+                                            <button class="btn btn-primary" id="interviewBtn">Jadwalkan Interview</button>
                                         <?php endif; ?>
 
-                                        <?php if ($status_lamaran == 'diterima'): ?>
-                                        <div class="status-container status-diterima">Pelamar Diterima</div>
-                                        <?php elseif ($status_lamaran == 'ditolak'): ?>
-                                        <div class="status-container status-ditolak">Pelamar Ditolak</div>
+                                        <?php if ($status_lamaran == 'diterima') : ?>
+                                            <div class="status-container status-diterima">Pelamar Diterima</div>
+                                        <?php elseif ($status_lamaran == 'ditolak') : ?>
+                                            <div class="status-container status-ditolak">Pelamar Ditolak</div>
                                         <?php endif; ?>
                                     </div>
                                 </div>
                                 <div class="card-body">
-                                    <?php if ($mahasiswa): ?>
+                                    <?php if ($mahasiswa) : ?>
                                         <div class="row">
                                             <div class="col-md-4 text-center">
-                                            <?php
+                                                <?php
                                                 $profileImage = !empty($mahasiswa['profile_image']) ? '../assets/mahasiswa/profile/' . rawurlencode(htmlspecialchars($mahasiswa['profile_image'])) : '../../assets/images/profile_default.png';
                                                 ?>
                                                 <img src="<?php echo $profileImage; ?>" alt="Profile Image" class="img-fluid rounded-circle" style="max-width: 150px;">
-                                            <h3 class="mt-2">
-                                                <?php echo htmlspecialchars($mahasiswa['nama_mahasiswa']); ?>
-                                            </h3>
+                                                <h3 class="mt-2">
+                                                    <?php echo htmlspecialchars($mahasiswa['nama_mahasiswa']); ?>
+                                                </h3>
                                             </div>
                                             <div class="col-md-8">
-                                            <p><strong>NIM:</strong> <?php echo htmlspecialchars($mahasiswa['nim']); ?>
-                                            </p>
-                                            <p><strong>Jurusan:</strong>
-                                                <?php echo htmlspecialchars($mahasiswa['nama_jurusan']); ?></p>
-                                            <p><strong>Prodi:</strong>
-                                                <?php echo htmlspecialchars($mahasiswa['nama_prodi']); ?></p>
-                                            <p><strong>Jenis Kelamin:</strong>
-                                                <?php echo htmlspecialchars($mahasiswa['jk']); ?></p>
-                                            <p><strong>Tahun Masuk:</strong>
-                                                <?php echo htmlspecialchars($mahasiswa['tahun_masuk']); ?></p>
-                                            <p><strong>Status:</strong>
-                                                <?php echo htmlspecialchars($mahasiswa['status']); ?></p>
-                                            <p><strong>Alamat:</strong>
-                                                <?php echo htmlspecialchars($mahasiswa['alamat']); ?></p>
-                                            <p><strong>Email:</strong>
-                                                <?php echo htmlspecialchars($mahasiswa['email']); ?></p>
-                                            <p><strong>Keahlian:</strong>
-                                            <p>
-                                                <?php
+                                                <p><strong>NIM:</strong> <?php echo htmlspecialchars($mahasiswa['nim']); ?>
+                                                </p>
+                                                <p><strong>Jurusan:</strong>
+                                                    <?php echo htmlspecialchars($mahasiswa['nama_jurusan']); ?></p>
+                                                <p><strong>Prodi:</strong>
+                                                    <?php echo htmlspecialchars($mahasiswa['nama_prodi']); ?></p>
+                                                <p><strong>Jenis Kelamin:</strong>
+                                                    <?php echo htmlspecialchars($mahasiswa['jk']); ?></p>
+                                                <p><strong>Tahun Masuk:</strong>
+                                                    <?php echo htmlspecialchars($mahasiswa['tahun_masuk']); ?></p>
+                                                <p><strong>Status:</strong>
+                                                    <?php echo htmlspecialchars($mahasiswa['status']); ?></p>
+                                                <p><strong>Alamat:</strong>
+                                                    <?php echo htmlspecialchars($mahasiswa['alamat']); ?></p>
+                                                <p><strong>Email:</strong>
+                                                    <?php echo htmlspecialchars($mahasiswa['email']); ?></p>
+                                                <p><strong>Keahlian:</strong>
+                                                <p>
+                                                    <?php
                                                     $keahlian = explode(',', $mahasiswa['keahlian']);
                                                     foreach ($keahlian as $skill) {
                                                         echo '<span class="badge badge-primary mr-1">' . htmlspecialchars(trim($skill)) . '</span>';
                                                     }
                                                     ?>
-                                            </p>
+                                                </p>
 
-                                            <?php
-                                                    $ipk = [];
-                                                    for ($i = 1; $i <= 8; $i++) {
-                                                        if (!empty($mahasiswa['ipk_semester_' . $i])) {
-                                                            $ipk[] = $mahasiswa['ipk_semester_' . $i];
-                                                        }
+                                                <?php
+                                                $ipk = [];
+                                                for ($i = 1; $i <= 8; $i++) {
+                                                    if (!empty($mahasiswa['ipk_semester_' . $i])) {
+                                                        $ipk[] = $mahasiswa['ipk_semester_' . $i];
                                                     }
-                                                    if ($ipk) {
-                                                        $average_ipk = array_sum($ipk) / count($ipk);
-                                                        echo '<p><strong>IPK Rata-rata:</strong> ' . htmlspecialchars(number_format($average_ipk, 2)) . '</p>';
-                                                    } else {
-                                                        echo '<p>Tidak ada data IPK.</p>';
-                                                    }
+                                                }
+                                                if ($ipk) {
+                                                    $average_ipk = array_sum($ipk) / count($ipk);
+                                                    echo '<p><strong>IPK Rata-rata:</strong> ' . htmlspecialchars(number_format($average_ipk, 2)) . '</p>';
+                                                } else {
+                                                    echo '<p>Tidak ada data IPK.</p>';
+                                                }
                                                 ?>
+                                            </div>
                                         </div>
-                                        </div>
-                                    <?php else: ?>
-                                    <p>Mahasiswa tidak ditemukan.</p>
+                                    <?php else : ?>
+                                        <p>Mahasiswa tidak ditemukan.</p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -248,184 +248,179 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
                                     <h3 class="card-title">Portofolio Mahasiswa</h3>
                                 </div>
                                 <div class="card-body">
-                                    <?php if ($mahasiswa): ?>
-                                    <h4>Dokumen</h4>
-                                    <p><strong>Ijazah:</strong> <a
-                                            href="../assets/mahasiswa/ijazahatautranskip/<?php echo htmlspecialchars($mahasiswa['ijazah']); ?>"
-                                            target="_blank">Lihat Ijazah</a></p>
-                                    <p><strong>Resume:</strong> <a href="../assets/mahasiswa/resume/<?php echo htmlspecialchars($mahasiswa['resume']); ?>"
-                                            target="_blank">Lihat Resume</a></p>
-                                    <?php for ($i = 1; $i <= 8; $i++): ?>
-                                        <?php if (!empty($mahasiswa['khs_semester_' . $i])): ?>
-                                                <p><strong>KHS Semester <?php echo $i; ?>:</strong> <a
-                                            href="../assets/mahasiswa/khs/<?php echo htmlspecialchars($mahasiswa['khs_semester_' . $i]); ?>"
-                                            target="_blank">Lihat KHS</a></p>
-                                    <?php endif; ?>
-                                    <?php endfor; ?>
+                                    <?php if ($mahasiswa) : ?>
+                                        <h4>Dokumen</h4>
+                                        <p><strong>Ijazah:</strong> <a href="../assets/mahasiswa/ijazahatautranskip/<?php echo htmlspecialchars($mahasiswa['ijazah']); ?>" target="_blank">Lihat Ijazah</a></p>
+                                        <p><strong>Resume:</strong> <a href="../assets/mahasiswa/resume/<?php echo htmlspecialchars($mahasiswa['resume']); ?>" target="_blank">Lihat Resume</a></p>
+                                        <?php for ($i = 1; $i <= 8; $i++) : ?>
+                                            <?php if (!empty($mahasiswa['khs_semester_' . $i])) : ?>
+                                                <p><strong>KHS Semester <?php echo $i; ?>:</strong> <a href="../assets/mahasiswa/khs/<?php echo htmlspecialchars($mahasiswa['khs_semester_' . $i]); ?>" target="_blank">Lihat KHS</a></p>
+                                            <?php endif; ?>
+                                        <?php endfor; ?>
 
-                                    <h4>Sertifikasi</h4>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama Sertifikasi</th>
-                                                    <th>Nomor SK</th>
-                                                    <th>Lembaga</th>
-                                                    <th>Tanggal Diperoleh</th>
-                                                    <th>Tanggal Kadaluwarsa</th>
-                                                    <th>Bukti</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if ($sertifikasi): ?>
-                                                    <?php foreach ($sertifikasi as $index => $row): ?>
-                                                        <tr>
-                                                            <td><?php echo $index + 1; ?></td>
-                                                            <td><?php echo htmlspecialchars($row['nama_sertifikasi']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['nomor_sk']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['lembaga_id']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['tanggal_diperoleh']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['tanggal_kadaluarsa']); ?></td>
-                                                    <td><a href="../../assets/mahasiswa/sertifikasi/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
-                                                            Bukti</a></td>
+                                        <h4>Sertifikasi</h4>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Nama Sertifikasi</th>
+                                                        <th>Nomor SK</th>
+                                                        <th>Lembaga</th>
+                                                        <th>Tanggal Diperoleh</th>
+                                                        <th>Tanggal Kadaluwarsa</th>
+                                                        <th>Bukti</th>
                                                     </tr>
-                                                    <?php endforeach; ?>
-                                                    <?php else: ?>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($sertifikasi) : ?>
+                                                        <?php foreach ($sertifikasi as $index => $row) : ?>
+                                                            <tr>
+                                                                <td><?php echo $index + 1; ?></td>
+                                                                <td><?php echo htmlspecialchars($row['nama_sertifikasi']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['nomor_sk']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['lembaga_id']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['tanggal_diperoleh']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['tanggal_kadaluarsa']); ?></td>
+                                                                <td><a href="../../assets/mahasiswa/sertifikasi/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
+                                                                        Bukti</a></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else : ?>
                                                         <tr>
                                                             <td colspan="7">Tidak ada data sertifikasi.</td>
                                                         </tr>
-                                                <?php endif; ?>
+                                                    <?php endif; ?>
                                                 </tbody>
-                                                </table>
-                                                </div>
+                                            </table>
+                                        </div>
 
-                                    <h4>Lomba</h4>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama Lomba</th>
-                                                    <th>Prestasi</th>
-                                                    <th>Kategori</th>
-                                                    <th>Tingkatan</th>
-                                                    <th>Penyelenggara</th>
-                                                    <th>Tanggal Pelaksanaan</th>
-                                                    <th>Tempat Pelaksanaan</th>
-                                                    <th>Bukti</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if ($lomba): ?>
-                                                    <?php foreach ($lomba as $index => $row): ?>
-                                                        <tr>
-                                                            <td><?php echo $index + 1; ?></td>
-                                                            <td><?php echo htmlspecialchars($row['nama_lomba']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['prestasi']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['id_kategori']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['id_tingkatan']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['penyelenggara']); ?></td>
-                                                    <td><?php echo htmlspecialchars($row['tanggal_pelaksanaan']); ?>
-                                                    </td>
-                                                    <td><?php echo htmlspecialchars($row['tempat_pelaksanaan']); ?></td>
-                                                    <td><a href="../../assets/mahasiswa/lomba/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
-                                                            Bukti</a></td>
+                                        <h4>Lomba</h4>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Nama Lomba</th>
+                                                        <th>Prestasi</th>
+                                                        <th>Kategori</th>
+                                                        <th>Tingkatan</th>
+                                                        <th>Penyelenggara</th>
+                                                        <th>Tanggal Pelaksanaan</th>
+                                                        <th>Tempat Pelaksanaan</th>
+                                                        <th>Bukti</th>
                                                     </tr>
-                                                    <?php endforeach; ?>
-                                                    <?php else: ?>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($lomba) : ?>
+                                                        <?php foreach ($lomba as $index => $row) : ?>
+                                                            <tr>
+                                                                <td><?php echo $index + 1; ?></td>
+                                                                <td><?php echo htmlspecialchars($row['nama_lomba']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['prestasi']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['id_kategori']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['id_tingkatan']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['penyelenggara']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['tanggal_pelaksanaan']); ?>
+                                                                </td>
+                                                                <td><?php echo htmlspecialchars($row['tempat_pelaksanaan']); ?></td>
+                                                                <td><a href="../../assets/mahasiswa/lomba/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
+                                                                        Bukti</a></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else : ?>
                                                         <tr>
                                                             <td colspan="9">Tidak ada data lomba.</td>
                                                         </tr>
-                                                <?php endif; ?>
+                                                    <?php endif; ?>
                                                 </tbody>
-                                                </table>
-                                                </div>
+                                            </table>
+                                        </div>
 
-                                    <h4>Pelatihan</h4>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama Pelatihan</th>
-                                                    <th>Materi</th>
-                                                    <th>Deskripsi</th>
-                                                    <th>Tingkatan</th>
-                                                    <th>Penyelenggara</th>
-                                                    <th>Tanggal Mulai</th>
-                                                    <th>Tanggal Selesai</th>
-                                                    <th>Tempat Pelaksanaan</th>
-                                                    <th>Bukti</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if ($pelatihan): ?>
-                                                    <?php foreach ($pelatihan as $index => $row): ?>
-                                                        <tr>
-                                                            <td><?php echo $index + 1; ?></td>
-                                                            <td><?php echo htmlspecialchars($row['nama_pelatihan']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['materi']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['deskripsi']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['id_tingkatan']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['penyelenggara']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['tanggal_mulai']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['tanggal_selesai']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['tempat_pelaksanaan']); ?></td>
-                                                    <td><a href="../../assets/mahasiswa/pelatihan/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
-                                                            Bukti</a></td>
+                                        <h4>Pelatihan</h4>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Nama Pelatihan</th>
+                                                        <th>Materi</th>
+                                                        <th>Deskripsi</th>
+                                                        <th>Tingkatan</th>
+                                                        <th>Penyelenggara</th>
+                                                        <th>Tanggal Mulai</th>
+                                                        <th>Tanggal Selesai</th>
+                                                        <th>Tempat Pelaksanaan</th>
+                                                        <th>Bukti</th>
                                                     </tr>
-                                                    <?php endforeach; ?>
-                                                    <?php else: ?>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($pelatihan) : ?>
+                                                        <?php foreach ($pelatihan as $index => $row) : ?>
+                                                            <tr>
+                                                                <td><?php echo $index + 1; ?></td>
+                                                                <td><?php echo htmlspecialchars($row['nama_pelatihan']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['materi']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['deskripsi']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['id_tingkatan']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['penyelenggara']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['tanggal_mulai']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['tanggal_selesai']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['tempat_pelaksanaan']); ?></td>
+                                                                <td><a href="../../assets/mahasiswa/pelatihan/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
+                                                                        Bukti</a></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else : ?>
                                                         <tr>
                                                             <td colspan="10">Tidak ada data pelatihan.</td>
                                                         </tr>
-                                                <?php endif; ?>
+                                                    <?php endif; ?>
                                                 </tbody>
-                                                </table>
-                                                </div>
+                                            </table>
+                                        </div>
 
-                                    <h4>Proyek</h4>
-                                    <div class="table-responsive">
-                                        <table class="table table-bordered">
-                                            <thead>
-                                                <tr>
-                                                    <th>No</th>
-                                                    <th>Nama Proyek</th>
-                                                    <th>Partner</th>
-                                                    <th>Peran</th>
-                                                    <th>Waktu Awal</th>
-                                                    <th>Waktu Selesai</th>
-                                                    <th>Tujuan Proyek</th>
-                                                    <th>Bukti</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                <?php if ($proyek): ?>
-                                                    <?php foreach ($proyek as $index => $row): ?>
-                                                        <tr>
-                                                            <td><?php echo $index + 1; ?></td>
-                                                            <td><?php echo htmlspecialchars($row['nama_proyek']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['partner']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['peran']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['waktu_awal']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['waktu_selesai']); ?></td>
-                                                            <td><?php echo htmlspecialchars($row['tujuan_proyek']); ?></td>
-                                                    <td><a href="../../assets/mahasiswa/proyek/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
-                                                            Bukti</a></td>
+                                        <h4>Proyek</h4>
+                                        <div class="table-responsive">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>No</th>
+                                                        <th>Nama Proyek</th>
+                                                        <th>Partner</th>
+                                                        <th>Peran</th>
+                                                        <th>Waktu Awal</th>
+                                                        <th>Waktu Selesai</th>
+                                                        <th>Tujuan Proyek</th>
+                                                        <th>Bukti</th>
                                                     </tr>
-                                                    <?php endforeach; ?>
-                                                    <?php else: ?>
+                                                </thead>
+                                                <tbody>
+                                                    <?php if ($proyek) : ?>
+                                                        <?php foreach ($proyek as $index => $row) : ?>
+                                                            <tr>
+                                                                <td><?php echo $index + 1; ?></td>
+                                                                <td><?php echo htmlspecialchars($row['nama_proyek']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['partner']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['peran']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['waktu_awal']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['waktu_selesai']); ?></td>
+                                                                <td><?php echo htmlspecialchars($row['tujuan_proyek']); ?></td>
+                                                                <td><a href="../../assets/mahasiswa/proyek/<?php echo htmlspecialchars($row['bukti']); ?>" target="_blank">Lihat
+                                                                        Bukti</a></td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    <?php else : ?>
                                                         <tr>
                                                             <td colspan="8">Tidak ada data proyek.</td>
                                                         </tr>
-                                                <?php endif; ?>
+                                                    <?php endif; ?>
                                                 </tbody>
-                                                </table>
-                                                </div>
+                                            </table>
+                                        </div>
 
-                                    <?php else: ?>
-                                    <p>Mahasiswa tidak ditemukan.</p>
+                                    <?php else : ?>
+                                        <p>Mahasiswa tidak ditemukan.</p>
                                     <?php endif; ?>
                                 </div>
                             </div>
@@ -442,27 +437,26 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="confirmModalLabel">Konfirmasi</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
                 </div>
                 <div class="modal-body">
                     Apakah Anda yakin ingin menerima mahasiswa ini?
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
-                    <button type="button" class="btn btn-primary" id="confirmButton">Yakin</button>
+                    <button type="button" class="btn btn-secondary" id="cancelButton" data-bs-dismiss="modal">Tidak</button>
+                    <button type="submit" class="btn btn-primary" id="confirmButton">Yakin</button>
                 </div>
             </div>
         </div>
     </div>
 
     <!-- Modal untuk input salary -->
-    <div class="modal fade" id="salaryModal" tabindex="-1" role="dialog" aria-labelledby="salaryModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="salaryModal" tabindex="-1" role="dialog" aria-labelledby="salaryModalLabel" aria-hidden="true">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="salaryModalLabel">Masukkan Salary</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
                 </div>
                 <div class="modal-body">
                     <form id="salaryForm">
@@ -475,7 +469,7 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
                     </form>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-secondary" id="cancelSalaryButton" data-bs-dismiss="modal">Batal</button>
                     <button type="button" class="btn btn-primary" id="submitSalary">Simpan</button>
                 </div>
             </div>
@@ -483,8 +477,7 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
     </div>
 
     <!-- Modal Notifikasi -->
-    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
@@ -495,7 +488,7 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
                     <!-- Pesan notifikasi akan ditampilkan di sini -->
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                    <button type="button" class="btn btn-secondary" id="cancelTolakButton" data-bs-dismiss="modal">Tutup</button>
                 </div>
             </div>
         </div>
@@ -507,81 +500,94 @@ $pelatihan = $stmt_pelatihan->fetchAll(PDO::FETCH_ASSOC);
     <script src="../app/plugins/fontawesome-free/js/all.min.js"></script>
     <script src="../app/dist/js/adminlte.min.js"></script>
     <script>
-    $('#terimaBtn').on('click', function() {
-        console.log("Terima button clicked");
-        $('#confirmModal').modal('show');
-    });
+        $('#terimaBtn').on('click', function() {
+            console.log("Terima button clicked");
+            $('#confirmModal').modal('show');
+        });
 
-    $('#confirmButton').on('click', function() {
-        console.log("Confirm button clicked");
-        $('#confirmModal').modal('hide');
-        $('#salaryModal').modal('show');
-    });
+        $('#cancelButton').on('click', function() {
+            console.log("Cancel button clicked");
+            $('#confirmModal').modal('hide');
+        });
+        $('#cancelSalaryButton').on('click', function() {
+            console.log("Cancel button clicked");
+            $('#salaryModal').modal('hide');
+        });
+        $('#cancelTolakButton').on('click', function() {
+            console.log("Cancel button clicked");
+            $('#notificationModal').modal('hide');
+        });
 
-    $('#submitSalary').on('click', function() {
-        console.log("Submit salary button clicked");
-        var salary = $('#salaryInput').val();
-        var id_pelamar = $('#idPelamar').val();
-        var lowongan_id = $('#lowonganId').val();
+        $('#confirmButton').on('click', function() {
+            console.log("Confirm button clicked");
+            $('#confirmModal').modal('hide');
+            $('#salaryModal').modal('show');
+        });
 
-        if (salary !== null && salary.trim() !== "") {
+        $('#submitSalary').on('click', function() {
+            console.log("Submit salary button clicked");
+            var salary = $('#salaryInput').val();
+            var id_pelamar = $('#idPelamar').val();
+            var lowongan_id = $('#lowonganId').val();
+
+            if (salary !== null && salary.trim() !== "") {
+                $.ajax({
+                    url: 'terima_pelamar.php',
+                    method: 'POST',
+                    data: {
+                        id_pelamar: id_pelamar,
+                        salary: salary,
+                        lowongan_id: lowongan_id
+                    },
+                    success: function(response) {
+                        console.log("Response received: " + response);
+                        var result = JSON.parse(response);
+                        $('#salaryModal').modal('hide');
+                        $('#notificationMessage').text(result.message);
+                        $('#notificationModal').modal('show');
+                        if (result.success) {
+                            // Hide buttons and show status message
+                            $('.btn-container').html(
+                                '<div class="status-container status-diterima">Pelamar Diterima</div>'
+                            );
+                        }
+                    }
+                });
+            } else {
+                alert("Salary harus diisi.");
+            }
+        });
+
+        $('#tolakBtn').on('click', function() {
+            console.log("Tolak button clicked");
             $.ajax({
-                url: 'terima_pelamar.php',
+                url: 'tolak_pelamar.php',
                 method: 'POST',
                 data: {
-                    id_pelamar: id_pelamar,
-                    salary: salary,
-                    lowongan_id: lowongan_id
+                    id_pelamar: <?php echo $mahasiswa_id; ?>,
+                    lowongan_id: <?php echo $lowongan_id; ?>
                 },
                 success: function(response) {
                     console.log("Response received: " + response);
                     var result = JSON.parse(response);
-                    $('#salaryModal').modal('hide');
                     $('#notificationMessage').text(result.message);
                     $('#notificationModal').modal('show');
                     if (result.success) {
                         // Hide buttons and show status message
                         $('.btn-container').html(
-                            '<div class="status-container status-diterima">Pelamar Diterima</div>'
-                        );
+                            '<div class="status-container status-ditolak">Pelamar Ditolak</div>');
                     }
                 }
             });
-        } else {
-            alert("Salary harus diisi.");
-        }
-    });
-
-    $('#tolakBtn').on('click', function() {
-        console.log("Tolak button clicked");
-        $.ajax({
-            url: 'tolak_pelamar.php',
-            method: 'POST',
-            data: {
-                id_pelamar: <?php echo $mahasiswa_id; ?>,
-                lowongan_id: <?php echo $lowongan_id; ?>
-            },
-            success: function(response) {
-                console.log("Response received: " + response);
-                var result = JSON.parse(response);
-                $('#notificationMessage').text(result.message);
-                $('#notificationModal').modal('show');
-                if (result.success) {
-                    // Hide buttons and show status message
-                    $('.btn-container').html(
-                        '<div class="status-container status-ditolak">Pelamar Ditolak</div>');
-                }
-            }
         });
-    });
 
-    $('#interviewBtn').on('click', function() {
-        console.log("Interview button clicked");
-        var phone_pelamar = "<?php echo $mahasiswa['no_telp']; ?>";
-        var message = encodeURIComponent("Halo, kami ingin menjadwalkan wawancara untuk Anda.");
-        var whatsappUrl = "https://wa.me/" + phone_pelamar + "?text=" + message;
-        window.open(whatsappUrl, '_blank');
-    });
+        $('#interviewBtn').on('click', function() {
+            console.log("Interview button clicked");
+            var phone_pelamar = "<?php echo $mahasiswa['no_telp']; ?>";
+            var message = encodeURIComponent("Halo, kami ingin menjadwalkan wawancara untuk Anda.");
+            var whatsappUrl = "https://wa.me/" + phone_pelamar + "?text=" + message;
+            window.open(whatsappUrl, '_blank');
+        });
     </script>
 
 </body>
