@@ -24,7 +24,7 @@ function fetchAllJobs($pdo)
 
 function fetchMahasiswaDetails($pdo, $user_id) {
     try {
-        $sql = "SELECT prodi_id, keahlian, ijazah, resume, khs_semester_1, khs_semester_2, khs_semester_3, khs_semester_4, khs_semester_5, khs_semester_6, khs_semester_7, khs_semester_8, ipk_semester_1, ipk_semester_2, ipk_semester_3, ipk_semester_4, ipk_semester_5, ipk_semester_6, ipk_semester_7, ipk_semester_8 FROM mahasiswas WHERE user_id = :user_id";
+        $sql = "SELECT id, prodi_id, keahlian, ijazah, resume, khs_semester_1, khs_semester_2, khs_semester_3, khs_semester_4, khs_semester_5, khs_semester_6, khs_semester_7, khs_semester_8, ipk_semester_1, ipk_semester_2, ipk_semester_3, ipk_semester_4, ipk_semester_5, ipk_semester_6, ipk_semester_7, ipk_semester_8 FROM mahasiswas WHERE user_id = :user_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $user_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -80,6 +80,7 @@ function fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search = '') {
 $search = isset($_POST['search']) ? $_POST['search'] : '';
 $mahasiswa = fetchMahasiswaDetails($pdo, $user_id);
 if ($mahasiswa) {
+    $mahasiswa_id = $mahasiswa ? $mahasiswa['id'] : null;
     $prodi_id = $mahasiswa['prodi_id'];
     $keahlian = $mahasiswa['keahlian'];
     $jobs = fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search);
@@ -200,7 +201,7 @@ for ($i = 1; $i <= 8; $i++) {
                             // Check if the student has already applied for the job
                             $sql = "SELECT COUNT(*) FROM lamaran_mahasiswas WHERE lowongan_id = :lowongan_id AND mahasiswa_id = :mahasiswa_id AND status = 'Pending'";
                             $stmt = $pdo->prepare($sql);
-                            $stmt->execute(['lowongan_id' => $row['id'], 'mahasiswa_id' => $user_id]);
+                            $stmt->execute(['lowongan_id' => $row['id'], 'mahasiswa_id' => $mahasiswa_id]);
                             $has_applied = $stmt->fetchColumn() > 0;
                             ?>
                                 <div class="col-lg-3 col-md-4 col-sm-6 col-12">
