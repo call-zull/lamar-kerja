@@ -517,7 +517,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                                 data.sertifikasi.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
                                     const buktiPath = bukti.map(b => {
-                                        if(b.includes('docs')){
+                                        if(b.includes('http')){
                                             return `<a href="${b}" target="_blank">Lihat Bukti</a>`
                                         }else{
                                             return `<a href="mahasiswa/sertifikasi/${b}" target="_blank">Lihat Bukti</a>`
@@ -545,7 +545,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                                 data.lomba.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
                                     const buktiPath = bukti.map(b => {
-                                        if(b.includes('docs')){
+                                        if(b.includes('http')){
                                             return `<a href="${b}" target="_blank">Lihat Bukti</a>`
                                         }else{
                                             return `<a href="mahasiswa/lomba/${b}" target="_blank">Lihat Bukti</a>`
@@ -575,7 +575,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                                 data.pelatihan.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
                                     const buktiPath = bukti.map(b => {
-                                        if(b.includes('docs')){
+                                        if(b.includes('http')){
                                             return `<a href="${b}" target="_blank">Lihat Bukti</a>`
                                         }else{
                                             return `<a href="mahasiswa/pelatihan/${b}" target="_blank">Lihat Bukti</a>`
@@ -606,7 +606,7 @@ $portfolios = getStudentPortfolios($pdo, $search);
                                 data.proyek.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
                                     const buktiPath = bukti.map(b => {
-                                        if(b.includes('docs')){
+                                        if(b.includes('http')){
                                             return `<a href="${b}" target="_blank">Lihat Bukti</a>`
                                         }else{
                                             return `<a href="mahasiswa/proyek/${b}" target="_blank">Lihat Bukti</a>`
