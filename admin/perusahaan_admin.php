@@ -171,7 +171,7 @@ $jobs = fetchJobs($pdo, $search);
                                         <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
                                     <p class="card-text"><strong>Batas Waktu:</strong>
                                         <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
-                                    <button class='btn btn-primary btn-sm read-more' onclick="toggleReadMore(this)">Selengkapnya</button>
+                                    <button class='btn btn-primary btn-sm read-more' onclick="redirectToDetail(<?php echo $row['id']?>)">Selengkapnya</button>
                                     <button class='btn btn-secondary btn-sm' onclick="fetchCompanyDetails(<?php echo $row['perusahaan_id']; ?>)">Detail
                                         Perusahaan</button>
                                     <div class="read-more-content">
@@ -249,15 +249,30 @@ $jobs = fetchJobs($pdo, $search);
         });
     }
 
-    function toggleReadMore(button) {
-        var content = button.nextElementSibling;
-        if (content.style.display === 'none' || content.style.display === '') {
-            content.style.display = 'block';
-            button.innerText = 'Lebih sedikit';
-        } else {
-            content.style.display = 'none';
-            button.innerText = 'Selengkapnya';
-        }
+    // function toggleReadMore(button) {
+    //     var content = button.nextElementSibling;
+    //     if (content.style.display === 'none' || content.style.display === '') {
+    //         content.style.display = 'block';
+    //         button.innerText = 'Lebih sedikit';
+    //         console.log(window.location);
+    //     } else {
+    //         content.style.display = 'none';
+    //         button.innerText = 'Selengkapnya';
+    //     }
+    // }
+    function redirectToDetail(job_id) {
+        // Dapatkan origin dan path dari URL saat ini
+        var origin = window.location.origin;
+        var path = window.location.pathname;
+
+        // Buat path baru dengan mengganti nama file di path saat ini
+        var newPath = path.replace('perusahaan_admin.php', `detail_perusahaan.php?job_id=${job_id}`);
+
+        // Gabungkan origin dan path baru
+        var newUrl = origin + newPath;
+
+        // Arahkan ke URL baru
+        window.location.href = newUrl;
     }
     </script>
 </body>
