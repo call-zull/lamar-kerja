@@ -8,23 +8,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'mahasiswa') {
 $user_id = $_SESSION['user_id'];
 include '../includes/db.php';
 
-
-function fetchAllJobs($pdo)
-{
-    try {
-        $sql = "SELECT * FROM lowongan_kerja";
-        $stmt = $pdo->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    } catch (PDOException $e) {
-        error_log("Error: " . $e->getMessage());
-        return false;
-    }
-}
-
-
 function fetchMahasiswaDetails($pdo, $user_id) {
     try {
-        $sql = "SELECT id, prodi_id, keahlian, ijazah, resume, khs_semester_1, khs_semester_2, khs_semester_3, khs_semester_4, khs_semester_5, khs_semester_6, khs_semester_7, khs_semester_8, ipk_semester_1, ipk_semester_2, ipk_semester_3, ipk_semester_4, ipk_semester_5, ipk_semester_6, ipk_semester_7, ipk_semester_8 FROM mahasiswas WHERE user_id = :user_id";
+        $sql = "SELECT prodi_id, keahlian, ijazah, resume, khs_semester_1, khs_semester_2, khs_semester_3, khs_semester_4, khs_semester_5, khs_semester_6, khs_semester_7, khs_semester_8, ipk_semester_1, ipk_semester_2, ipk_semester_3, ipk_semester_4, ipk_semester_5, ipk_semester_6, ipk_semester_7, ipk_semester_8 FROM mahasiswas WHERE user_id = :user_id";
         $stmt = $pdo->prepare($sql);
         $stmt->execute(['user_id' => $user_id]);
         return $stmt->fetch(PDO::FETCH_ASSOC);
@@ -80,17 +66,12 @@ function fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search = '') {
 $search = isset($_POST['search']) ? $_POST['search'] : '';
 $mahasiswa = fetchMahasiswaDetails($pdo, $user_id);
 if ($mahasiswa) {
-    $mahasiswa_id = $mahasiswa ? $mahasiswa['id'] : null;
     $prodi_id = $mahasiswa['prodi_id'];
     $keahlian = $mahasiswa['keahlian'];
     $jobs = fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search);
 } else {
-    $jobs = fetchAllJobs($pdo); // Update function call to fetchAllJobs
+    $jobs = fetchJobs($pdo, $search);
 }
-
-var_dump($jobs);
-die;
-
 
 // Determine the number of valid semesters based on IPK
 $valid_semesters = 0;
@@ -201,7 +182,7 @@ for ($i = 1; $i <= 8; $i++) {
                             // Check if the student has already applied for the job
                             $sql = "SELECT COUNT(*) FROM lamaran_mahasiswas WHERE lowongan_id = :lowongan_id AND mahasiswa_id = :mahasiswa_id AND status = 'Pending'";
                             $stmt = $pdo->prepare($sql);
-                            $stmt->execute(['lowongan_id' => $row['id'], 'mahasiswa_id' => $mahasiswa_id]);
+                        $stmt->execute(['lowongan_id' => $row['id'], 'mahasiswa_id' => $user_id]);
                             $has_applied = $stmt->fetchColumn() > 0;
                             ?>
                                 <div class="col-lg-3 col-md-4 col-sm-6 col-12">
@@ -216,8 +197,8 @@ for ($i = 1; $i <= 8; $i++) {
                                         <?php foreach ($prodi as $p) {
                                                 echo htmlspecialchars($p['value']) . '<br>';
                                             } ?>
-                                            </p>
-                                            <p class="card-text"><strong>Keahlian:</strong>
+                                    </p>
+                                    <p class="card-text"><strong>Keahlian:</strong>
                                         <?php foreach ($keahlian as $k) {
                                                 echo htmlspecialchars($k['value']) . '<br>';
                                             } ?>
@@ -227,28 +208,28 @@ for ($i = 1; $i <= 8; $i++) {
                                     <p class="card-text"><strong>Batas Waktu:</strong>
                                         <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
                                     <?php if ($is_expired): ?>
-                                        <button class='btn btn-secondary btn-sm' disabled>Lamaran Expired</button>
+                                    <button class='btn btn-secondary btn-sm' disabled>Lamaran Expired</button>
                                     <?php elseif ($has_applied): ?>
-                                        <button class='btn btn-secondary btn-sm' disabled>Menunggu Balasan</button>
+                                    <button class='btn btn-secondary btn-sm' disabled>Menunggu Balasan</button>
                                     <?php else: ?>
-                                        <button class='btn btn-success btn-sm' data-toggle='modal' data-target='#modalLamar' data-id="<?php echo $row['id']; ?>"
-                                            data-mahasiswa="<?php echo $user_id; ?>">Lamar</button>
+                                                <button class='btn btn-success btn-sm' data-toggle='modal' data-target='#modalLamar' data-id="<?php echo $row['id']; ?>"
+                                        data-mahasiswa="<?php echo $user_id; ?>">Lamar</button>
                                     <?php endif; ?>
                                             <button class='btn btn-primary btn-sm' data-toggle='modal' data-target='#modalDetailPerusahaan'
                                                 data-perusahaan-id="<?php echo $row['perusahaan_id']; ?>">Detail
                                         Perusahaan</button>
-                                    </div>
-                                    </div>
-                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <?php endforeach; ?>
                         <?php else: ?>
                         <p>Tidak ada data</p>
                         <?php endif; ?>
-                        </div>
-                        </div>
-                        </section>
-                        </div>
-                        </div>
+                    </div>
+                    </div>
+                    </section>
+                    </div>
+                    </div>
 
     <!-- Form modal for applying to job -->
     <div class="modal fade" id="modalLamar" tabindex="-1" aria-labelledby="modalLamarLabel" aria-hidden="true">
@@ -277,16 +258,16 @@ for ($i = 1; $i <= 8; $i++) {
                                 <button type="button" class="btn btn-secondary khs-btn" id="btnKHS<?= $i ?>" onclick="insertKHS(<?= $i ?>)">Masukkan KHS
                                 Semester <?= $i ?></button>
                             <?php endfor; ?>
-                            </div>
-                            <input type="hidden" name="transkip_ijazah" id="transkip_ijazah">
-                            <input type="hidden" name="cv" id="cv">
-                            <input type="hidden" name="khs" id="khs">
-                            <button type="submit" class="btn btn-primary">Kirim Lamaran</button>
-                            </form>
-                            </div>
-                            </div>
-                            </div>
-                            </div>
+                        </div>
+                        <input type="hidden" name="transkip_ijazah" id="transkip_ijazah">
+                        <input type="hidden" name="cv" id="cv">
+                        <input type="hidden" name="khs" id="khs">
+                        <button type="submit" class="btn btn-primary">Kirim Lamaran</button>
+                        </form>
+                        </div>
+                        </div>
+                        </div>
+                        </div>
 
 
     <div class="modal fade" id="modalDetailPerusahaan" tabindex="-1" aria-labelledby="modalDetailPerusahaanLabel"
