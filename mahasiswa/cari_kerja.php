@@ -65,13 +65,14 @@ function fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search = '') {
 
 $search = isset($_POST['search']) ? $_POST['search'] : '';
 $mahasiswa = fetchMahasiswaDetails($pdo, $user_id);
-if ($mahasiswa) {
-    $prodi_id = $mahasiswa['prodi_id'];
-    $keahlian = $mahasiswa['keahlian'];
-    $jobs = fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search);
-} else {
-    $jobs = fetchJobs($pdo, $search);
-}
+// if ($mahasiswa) {
+//     $prodi_id = $mahasiswa['prodi_id'];
+//     $keahlian = $mahasiswa['keahlian'];
+//     $jobs = fetchFilteredJobs($pdo, $prodi_id, $keahlian, $search);
+// } else {
+//     $jobs = fetchJobs($pdo, $search);
+// }
+$jobs = fetchJobs($pdo, $search);
 
 // Determine the number of valid semesters based on IPK
 $valid_semesters = 0;

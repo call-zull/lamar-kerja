@@ -247,7 +247,7 @@ $jobs = fetchJobs($pdo);
                                                 echo "<td>" . htmlspecialchars($row['batas_waktu']) . "</td>";
                                                 echo "<td>" . htmlspecialchars($row['tanggal_posting']) . "</td>";
                                                 echo "<td>
-                <button class='btn btn-sm btn-warning editBtn' data-toggle='modal' data-target='#modalEdit' 
+                <button class='btn btn-sm btn-warning modalEdit' data-toggle='modal' data-target='#modalEdit' 
                     data-id='" . $row['id'] . "' 
                     data-nama='" . htmlspecialchars($row['nama_pekerjaan']) . "' 
                     data-posisi='" . htmlspecialchars($row['posisi']) . "'
@@ -640,8 +640,8 @@ $jobs = fetchJobs($pdo);
         modal.find('#batas_waktu').val('');
     });
 
-    $('#modalEdit').on('show.bs.modal', function(event) {
-        var button = $(event.relatedTarget);
+    $('.modalEdit').on('click', function(event) {
+        var button = $(this);
         var id = button.data('id');
         var nama = button.data('nama');
         var posisi = button.data('posisi');
@@ -656,21 +656,17 @@ $jobs = fetchJobs($pdo);
         var prodiJson = button.data('prodi');
         var keahlianJson = button.data('keahlian');
 
-        // Parse JSON strings into JavaScript objects
-        var prodi = JSON.parse(prodiJson);
-        var keahlian = JSON.parse(keahlianJson);
-
         // Convert back to tagify format
-        var prodiValues = prodi.map(item => ({
+        var prodiValues = prodiJson.map(item => ({
             id: item.id,
             value: item.value
         }));
-        var keahlianValues = keahlian.map(item => ({
+        var keahlianValues = keahlianJson.map(item => ({
             id: item.id,
             value: item.value
         }));
 
-        var modal = $(this);
+        var modal = $("#modalEdit");
         modal.find('#edit_id').val(id);
         modal.find('#edit_nama_pekerjaan').val(nama);
         modal.find('#edit_posisi').val(posisi);
