@@ -516,7 +516,13 @@ $portfolios = getStudentPortfolios($pdo, $search);
                             if (data.sertifikasi.length > 0) {
                                 data.sertifikasi.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
-                                    const buktiPath = bukti.map(b => `<a href="assets/mahasiswa/sertifikasi/${b}" target="_blank">Lihat Bukti</a>`).join(', ');
+                                    const buktiPath = bukti.map(b => {
+                                        if(b.includes('docs')){
+                                            return `<a href="${b}" target="_blank">Lihat Bukti</a>`
+                                        }else{
+                                            return `<a href="mahasiswa/sertifikasi/${b}" target="_blank">Lihat Bukti</a>`
+                                        }
+                                    }).join(', ');
                                     html += `<tr>
                                                                                 <td>${index + 1}</td>
                                         <td>${item.nama_sertifikasi}</td>
@@ -538,7 +544,13 @@ $portfolios = getStudentPortfolios($pdo, $search);
                             if (data.lomba.length > 0) {
                                 data.lomba.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
-                                    const buktiPath = bukti.map(b => `<a href="assets/mahasiswa/lomba/${b}" target="_blank">Lihat Bukti</a>`).join(', ');
+                                    const buktiPath = bukti.map(b => {
+                                        if(b.includes('docs')){
+                                            return `<a href="${b}" target="_blank">Lihat Bukti</a>`
+                                        }else{
+                                            return `<a href="mahasiswa/lomba/${b}" target="_blank">Lihat Bukti</a>`
+                                        }
+                                    }).join(', ');
                                     html += `<tr>
                                         <td>${index + 1}</td>
                                         <td>${item.nama_lomba}</td>
@@ -562,7 +574,13 @@ $portfolios = getStudentPortfolios($pdo, $search);
                             if (data.pelatihan.length > 0) {
                                 data.pelatihan.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
-                                    const buktiPath = bukti.map(b => `<a href="assets/mahasiswa/pelatihan/${b}" target="_blank">Lihat Bukti</a>`).join(', ');
+                                    const buktiPath = bukti.map(b => {
+                                        if(b.includes('docs')){
+                                            return `<a href="${b}" target="_blank">Lihat Bukti</a>`
+                                        }else{
+                                            return `<a href="mahasiswa/pelatihan/${b}" target="_blank">Lihat Bukti</a>`
+                                        }
+                                    }).join(', ');
                                     html += `<tr>
                                         <td>${index + 1}</td>
                                         <td>${item.nama_pelatihan}</td>
@@ -587,7 +605,13 @@ $portfolios = getStudentPortfolios($pdo, $search);
                             if (data.proyek.length > 0) {
                                 data.proyek.forEach((item, index) => {
                                     const bukti = JSON.parse(item.bukti);
-                                    const buktiPath = bukti.map(b => `<a href="assets/mahasiswa/proyek/${b}" target="_blank">Lihat Bukti</a>`).join(', ');
+                                    const buktiPath = bukti.map(b => {
+                                        if(b.includes('docs')){
+                                            return `<a href="${b}" target="_blank">Lihat Bukti</a>`
+                                        }else{
+                                            return `<a href="mahasiswa/proyek/${b}" target="_blank">Lihat Bukti</a>`
+                                        }
+                                    }).join(', ');
                                     html += `<tr>
                                         <td>${index + 1}</td>
                                         <td>${item.nama_proyek}</td>
