@@ -32,6 +32,7 @@ $jobs = fetchJobs($pdo, $search);
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -42,94 +43,106 @@ $jobs = fetchJobs($pdo, $search);
     <link rel="stylesheet" href="../app/dist/css/adminlte.light.min.css" media="screen">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
     <style>
-        .nav-sidebar .nav-link.active {
-            background-color: #343a40 !important;
-        }
-        .content-wrapper {
-            padding: 20px !important;
-        }
-        .content-header {
-            padding: 20px 0 !important;
-        }
-        .card {
-            transition: transform 0.2s;
-            margin-bottom: 20px;
-            height: 350px; /* Adjust height for uniformity */
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-        .card:hover {
-            transform: scale(1.05);
-        }
-        .search-bar {
-            margin-bottom: 20px;
-        }
-        .card-body {
-            flex-grow: 1;
-            overflow: hidden; /* Hide overflow content */
-            display: flex;
-            flex-direction: column;
-        }
-        .card-text {
-            flex-grow: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-        .read-more {
-            margin-top: auto;
-        }
-        .read-more-content {
-            display: none;
-        }
-    </style>
-</head>
-<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
-<div class="wrapper">
-    <?php include 'navbar_admin.php'; ?>
+    .nav-sidebar .nav-link.active {
+        background-color: #343a40 !important;
+    }
 
-    <div class="content-wrapper">
-        <div class="content-header">
-            <div class="container-fluid">
-                <div class="row mb-2">
-                    <div class="col-sm-6">
-                        <h1 class="m-0">Daftar Lowongan Kerja</h1>
-                    </div>
-                    <div class="col-sm-6">
-                        <ol class="breadcrumb float-sm-right">
-                            <li class="breadcrumb-item"><a href="#">Home</a></li>
-                            <li class="breadcrumb-item active">Lowongan Kerja</li>
-                        </ol>
+    .content-wrapper {
+        padding: 20px !important;
+    }
+
+    .content-header {
+        padding: 20px 0 !important;
+    }
+
+    .card {
+        transition: transform 0.2s;
+        margin-bottom: 20px;
+        height: 100%;
+        /* Ensure each card takes full height */
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card:hover {
+        transform: scale(1.05);
+    }
+
+    .search-bar {
+        margin-bottom: 20px;
+    }
+
+    .card-body {
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .card-text {
+        flex-grow: 1;
+    }
+
+    .read-more {
+        margin-top: auto;
+    }
+
+    .read-more-content {
+        display: none;
+    }
+    </style>
+
+</head>
+
+<body class="hold-transition sidebar-mini layout-fixed layout-navbar-fixed layout-footer-fixed">
+    <div class="wrapper">
+        <?php include 'navbar_admin.php'; ?>
+
+        <div class="content-wrapper">
+            <div class="content-header">
+                <div class="container-fluid">
+                    <div class="row mb-2">
+                        <div class="col-sm-6">
+                            <h1 class="m-0">Daftar Lowongan Kerja</h1>
+                        </div>
+                        <div class="col-sm-6">
+                            <ol class="breadcrumb float-sm-right">
+                                <li class="breadcrumb-item"><a href="#">Home</a></li>
+                                <li class="breadcrumb-item active">Lowongan Kerja</li>
+                            </ol>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
 
-        <section class="content">
-            <div class="container-fluid">
-                <div class="row search-bar">
-                    <div class="col-md-12">
-                        <form method="POST" action="perusahaan_admin.php">
-                            <div class="input-group">
-                                <input type="text" class="form-control" name="search" placeholder="Search" value="<?php echo htmlspecialchars($search); ?>">
-                                <div class="input-group-append">
-                                    <button class="btn btn-primary" type="submit"><i class="fas fa-search"></i></button>
+            <section class="content">
+                <div class="container-fluid">
+                    <div class="row search-bar">
+                        <div class="col-md-12">
+                            <form method="POST" action="perusahaan_admin.php">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" name="search" placeholder="Search"
+                                        value="<?php echo htmlspecialchars($search); ?>">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-primary" type="submit"><i
+                                                class="fas fa-search"></i></button>
+                                    </div>
                                 </div>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
-                </div>
-                <div class="row">
-                    <?php if ($jobs): ?>
+                    <div class="row">
+                        <?php if ($jobs): ?>
                         <?php foreach ($jobs as $row): ?>
-                            <div class="col-lg-3 col-md-4 col-sm-6 col-12">
-                                <div class="card">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><?php echo htmlspecialchars($row['nama_pekerjaan']); ?></h5>
-                                        <p class="card-text"><strong>Posisi:</strong> <?php echo htmlspecialchars($row['posisi']); ?></p>
-                                        <p class="card-text"><strong>Kualifikasi:</strong> <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
-                                        <p class="card-text"><strong>Prodi:</strong>
-                                            <?php
+                                <div class="col-lg-3 col-md-4 col-sm-6 col-12">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5 class="card-title"><?php echo htmlspecialchars($row['nama_pekerjaan']); ?></h5>
+                                    <p class="card-text"><strong>Posisi:</strong>
+                                        <?php echo htmlspecialchars($row['posisi']); ?></p>
+                                    <p class="card-text"><strong>Kualifikasi:</strong>
+                                        <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
+                                    <p class="card-text"><strong>Prodi:</strong>
+                                        <?php
                                             $prodi = json_decode($row['prodi'], true);
                                             if (is_array($prodi)) {
                                                 $prodi_list = array_map(function($item) {
@@ -140,9 +153,9 @@ $jobs = fetchJobs($pdo, $search);
                                                 echo htmlspecialchars($row['prodi']);
                                             }
                                             ?>
-                                        </p>
-                                        <p class="card-text"><strong>Keahlian:</strong>
-                                            <?php
+                                            </p>
+                                            <p class="card-text"><strong>Keahlian:</strong>
+                                        <?php
                                             $keahlian = json_decode($row['keahlian'], true);
                                             if (is_array($keahlian)) {
                                                 $keahlian_list = array_map(function($item) {
@@ -153,56 +166,63 @@ $jobs = fetchJobs($pdo, $search);
                                                 echo htmlspecialchars($row['keahlian']);
                                             }
                                             ?>
-                                        </p>
-                                        <p class="card-text"><strong>Tanggal Posting:</strong> <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
-                                        <p class="card-text"><strong>Batas Waktu:</strong> <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
-                                        <button class='btn btn-primary btn-sm read-more' onclick="toggleReadMore(this)">Selengkapnya</button>
-                                        <button class='btn btn-secondary btn-sm' onclick="fetchCompanyDetails(<?php echo $row['perusahaan_id']; ?>)">Detail Perusahaan</button>
-                                        <div class="read-more-content">
-                                            <p class="card-text"><strong>Kualifikasi Lengkap:</strong> <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
+                                    </p>
+                                    <p class="card-text"><strong>Tanggal Posting:</strong>
+                                        <?php echo htmlspecialchars($row['tanggal_posting']); ?></p>
+                                    <p class="card-text"><strong>Batas Waktu:</strong>
+                                        <?php echo htmlspecialchars($row['batas_waktu']); ?></p>
+                                    <button class='btn btn-primary btn-sm read-more' onclick="toggleReadMore(this)">Selengkapnya</button>
+                                    <button class='btn btn-secondary btn-sm' onclick="fetchCompanyDetails(<?php echo $row['perusahaan_id']; ?>)">Detail
+                                        Perusahaan</button>
+                                    <div class="read-more-content">
+                                        <p class="card-text"><strong>Kualifikasi Lengkap:</strong>
+                                            <?php echo htmlspecialchars($row['kualifikasi']); ?></p>
                                         </div>
-                                    </div>
-                                </div>
-                            </div>
+                                        </div>
+                                        </div>
+                                        </div>
                         <?php endforeach; ?>
-                    <?php else: ?>
+                        <?php else: ?>
                         <p>Tidak ada data</p>
-                    <?php endif; ?>
-                </div>
-            </div>
-        </section>
-    </div>
+                        <?php endif; ?>
+                        </div>
+                        </div>
+                        </section>
+                        </div>
 
-    <!-- Modal for company details -->
-    <div class="modal fade" id="modalDetailPerusahaan" tabindex="-1" role="dialog" aria-labelledby="modalDetailPerusahaanLabel" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalDetailPerusahaanLabel">Detail Perusahaan</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <!-- Company details will be populated here -->
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+        <!-- Modal for company details -->
+        <div class="modal fade" id="modalDetailPerusahaan" tabindex="-1" role="dialog"
+            aria-labelledby="modalDetailPerusahaanLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalDetailPerusahaanLabel">Detail Perusahaan</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Company details will be populated here -->
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Tutup</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 
-<script src="../app/plugins/jquery/jquery.min.js"></script>
-<script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-<script src="../app/dist/js/adminlte.min.js"></script>
-<script>
+    <script src="../app/plugins/jquery/jquery.min.js"></script>
+    <script src="../app/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <script src="../app/dist/js/adminlte.min.js"></script>
+    <script>
     function fetchCompanyDetails(perusahaanId) {
         $.ajax({
             url: 'get_perusahaan_detail.php',
             method: 'GET',
-            data: { user_id: perusahaanId },
+            data: {
+                user_id: perusahaanId
+            },
             dataType: 'json',
             success: function(data) {
                 if (data.error) {
@@ -239,6 +259,7 @@ $jobs = fetchJobs($pdo, $search);
             button.innerText = 'Selengkapnya';
         }
     }
-</script>
+    </script>
 </body>
+
 </html>

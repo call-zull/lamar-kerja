@@ -186,9 +186,9 @@ $chart_data = fetchChartData($pdo);
                                     <div class="inner">
                                         <h3><?php echo $mahasiswa_counts['Mahasiswa Aktif']; ?></h3>
                                         <p>Jumlah Mahasiswa Aktif</p>
-                                        </div>
-                                        <div class="icon">
-                                            <i class="ion ion-person"></i>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="ion ion-person"></i>
                                     </div>
                                 </div>
                             </div>
@@ -197,10 +197,10 @@ $chart_data = fetchChartData($pdo);
                                 <div class="small-box bg-secondary">
                                     <div class="inner">
                                         <h3><?php echo $mahasiswa_counts['Alumni']; ?></h3>
-                                                <p>Jumlah Alumni</p>
-                                            </div>
-                                            <div class="icon">
-                                                <i class="fas fa-user-graduate"></i>
+                                        <p>Jumlah Alumni</p>
+                                    </div>
+                                    <div class="icon">
+                                        <i class="fas fa-user-graduate"></i>
                                     </div>
                                 </div>
                             </div>
@@ -252,14 +252,14 @@ $chart_data = fetchChartData($pdo);
                                             <i class="fas fa-chart-pie mr-1"></i>
                                             Lamaran Siswa
                                         </h3>
-                                        <div class="card-tools">
+                                        <!-- <div class="card-tools">
                                             <ul class="nav nav-pills ml-auto">
                                                 <li class="nav-item">
                                                     <a class="nav-link active" href="#chart-area"
                                                         data-toggle="tab">Chart</a>
                                                 </li>
                                             </ul>
-                                        </div>
+                                        </div> -->
                                     </div>
                                     <div class="card-body">
                                         <div class="tab-content p-0">

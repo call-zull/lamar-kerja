@@ -1,0 +1,18 @@
+{
+    "sourceFile": "cdc/get_perusahaan_detail.php",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 0,
+            "patches": [
+                {
+                    "date": 1721780148592,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                }
+            ],
+            "date": 1721780148592,
+            "name": "Commit-0",
+            "content": "<?php\r\ninclude '../includes/db.php';\r\n\r\nif (isset($_GET['user_id'])) {\r\n    $perusahaan_id = $_GET['user_id'];\r\n\r\n    try {\r\n        $sql = \"SELECT * FROM perusahaans WHERE id = :perusahaan_id\";\r\n        $stmt = $pdo->prepare($sql);\r\n        $stmt->execute(['perusahaan_id' => $perusahaan_id]);\r\n        $data = $stmt->fetch(PDO::FETCH_ASSOC);\r\n\r\n        if ($data) {\r\n            // Menambahkan nama jenis perusahaan berdasarkan jenis_perusahaan_id\r\n            switch ($data['jenis_perusahaan_id']) {\r\n                case 1:\r\n                    $data['nama_jenis'] = 'Manufaktur';\r\n                    break;\r\n                case 2:\r\n                    $data['nama_jenis'] = 'Jasa';\r\n                    break;\r\n                case 3:\r\n                    $data['nama_jenis'] = 'Teknologi Informasi dan Komunikasi';\r\n                    break;\r\n                case 4:\r\n                    $data['nama_jenis'] = 'Energi dan Sumber Daya Alam';\r\n                    break;\r\n                case 5:\r\n                    $data['nama_jenis'] = 'Konstruksi dan Real Estate';\r\n                    break;\r\n                case 6:\r\n                    $data['nama_jenis'] = 'Ritel dan Perdagangan';\r\n                    break;\r\n                case 7:\r\n                    $data['nama_jenis'] = 'Agrikultur dan Peternakan';\r\n                    break;\r\n                case 8:\r\n                    $data['nama_jenis'] = 'Transportasi dan Logistik';\r\n                    break;\r\n                case 9:\r\n                    $data['nama_jenis'] = 'Keuangan dan Investasi';\r\n                    break;\r\n                case 10:\r\n                    $data['nama_jenis'] = 'Media dan Hiburan';\r\n                    break;\r\n                case 11:\r\n                    $data['nama_jenis'] = 'Kesehatan dan Bioteknologi';\r\n                    break;\r\n                case 12:\r\n                    $data['nama_jenis'] = 'Pendidikan dan Pelatihan';\r\n                    break;\r\n                default:\r\n                    $data['nama_jenis'] = 'Tidak diketahui';\r\n                    break;\r\n            }\r\n\r\n            echo json_encode($data);\r\n        } else {\r\n            echo json_encode(['error' => 'Data tidak ditemukan']);\r\n        }\r\n    } catch (PDOException $e) {\r\n        echo json_encode(['error' => 'Database error']);\r\n    }\r\n} else {\r\n    echo json_encode(['error' => 'Invalid request']);\r\n}\r\n?>"
+        }
+    ]
+}
